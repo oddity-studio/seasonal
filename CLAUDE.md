@@ -8,19 +8,27 @@ Seasonal — a Remotion video project for creating videos programmatically with 
 
 ## Tech Stack
 
+- **Next.js** — web framework (App Router)
 - **Remotion** (v4.0.438) — programmatic video creation with React
-- **React** — UI framework (via Remotion)
+- **React** — UI framework
 - **TypeScript** — all source files use `.ts`/`.tsx`
 
 ## Project Structure
 
+- `app/page.tsx` — Main web page with Remotion Player and customization form
+- `app/api/render/route.ts` — API route for server-side video rendering
+- `app/layout.tsx` — Root layout
 - `src/index.ts` — Remotion entry point (calls `registerRoot`)
 - `src/Root.tsx` — Composition definitions
-- `src/HelloWorld.tsx` — Example video component
-- `out/` — Rendered video output (gitignored)
+- `src/HelloWorld.tsx` — Video component (accepts VideoProps)
+- `src/types.ts` — Shared types and default props
+- `out/` — CLI rendered video output (gitignored)
 
 ## Commands
 
+- `npm run dev` — Start Next.js dev server
+- `npm run build` — Build for production
+- `npm run start` — Start production server
 - `npm run studio` — Open Remotion Studio in browser
 - `npm run render` — Render the HelloWorld composition to `out/video.mp4`
 
