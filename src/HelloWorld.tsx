@@ -285,12 +285,11 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
                   left: "50%",
                   transform: `translate(-50%, -50%) scale(${logoScale + logoPulse}) rotate(${logoRotate}deg)`,
                   zIndex: 10,
-                  filter: `drop-shadow(0 0 ${glowIntensity}px ${colorScheme.highlight}) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight}40)`,
+                  filter: `drop-shadow(0 0 ${glowIntensity}px rgba(255,255,255,0.8)) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight})`,
                 }}
               >
                 <img
                   src={LOGO}
-                  alt="Logo"
                   style={{ width: 300, height: "auto" }}
                 />
               </div>
