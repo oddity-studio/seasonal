@@ -24,16 +24,41 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
   const opacity = enter * exit;
   const y = interpolate(enter, [0, 1], [40, 0]);
 
-  // Alternate scene backgrounds using the color scheme
-  const bgColor = index % 2 === 0 ? colors.dark : colors.light;
-  const textColor = index % 2 === 0 ? colors.highlight : colors.dark;
+  // Scene style variants cycling through the color scheme + black/white
+  const variant = index % 4;
+  let background: string;
+  let textColor: string;
+
+  switch (variant) {
+    case 0:
+      // Dark bg with gradient into black, highlight text
+      background = `linear-gradient(135deg, ${colors.dark}, #000000)`;
+      textColor = colors.highlight;
+      break;
+    case 1:
+      // Tri-color gradient of all three scheme colors
+      background = `linear-gradient(135deg, ${colors.dark}, ${colors.light}, ${colors.highlight})`;
+      textColor = "#000000";
+      break;
+    case 2:
+      // Light bg fading to white, dark text
+      background = `linear-gradient(135deg, ${colors.light}, #ffffff)`;
+      textColor = colors.dark;
+      break;
+    case 3:
+    default:
+      // Black bg with highlight accent gradient, white text
+      background = `linear-gradient(135deg, #000000, ${colors.dark})`;
+      textColor = "#ffffff";
+      break;
+  }
 
   return (
     <AbsoluteFill
       style={{
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: bgColor,
+        background,
       }}
     >
       <div
@@ -68,14 +93,14 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
   const titleY = interpolate(titleOpacity, [0, 1], [30, 0]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: colorScheme.dark }}>
+    <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {/* Title card */}
       <Sequence durationInFrames={SCENE_DURATION}>
         <AbsoluteFill
           style={{
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: colorScheme.dark,
+            background: `linear-gradient(135deg, #000000, ${colorScheme.dark})`,
           }}
         >
           <div
