@@ -263,12 +263,17 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           <div
             style={{
               opacity: exit,
-              transform: `translateY(${y - shiftUp}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
+              transform: `translateY(${y}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
               textAlign: "center",
               padding: "0 80px",
               zIndex: 1,
             }}
           >
+            <div
+              style={{
+                transform: `translateY(${-shiftUp}px)`,
+              }}
+            >
             {words.map((word, wi) => {
               const wordY = interpolate(wordSprings[wi], [0, 1], [30, 0]);
               return (
@@ -293,6 +298,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
                 </p>
               );
             })}
+            </div>
           </div>
         );
       })()}
