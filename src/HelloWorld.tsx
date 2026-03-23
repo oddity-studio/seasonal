@@ -224,10 +224,22 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
       <CharacterLayer layoutIndex={index} />
 
       {/* Text overlay */}
+      {(() => {
+        const angles = [
+          { z: -12, x: 18 },
+          { z: 10, x: -15 },
+          { z: -15, x: 22 },
+          { z: 8, x: -20 },
+          { z: -18, x: 14 },
+          { z: 14, x: -18 },
+          { z: -10, x: 25 },
+        ];
+        const a = angles[index % angles.length];
+        return (
       <div
         style={{
           opacity,
-          transform: `translateY(${y}px) perspective(600px) rotateZ(-8deg) rotateX(12deg)`,
+          transform: `translateY(${y}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
           textAlign: "center",
           padding: "0 80px",
           zIndex: 1,
@@ -240,12 +252,15 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
             color: textColor,
             margin: 0,
             lineHeight: 1.2,
+            textTransform: "uppercase",
             textShadow: "0 4px 20px rgba(0,0,0,0.7)",
           }}
         >
           {text}
         </p>
       </div>
+        );
+      })()}
     </AbsoluteFill>
   );
 };
@@ -299,7 +314,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           <div
             style={{
               opacity: titleOpacity,
-              transform: `translateY(${titleY}px) perspective(600px) rotateZ(-8deg) rotateX(12deg)`,
+              transform: `translateY(${titleY}px) perspective(400px) rotateZ(-14deg) rotateX(20deg)`,
               textAlign: "center",
               zIndex: 1,
             }}
