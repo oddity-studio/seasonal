@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Player } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
@@ -8,8 +8,101 @@ import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
 const SCENE_DURATION = 90;
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const PRELOAD_IMAGES = [
+  `${BASE}/char1.png`,
+  `${BASE}/char2.png`,
+  `${BASE}/char3.png`,
+  `${BASE}/logo.webp`,
+];
+
+function preloadImages(): Promise<void[]> {
+  return Promise.all(
+    PRELOAD_IMAGES.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // don't block on failure
+          img.src = src;
+        })
+    )
+  );
+}
+
+function LandingPage({ onReady }: { onReady: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    preloadImages().then(() => setLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (loaded) return;
+    const id = setInterval(() => setDots((d) => (d.length >= 3 ? "" : d + ".")), 400);
+    return () => clearInterval(id);
+  }, [loaded]);
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#0a0a0a",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 32,
+        color: "#e2e8f0",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: 48, fontWeight: 700, margin: 0, color: "#fff" }}>
+        Seasonal
+      </h1>
+      <p style={{ fontSize: 16, color: "#94a3b8", margin: 0 }}>
+        Programmatic video creator
+      </p>
+
+      {loaded ? (
+        <button
+          onClick={onReady}
+          style={{
+            marginTop: 24,
+            padding: "14px 40px",
+            fontSize: 16,
+            fontWeight: 600,
+            borderRadius: 8,
+            border: "none",
+            backgroundColor: "#e2e8f0",
+            color: "#0a0a0a",
+            cursor: "pointer",
+            transition: "opacity 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+        >
+          Open Editor
+        </button>
+      ) : (
+        <p style={{ fontSize: 14, color: "#64748b", margin: 0, marginTop: 24 }}>
+          Loading assets{dots}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
+  const [ready, setReady] = useState(false);
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
+
+  const handleReady = useCallback(() => setReady(true), []);
+
+  if (!ready) {
+    return <LandingPage onReady={handleReady} />;
+  }
 
   const updateSeason = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 2);
