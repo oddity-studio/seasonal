@@ -109,9 +109,9 @@ const FighterChar: React.FC<{
         width: useWidth ? `${placement.widthPct}%` : undefined,
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
-        transformOrigin: "bottom center",
+        transformOrigin: useWidth ? "bottom center" : isLeft ? "bottom left" : "bottom right",
         pointerEvents: "none" as const,
-        overflow: "hidden",
+        overflow: useWidth ? "hidden" : undefined,
       }}
     >
       <img
