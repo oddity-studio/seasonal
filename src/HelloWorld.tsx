@@ -21,6 +21,7 @@ type CharPlacement = {
   scale: number;
   bottomPct: number; // percentage from bottom
   flip?: boolean;
+  offsetX?: number; // px offset after slide-in
 };
 
 const SCENE_LAYOUTS: CharPlacement[][] = [
@@ -29,7 +30,7 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ],
   [
-    { src: CHAR3, side: "left", scale: 1.1, bottomPct: 0 },
+    { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -100 },
   ],
   [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
@@ -51,7 +52,8 @@ const FighterChar: React.FC<{
   // Slide in from the side
   const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 5 });
   const offscreen = placement.side === "left" ? -600 : 600;
-  const slideX = interpolate(slideIn, [0, 1], [offscreen, 0]);
+  const restX = placement.offsetX ?? 0;
+  const slideX = interpolate(slideIn, [0, 1], [offscreen, restX]);
 
   // Idle bob — fighting stance sway
   const bob = Math.sin(frame * 0.12 + charIndex * 2) * 6;
