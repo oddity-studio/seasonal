@@ -25,20 +25,20 @@ type CharPlacement = {
 
 const SCENE_LAYOUTS: CharPlacement[][] = [
   [
-    { src: CHAR1, side: "left", scale: 1.1, bottomPct: 0 },
-    { src: CHAR2, side: "right", scale: 1.0, bottomPct: 0, flip: true },
+    { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
+    { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ],
   [
-    { src: CHAR3, side: "left", scale: 1.0, bottomPct: 0 },
+    { src: CHAR3, side: "left", scale: 1.1, bottomPct: 0 },
   ],
   [
-    { src: CHAR2, side: "left", scale: 1.0, bottomPct: 0 },
-    { src: CHAR3, side: "right", scale: 1.2, bottomPct: 5, flip: true },
+    { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
+    { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ],
   [
-    { src: CHAR1, side: "left", scale: 0.9, bottomPct: 0 },
-    { src: CHAR3, side: "right", scale: 1.0, bottomPct: 5, flip: true },
-    { src: CHAR2, side: "left", scale: 0.7, bottomPct: 0 },
+    { src: CHAR1, side: "left", scale: 1.0, bottomPct: 0 },
+    { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
+    { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ],
 ];
 
@@ -75,7 +75,7 @@ const FighterChar: React.FC<{
         position: "absolute",
         bottom: `${placement.bottomPct}%`,
         [isLeft ? "left" : "right"]: isLeft ? "-5%" : "-5%",
-        height: "110%",
+        height: "100%",
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
         transformOrigin: isLeft ? "bottom left" : "bottom right",
