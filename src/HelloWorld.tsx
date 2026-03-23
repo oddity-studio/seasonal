@@ -7,7 +7,7 @@ import {
   Sequence,
 } from "remotion";
 import type { VideoProps, ColorScheme } from "./types";
-import { loadFont } from "@remotion/google-fonts/RubikMonoOne";
+import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
 
 const { fontFamily } = loadFont();
 
