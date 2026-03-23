@@ -64,8 +64,8 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
   // Scene 7: title — all three side by side, each 1/3 width
   [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0 },
-    { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33 },
-    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
+    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33 },
+    { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ],
 ];
 
