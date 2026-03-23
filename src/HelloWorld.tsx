@@ -261,6 +261,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
             color: textColor,
             margin: 0,
             lineHeight: 1.0,
+            letterSpacing: 8,
             textTransform: "uppercase",
             textShadow: textGlow,
             mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
@@ -335,7 +336,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
                 fontSize: 48,
                 color: colorScheme.light,
                 margin: 0,
-                letterSpacing: 6,
+                letterSpacing: 10,
                 textTransform: "uppercase",
                 textShadow: "0 2px 10px rgba(0,0,0,0.8)",
               }}
