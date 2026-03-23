@@ -14,7 +14,7 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAR1 = `${BASE}/char1.png`;
 const CHAR2 = `${BASE}/char2.png`;
 const CHAR3 = `${BASE}/char3.png`;
-const LOGO = `${BASE}/logo.png`;
+const LOGO = `${BASE}/logo.webp`;
 
 // Character positioning presets for fight-game style layouts
 type CharPlacement = {
