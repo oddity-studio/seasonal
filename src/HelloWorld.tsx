@@ -93,7 +93,8 @@ const FighterChar: React.FC<{
       style={{
         position: "absolute",
         bottom: `${placement.bottomPct - 2}%`,
-        [isLeft ? "left" : "right"]: isLeft ? "-5%" : "-5%",
+        left: isLeft ? "-5%" : undefined,
+        right: isLeft ? undefined : "-5%",
         height: "100%",
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
