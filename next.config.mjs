@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {},
-  serverExternalPackages: ["@remotion/renderer", "@remotion/bundler"],
+  output: "export",
+  basePath: "/seasonal",
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

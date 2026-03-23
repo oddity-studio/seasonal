@@ -3,42 +3,14 @@
 import { useState } from "react";
 import { Player } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
-import { defaultVideoProps, type VideoProps } from "@/src/types";
+import { defaultVideoProps, videoPropsSchema } from "@/src/types";
+import type { VideoProps } from "@/src/types";
 
 export default function Home() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
-  const [rendering, setRendering] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const update = (key: keyof VideoProps, value: string) => {
     setProps((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleRender = async () => {
-    setRendering(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/render", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(props),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Render failed");
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "video.mp4";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Render failed");
-    } finally {
-      setRendering(false);
-    }
   };
 
   return (
@@ -49,6 +21,7 @@ export default function Home() {
         <div style={styles.preview}>
           <Player
             component={HelloWorld}
+            schema={videoPropsSchema}
             inputProps={props}
             durationInFrames={150}
             fps={30}
@@ -113,20 +86,6 @@ export default function Home() {
               />
             </div>
           </label>
-
-          <button
-            style={{
-              ...styles.button,
-              opacity: rendering ? 0.6 : 1,
-              cursor: rendering ? "not-allowed" : "pointer",
-            }}
-            onClick={handleRender}
-            disabled={rendering}
-          >
-            {rendering ? "Rendering..." : "Render & Download MP4"}
-          </button>
-
-          {error && <p style={styles.error}>{error}</p>}
         </div>
       </div>
     </div>
@@ -188,20 +147,5 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     gap: 8,
     alignItems: "center",
-  },
-  button: {
-    marginTop: 8,
-    padding: "12px 16px",
-    borderRadius: 8,
-    border: "none",
-    backgroundColor: "#0f172a",
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: 600,
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: 14,
-    margin: 0,
   },
 };
