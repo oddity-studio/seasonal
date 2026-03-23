@@ -177,11 +177,12 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number }> = ({
+const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number }> = ({
   text,
   index,
   colors,
   fontSize = 150,
+  y: yOffset = 0,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -190,7 +191,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   const exitStart = SCENE_DURATION - 15;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, SCENE_DURATION], [1, 0], { extrapolateRight: "clamp" }) : 1;
   const opacity = enter * exit;
-  const y = interpolate(enter, [0, 1], [40, 0]);
+  const y = interpolate(enter, [0, 1], [40, 0]) + yOffset;
 
   // Scene style variants cycling through the color scheme + black/white
   const variant = index % 4;
@@ -384,7 +385,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           from={SCENE_DURATION * (i + 1)}
           durationInFrames={SCENE_DURATION}
         >
-          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} />
+          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} />
         </Sequence>
       ))}
     </AbsoluteFill>
