@@ -6,13 +6,14 @@ import {
   interpolate,
   Sequence,
 } from "remotion";
-import type { VideoProps } from "./types";
+import type { VideoProps, ColorScheme } from "./types";
 
 const SCENE_DURATION = 90; // 3 seconds per scene at 30fps
 
-const SceneCard: React.FC<{ text: string; index: number }> = ({
+const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> = ({
   text,
   index,
+  colors,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -23,14 +24,16 @@ const SceneCard: React.FC<{ text: string; index: number }> = ({
   const opacity = enter * exit;
   const y = interpolate(enter, [0, 1], [40, 0]);
 
-  const hue = (index * 60 + 200) % 360;
+  // Alternate scene backgrounds using the color scheme
+  const bgColor = index % 2 === 0 ? colors.dark : colors.light;
+  const textColor = index % 2 === 0 ? colors.highlight : colors.dark;
 
   return (
     <AbsoluteFill
       style={{
         justifyContent: "center",
         alignItems: "center",
-        background: `linear-gradient(135deg, hsl(${hue}, 60%, 15%), hsl(${hue + 30}, 50%, 8%))`,
+        backgroundColor: bgColor,
       }}
     >
       <div
@@ -45,7 +48,7 @@ const SceneCard: React.FC<{ text: string; index: number }> = ({
           style={{
             fontSize: 72,
             fontWeight: 700,
-            color: "#ffffff",
+            color: textColor,
             margin: 0,
             lineHeight: 1.2,
           }}
@@ -57,7 +60,7 @@ const SceneCard: React.FC<{ text: string; index: number }> = ({
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, scenes }) => {
+export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -65,14 +68,14 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, scenes }) => {
   const titleY = interpolate(titleOpacity, [0, 1], [30, 0]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#0a0a0a" }}>
+    <AbsoluteFill style={{ backgroundColor: colorScheme.dark }}>
       {/* Title card */}
       <Sequence durationInFrames={SCENE_DURATION}>
         <AbsoluteFill
           style={{
             justifyContent: "center",
             alignItems: "center",
-            background: "linear-gradient(135deg, #1a1a2e, #0a0a0a)",
+            backgroundColor: colorScheme.dark,
           }}
         >
           <div
@@ -85,7 +88,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, scenes }) => {
             <p
               style={{
                 fontSize: 28,
-                color: "#888",
+                color: colorScheme.light,
                 margin: 0,
                 letterSpacing: 6,
                 textTransform: "uppercase",
@@ -97,7 +100,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, scenes }) => {
               style={{
                 fontSize: 160,
                 fontWeight: 800,
-                color: "#fff",
+                color: colorScheme.highlight,
                 margin: "10px 0",
                 lineHeight: 1,
               }}
@@ -115,7 +118,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, scenes }) => {
           from={SCENE_DURATION * (i + 1)}
           durationInFrames={SCENE_DURATION}
         >
-          <SceneCard text={scene.text} index={i} />
+          <SceneCard text={scene.text} index={i} colors={colorScheme} />
         </Sequence>
       ))}
     </AbsoluteFill>

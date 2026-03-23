@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Player } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
-import type { VideoProps, Scene } from "@/src/types";
+import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
 const SCENE_DURATION = 90;
 
@@ -27,6 +27,13 @@ export default function Home() {
     setProps((prev) => ({
       ...prev,
       scenes: [...prev.scenes, { text: "" }],
+    }));
+  };
+
+  const updateColor = (key: keyof ColorScheme, value: string) => {
+    setProps((prev) => ({
+      ...prev,
+      colorScheme: { ...prev.colorScheme, [key]: value },
     }));
   };
 
@@ -73,6 +80,24 @@ export default function Home() {
               maxLength={2}
             />
           </label>
+
+          <div>
+            <span style={styles.label}>Color Scheme</span>
+            <div style={styles.colorRow}>
+              {(["dark", "light", "highlight"] as const).map((key) => (
+                <label key={key} style={styles.colorLabel}>
+                  <input
+                    type="color"
+                    value={props.colorScheme[key]}
+                    onChange={(e) => updateColor(key, e.target.value)}
+                    style={styles.colorInput}
+                  />
+                  <span style={styles.colorName}>{key}</span>
+                  <span style={styles.colorHex}>{props.colorScheme[key]}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
           <div style={styles.scenesHeader}>
             <span style={styles.label}>Scenes</span>
@@ -206,6 +231,38 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#e2e8f0",
     fontSize: 14,
     outline: "none",
+  },
+  colorRow: {
+    display: "flex",
+    gap: 12,
+    marginTop: 8,
+  },
+  colorLabel: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    flex: 1,
+  },
+  colorInput: {
+    width: 48,
+    height: 48,
+    border: "1px solid #334155",
+    borderRadius: 8,
+    backgroundColor: "transparent",
+    cursor: "pointer",
+    padding: 2,
+  },
+  colorName: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: "#94a3b8",
+    textTransform: "capitalize" as const,
+  },
+  colorHex: {
+    fontSize: 11,
+    color: "#475569",
+    fontFamily: "monospace",
   },
   removeButton: {
     padding: "4px 8px",
