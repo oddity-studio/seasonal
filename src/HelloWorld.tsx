@@ -181,7 +181,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   text,
   index,
   colors,
-  fontSize = 200,
+  fontSize = 150,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();

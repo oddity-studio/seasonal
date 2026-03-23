@@ -26,7 +26,7 @@ export default function Home() {
   const addScene = () => {
     setProps((prev) => ({
       ...prev,
-      scenes: [...prev.scenes, { text: "", fontSize: 200 }],
+      scenes: [...prev.scenes, { text: "", fontSize: 150 }],
     }));
   };
 
