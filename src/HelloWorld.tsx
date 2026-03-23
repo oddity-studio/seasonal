@@ -235,7 +235,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
       >
         <p
           style={{
-            fontSize: 72,
+            fontSize: 100,
             fontWeight: 700,
             color: textColor,
             margin: 0,
@@ -306,7 +306,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           >
             <p
               style={{
-                fontSize: 28,
+                fontSize: 48,
                 color: colorScheme.light,
                 margin: 0,
                 letterSpacing: 6,
@@ -316,18 +316,6 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
             >
               Season
             </p>
-            <h1
-              style={{
-                fontSize: 160,
-                fontWeight: 800,
-                color: colorScheme.highlight,
-                margin: "10px 0",
-                lineHeight: 1,
-                textShadow: "0 4px 30px rgba(0,0,0,0.8)",
-              }}
-            >
-              {seasonNumber}
-            </h1>
           </div>
         </AbsoluteFill>
       </Sequence>
