@@ -173,10 +173,11 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> = ({
+const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number }> = ({
   text,
   index,
   colors,
+  fontSize = 200,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -247,7 +248,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
       >
         <p
           style={{
-            fontSize: 200,
+            fontSize,
             fontWeight: 700,
             color: textColor,
             margin: 0,
@@ -342,7 +343,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           from={SCENE_DURATION * (i + 1)}
           durationInFrames={SCENE_DURATION}
         >
-          <SceneCard text={scene.text} index={i} colors={colorScheme} />
+          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} />
         </Sequence>
       ))}
     </AbsoluteFill>

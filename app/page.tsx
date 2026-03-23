@@ -16,17 +16,17 @@ export default function Home() {
     setProps((prev) => ({ ...prev, seasonNumber: digits }));
   };
 
-  const updateScene = (index: number, text: string) => {
+  const updateScene = (index: number, field: keyof Scene, value: string | number) => {
     setProps((prev) => ({
       ...prev,
-      scenes: prev.scenes.map((s, i) => (i === index ? { text } : s)),
+      scenes: prev.scenes.map((s, i) => (i === index ? { ...s, [field]: value } : s)),
     }));
   };
 
   const addScene = () => {
     setProps((prev) => ({
       ...prev,
-      scenes: [...prev.scenes, { text: "" }],
+      scenes: [...prev.scenes, { text: "", fontSize: 200 }],
     }));
   };
 
@@ -113,8 +113,15 @@ export default function Home() {
                 <input
                   style={styles.sceneInput}
                   value={scene.text}
-                  onChange={(e) => updateScene(i, e.target.value)}
+                  onChange={(e) => updateScene(i, "text", e.target.value)}
                   placeholder={`Scene ${i + 1} text...`}
+                />
+                <input
+                  style={styles.fontSizeInput}
+                  type="number"
+                  value={scene.fontSize ?? 200}
+                  onChange={(e) => updateScene(i, "fontSize", Number(e.target.value))}
+                  title="Font size (px)"
                 />
                 {props.scenes.length > 1 && (
                   <button
@@ -263,6 +270,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     color: "#475569",
     fontFamily: "monospace",
+  },
+  fontSizeInput: {
+    width: 56,
+    padding: "8px 6px",
+    borderRadius: 8,
+    border: "1px solid #334155",
+    backgroundColor: "#1e293b",
+    color: "#e2e8f0",
+    fontSize: 13,
+    textAlign: "center" as const,
+    outline: "none",
   },
   removeButton: {
     padding: "4px 8px",

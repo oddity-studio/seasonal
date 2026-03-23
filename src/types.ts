@@ -8,6 +8,7 @@ export const colorSchemeSchema = z.object({
 
 export const sceneSchema = z.object({
   text: z.string(),
+  fontSize: z.number().optional(),
 });
 
 export const videoPropsSchema = z.object({
@@ -28,11 +29,11 @@ export const defaultVideoProps: VideoProps = {
     highlight: "#fefdfb",
   },
   scenes: [
-    { text: "Welcome to the show" },
-    { text: "Something amazing happens" },
-    { text: "New challengers approach" },
-    { text: "The battle intensifies" },
-    { text: "Who will come out on top?" },
-    { text: "Stay tuned for more" },
+    { text: "Welcome to the show", fontSize: 200 },
+    { text: "Something amazing happens", fontSize: 200 },
+    { text: "New challengers approach", fontSize: 200 },
+    { text: "The battle intensifies", fontSize: 200 },
+    { text: "Who will come out on top?", fontSize: 200 },
+    { text: "Stay tuned for more", fontSize: 200 },
   ],
 };
