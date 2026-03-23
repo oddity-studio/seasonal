@@ -5,26 +5,14 @@ import {
   spring,
   interpolate,
   Sequence,
-  staticFile,
 } from "remotion";
-/* eslint-disable @next/next/no-img-element */
 import type { VideoProps, ColorScheme } from "./types";
 
 const SCENE_DURATION = 90; // 3 seconds per scene at 30fps
 
-// staticFile for Remotion Studio, basePath prefix for Next.js Player
-const charPath = (name: string) => {
-  if (typeof window !== "undefined" && window.remotion_staticBase !== undefined) {
-    return staticFile(name);
-  }
-  return `/seasonal/${name}`;
-};
-
-const CHARACTERS = [
-  charPath("char1.png"),
-  charPath("char2.png"),
-  charPath("char3.png"),
-];
+const CHAR1 = "/seasonal/char1.png";
+const CHAR2 = "/seasonal/char2.png";
+const CHAR3 = "/seasonal/char3.png";
 
 // Character positioning presets for fight-game style layouts
 type CharPlacement = {
@@ -36,25 +24,21 @@ type CharPlacement = {
 };
 
 const SCENE_LAYOUTS: CharPlacement[][] = [
-  // Layout 0: char1 left, char2 right — face-off
   [
-    { src: CHARACTERS[0], side: "left", scale: 1.1, bottomPct: 0 },
-    { src: CHARACTERS[1], side: "right", scale: 1.0, bottomPct: 0, flip: true },
+    { src: CHAR1, side: "left", scale: 1.1, bottomPct: 0 },
+    { src: CHAR2, side: "right", scale: 1.0, bottomPct: 0, flip: true },
   ],
-  // Layout 1: char3 center-ish large, menacing
   [
-    { src: CHARACTERS[2], side: "left", scale: 1.4, bottomPct: 5 },
+    { src: CHAR3, side: "left", scale: 1.4, bottomPct: 5 },
   ],
-  // Layout 2: char2 left, char3 right
   [
-    { src: CHARACTERS[1], side: "left", scale: 1.0, bottomPct: 0 },
-    { src: CHARACTERS[2], side: "right", scale: 1.2, bottomPct: 5, flip: true },
+    { src: CHAR2, side: "left", scale: 1.0, bottomPct: 0 },
+    { src: CHAR3, side: "right", scale: 1.2, bottomPct: 5, flip: true },
   ],
-  // Layout 3: all three characters
   [
-    { src: CHARACTERS[0], side: "left", scale: 0.9, bottomPct: 0 },
-    { src: CHARACTERS[2], side: "right", scale: 1.0, bottomPct: 5, flip: true },
-    { src: CHARACTERS[1], side: "left", scale: 0.7, bottomPct: 0 },
+    { src: CHAR1, side: "left", scale: 0.9, bottomPct: 0 },
+    { src: CHAR3, side: "right", scale: 1.0, bottomPct: 5, flip: true },
+    { src: CHAR2, side: "left", scale: 0.7, bottomPct: 0 },
   ],
 ];
 
