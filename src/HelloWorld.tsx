@@ -244,46 +244,56 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           { z: -10, x: 25 },
         ];
         const a = angles[index % angles.length];
-        return (
-      <div
-        style={{
-          opacity: exit,
-          transform: `translateY(${y}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
-          textAlign: "center",
-          padding: "0 80px",
-          zIndex: 1,
-        }}
-      >
-        {text.split(" ").map((word, wi, arr) => {
-          const totalWords = arr.length;
-          // Spread word reveals across most of the scene duration, leaving room for exit
-          const revealWindow = SCENE_DURATION - 25;
+
+        const words = text.split(" ");
+        const totalWords = words.length;
+        const revealWindow = SCENE_DURATION - 25;
+        const lineHeight = fontSize * 1.1;
+
+        const wordSprings = words.map((_, wi) => {
           const wordDelay = totalWords > 1 ? (wi / (totalWords - 1)) * revealWindow * 0.6 : 0;
-          const wordSpring = spring({ frame, fps, config: { damping: 14, mass: 0.6 }, delay: wordDelay });
-          const wordY = interpolate(wordSpring, [0, 1], [30, 0]);
-          return (
-            <p
-              key={wi}
-              style={{
-                fontSize,
-                fontFamily,
-                fontWeight: 700,
-                color: textColor,
-                margin: 0,
-                lineHeight: 1.0,
-                letterSpacing: 8,
-                textTransform: "uppercase",
-                textShadow: textGlow,
-                mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
-                opacity: wordSpring,
-                transform: `translateY(${wordY}px)`,
-              }}
-            >
-              {word}
-            </p>
-          );
-        })}
-      </div>
+          return spring({ frame, fps, config: { damping: 14, mass: 0.6 }, delay: wordDelay });
+        });
+
+        // Shift container up so the newest word stays at screen center
+        const visibleProgress = wordSprings.reduce((sum, s) => sum + s, 0);
+        const shiftUp = Math.max(0, visibleProgress - 1) * lineHeight;
+
+        return (
+          <div
+            style={{
+              opacity: exit,
+              transform: `translateY(${y - shiftUp}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
+              textAlign: "center",
+              padding: "0 80px",
+              zIndex: 1,
+            }}
+          >
+            {words.map((word, wi) => {
+              const wordY = interpolate(wordSprings[wi], [0, 1], [30, 0]);
+              return (
+                <p
+                  key={wi}
+                  style={{
+                    fontSize,
+                    fontFamily,
+                    fontWeight: 700,
+                    color: textColor,
+                    margin: 0,
+                    lineHeight: 1.0,
+                    letterSpacing: 8,
+                    textTransform: "uppercase",
+                    textShadow: textGlow,
+                    mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
+                    opacity: wordSprings[wi],
+                    transform: `translateY(${wordY}px)`,
+                  }}
+                >
+                  {word}
+                </p>
+              );
+            })}
+          </div>
         );
       })()}
     </AbsoluteFill>
