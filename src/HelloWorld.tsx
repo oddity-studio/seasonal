@@ -32,7 +32,7 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
   ],
   // Scene 1: char3 solo hero shot
   [
-    { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -100 },
+    { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -200 },
   ],
   // Scene 2: char2 vs char3
   [
