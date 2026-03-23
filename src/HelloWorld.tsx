@@ -193,6 +193,8 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   let background: string;
   let textColor: string;
 
+  let textGlow = "0 4px 20px rgba(0,0,0,0.7)";
+
   switch (variant) {
     case 0:
       background = `linear-gradient(135deg, ${colors.dark}, #000000)`;
@@ -201,10 +203,12 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
     case 1:
       background = `linear-gradient(135deg, ${colors.dark}, ${colors.light}, ${colors.highlight})`;
       textColor = "#000000";
+      textGlow = "0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.5), 0 0 80px rgba(255,255,255,0.3)";
       break;
     case 2:
       background = `linear-gradient(135deg, ${colors.light}, #ffffff)`;
       textColor = colors.dark;
+      textGlow = "0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.5), 0 0 80px rgba(255,255,255,0.3)";
       break;
     case 3:
     default:
@@ -254,7 +258,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
             margin: 0,
             lineHeight: 1.0,
             textTransform: "uppercase",
-            textShadow: "0 4px 20px rgba(0,0,0,0.7)",
+            textShadow: textGlow,
           }}
         >
           {text}
