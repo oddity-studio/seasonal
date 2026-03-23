@@ -98,28 +98,55 @@ const FighterChar: React.FC<{
   const flipX = placement.flip ? -1 : 1;
   const useWidth = placement.widthPct != null;
 
+  if (useWidth) {
+    // Column mode: fixed-width container clips a full-height image
+    return (
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: `${placement.leftPct ?? 0}%`,
+          width: `${placement.widthPct}%`,
+          height: "100%",
+          overflow: "hidden",
+          opacity: exitOpacity,
+          pointerEvents: "none" as const,
+        }}
+      >
+        <img
+          src={placement.src}
+          style={{
+            height: "100%",
+            width: "auto",
+            display: "block",
+            position: "absolute",
+            bottom: 0,
+            left: "50%",
+            transform: `translateX(calc(-50% + ${slideX + sway}px)) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
+            transformOrigin: "bottom center",
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
         position: "absolute",
         bottom: `${placement.bottomPct - 2}%`,
-        left: placement.leftPct != null ? `${placement.leftPct}%` : isLeft ? "-5%" : undefined,
-        right: placement.leftPct != null ? undefined : isLeft ? undefined : "-5%",
-        height: useWidth ? undefined : "100%",
-        width: useWidth ? `${placement.widthPct}%` : undefined,
+        left: isLeft ? "-5%" : undefined,
+        right: isLeft ? undefined : "-5%",
+        height: "100%",
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
-        transformOrigin: useWidth ? "bottom center" : isLeft ? "bottom left" : "bottom right",
+        transformOrigin: isLeft ? "bottom left" : "bottom right",
         pointerEvents: "none" as const,
-        overflow: useWidth ? "hidden" : undefined,
       }}
     >
       <img
         src={placement.src}
-        style={useWidth
-          ? { width: "100%", height: "auto", display: "block", position: "absolute", bottom: 0 }
-          : { height: "100%", width: "auto", display: "block" }
-        }
+        style={{ height: "100%", width: "auto", display: "block" }}
       />
     </div>
   );
