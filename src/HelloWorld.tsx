@@ -92,7 +92,7 @@ const FighterChar: React.FC<{
     <div
       style={{
         position: "absolute",
-        bottom: `${placement.bottomPct}%`,
+        bottom: `${placement.bottomPct - 2}%`,
         [isLeft ? "left" : "right"]: isLeft ? "-5%" : "-5%",
         height: "100%",
         opacity: exitOpacity,
