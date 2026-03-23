@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config) => {
-    config.externals.push("@remotion/renderer");
-    return config;
-  },
+  turbopack: {},
+  serverExternalPackages: ["@remotion/renderer", "@remotion/bundler"],
 };
 
 export default nextConfig;
