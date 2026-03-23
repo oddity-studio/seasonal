@@ -14,6 +14,7 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAR1 = `${BASE}/char1.png`;
 const CHAR2 = `${BASE}/char2.png`;
 const CHAR3 = `${BASE}/char3.png`;
+const LOGO = `${BASE}/logo.png`;
 
 // Character positioning presets for fight-game style layouts
 type CharPlacement = {
@@ -63,8 +64,8 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
   ],
   // Scene 7: title — all three side by side, each 1/3 width
   [
-    { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 100 },
-    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -100 },
+    { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
+    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ],
 ];
@@ -269,6 +270,32 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
         >
           {/* Title characters — all three side by side */}
           <CharacterLayer layoutIndex={7} />
+
+          {/* Flashy logo */}
+          {(() => {
+            const logoScale = spring({ frame, fps, config: { damping: 10, stiffness: 80, mass: 0.5 } });
+            const logoPulse = Math.sin(frame * 0.15) * 0.08;
+            const logoRotate = Math.sin(frame * 0.1) * 3;
+            const glowIntensity = Math.sin(frame * 0.2) * 20 + 30;
+            return (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: `translate(-50%, -50%) scale(${logoScale + logoPulse}) rotate(${logoRotate}deg)`,
+                  zIndex: 10,
+                  filter: `drop-shadow(0 0 ${glowIntensity}px ${colorScheme.highlight}) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight}40)`,
+                }}
+              >
+                <img
+                  src={LOGO}
+                  alt="Logo"
+                  style={{ width: 300, height: "auto" }}
+                />
+              </div>
+            );
+          })()}
 
           <div
             style={{
