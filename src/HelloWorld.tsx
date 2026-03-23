@@ -177,12 +177,13 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number }> = ({
+const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number }> = ({
   text,
   index,
   colors,
   fontSize = 150,
   y: yOffset = 0,
+  x: xOffset = 0,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -264,7 +265,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           <div
             style={{
               opacity: exit,
-              transform: `translateY(${y}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
+              transform: `translateX(${xOffset}px) translateY(${y}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
               textAlign: "center",
               padding: "0 80px",
               zIndex: 1,
@@ -385,7 +386,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           from={SCENE_DURATION * (i + 1)}
           durationInFrames={SCENE_DURATION}
         >
-          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} />
+          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} />
         </Sequence>
       ))}
     </AbsoluteFill>
