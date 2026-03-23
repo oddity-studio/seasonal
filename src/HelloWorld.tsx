@@ -75,7 +75,7 @@ const FighterChar: React.FC<{
         position: "absolute",
         bottom: `${placement.bottomPct}%`,
         [isLeft ? "left" : "right"]: isLeft ? "-5%" : "-5%",
-        width: "65%",
+        height: "100%",
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
         transformOrigin: isLeft ? "bottom left" : "bottom right",
@@ -84,7 +84,7 @@ const FighterChar: React.FC<{
     >
       <img
         src={placement.src}
-        style={{ width: "100%", height: "auto", display: "block" }}
+        style={{ height: "100%", width: "auto", display: "block" }}
       />
     </div>
   );
