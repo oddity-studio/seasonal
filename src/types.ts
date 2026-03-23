@@ -1,17 +1,22 @@
 import { z } from "zod";
 
-export const videoPropsSchema = z.object({
-  title: z.string(),
-  subtitle: z.string(),
-  backgroundColor: z.string(),
-  textColor: z.string(),
+export const sceneSchema = z.object({
+  text: z.string(),
 });
 
+export const videoPropsSchema = z.object({
+  seasonNumber: z.string(),
+  scenes: z.array(sceneSchema),
+});
+
+export type Scene = z.infer<typeof sceneSchema>;
 export type VideoProps = z.infer<typeof videoPropsSchema>;
 
 export const defaultVideoProps: VideoProps = {
-  title: "Hello World",
-  subtitle: "Made with Remotion",
-  backgroundColor: "#0f172a",
-  textColor: "#ffffff",
+  seasonNumber: "01",
+  scenes: [
+    { text: "Welcome to the show" },
+    { text: "Something amazing happens" },
+    { text: "Stay tuned for more" },
+  ],
 };

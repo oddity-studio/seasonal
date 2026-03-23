@@ -4,14 +4,40 @@ import { useState } from "react";
 import { Player } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
-import type { VideoProps } from "@/src/types";
+import type { VideoProps, Scene } from "@/src/types";
+
+const SCENE_DURATION = 90;
 
 export default function Home() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
 
-  const update = (key: keyof VideoProps, value: string) => {
-    setProps((prev) => ({ ...prev, [key]: value }));
+  const updateSeason = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 2);
+    setProps((prev) => ({ ...prev, seasonNumber: digits }));
   };
+
+  const updateScene = (index: number, text: string) => {
+    setProps((prev) => ({
+      ...prev,
+      scenes: prev.scenes.map((s, i) => (i === index ? { text } : s)),
+    }));
+  };
+
+  const addScene = () => {
+    setProps((prev) => ({
+      ...prev,
+      scenes: [...prev.scenes, { text: "" }],
+    }));
+  };
+
+  const removeScene = (index: number) => {
+    setProps((prev) => ({
+      ...prev,
+      scenes: prev.scenes.filter((_, i) => i !== index),
+    }));
+  };
+
+  const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
 
   return (
     <div style={styles.container}>
@@ -23,11 +49,11 @@ export default function Home() {
             component={HelloWorld}
             schema={videoPropsSchema}
             inputProps={props}
-            durationInFrames={150}
+            durationInFrames={Math.max(1, totalFrames)}
             fps={30}
-            compositionWidth={1920}
-            compositionHeight={1080}
-            style={{ width: "100%", aspectRatio: "16/9" }}
+            compositionWidth={1080}
+            compositionHeight={1920}
+            style={{ width: "100%", aspectRatio: "9/16" }}
             controls
             autoPlay
             loop
@@ -38,54 +64,44 @@ export default function Home() {
           <h2 style={styles.controlsHeading}>Customize</h2>
 
           <label style={styles.label}>
-            Title
+            Season Number
             <input
               style={styles.input}
-              value={props.title}
-              onChange={(e) => update("title", e.target.value)}
+              value={props.seasonNumber}
+              onChange={(e) => updateSeason(e.target.value)}
+              placeholder="01"
+              maxLength={2}
             />
           </label>
 
-          <label style={styles.label}>
-            Subtitle
-            <input
-              style={styles.input}
-              value={props.subtitle}
-              onChange={(e) => update("subtitle", e.target.value)}
-            />
-          </label>
+          <div style={styles.scenesHeader}>
+            <span style={styles.label}>Scenes</span>
+            <button style={styles.addButton} onClick={addScene}>
+              + Add Scene
+            </button>
+          </div>
 
-          <label style={styles.label}>
-            Background Color
-            <div style={styles.colorRow}>
-              <input
-                type="color"
-                value={props.backgroundColor}
-                onChange={(e) => update("backgroundColor", e.target.value)}
-              />
-              <input
-                style={styles.input}
-                value={props.backgroundColor}
-                onChange={(e) => update("backgroundColor", e.target.value)}
-              />
-            </div>
-          </label>
-
-          <label style={styles.label}>
-            Text Color
-            <div style={styles.colorRow}>
-              <input
-                type="color"
-                value={props.textColor}
-                onChange={(e) => update("textColor", e.target.value)}
-              />
-              <input
-                style={styles.input}
-                value={props.textColor}
-                onChange={(e) => update("textColor", e.target.value)}
-              />
-            </div>
-          </label>
+          <div style={styles.scenesList}>
+            {props.scenes.map((scene, i) => (
+              <div key={i} style={styles.sceneRow}>
+                <span style={styles.sceneNumber}>{i + 1}</span>
+                <input
+                  style={styles.sceneInput}
+                  value={scene.text}
+                  onChange={(e) => updateScene(i, e.target.value)}
+                  placeholder={`Scene ${i + 1} text...`}
+                />
+                {props.scenes.length > 1 && (
+                  <button
+                    style={styles.removeButton}
+                    onClick={() => removeScene(i)}
+                  >
+                    x
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -97,22 +113,26 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: 1200,
     margin: "0 auto",
     padding: "40px 20px",
+    backgroundColor: "#0a0a0a",
+    minHeight: "100vh",
+    color: "#e2e8f0",
   },
   heading: {
     fontSize: 32,
     fontWeight: 700,
     marginBottom: 32,
+    color: "#ffffff",
   },
   main: {
     display: "grid",
-    gridTemplateColumns: "1fr 360px",
+    gridTemplateColumns: "320px 1fr",
     gap: 32,
     alignItems: "start",
   },
   preview: {
     borderRadius: 12,
     overflow: "hidden",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #1e293b",
   },
   controls: {
     display: "flex",
@@ -120,13 +140,14 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 16,
     padding: 24,
     borderRadius: 12,
-    border: "1px solid #e2e8f0",
-    backgroundColor: "#f8fafc",
+    border: "1px solid #1e293b",
+    backgroundColor: "#111118",
   },
   controlsHeading: {
     fontSize: 20,
     fontWeight: 600,
     margin: 0,
+    color: "#ffffff",
   },
   label: {
     display: "flex",
@@ -134,18 +155,65 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 6,
     fontSize: 14,
     fontWeight: 500,
-    color: "#334155",
+    color: "#94a3b8",
   },
   input: {
     padding: "8px 12px",
     borderRadius: 8,
-    border: "1px solid #cbd5e1",
+    border: "1px solid #334155",
+    backgroundColor: "#1e293b",
+    color: "#e2e8f0",
     fontSize: 14,
     outline: "none",
   },
-  colorRow: {
+  scenesHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  addButton: {
+    padding: "6px 12px",
+    borderRadius: 6,
+    border: "1px solid #334155",
+    backgroundColor: "transparent",
+    color: "#94a3b8",
+    fontSize: 13,
+    cursor: "pointer",
+  },
+  scenesList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  },
+  sceneRow: {
     display: "flex",
     gap: 8,
     alignItems: "center",
+  },
+  sceneNumber: {
+    fontSize: 12,
+    color: "#475569",
+    fontWeight: 600,
+    minWidth: 20,
+    textAlign: "center" as const,
+  },
+  sceneInput: {
+    flex: 1,
+    padding: "8px 12px",
+    borderRadius: 8,
+    border: "1px solid #334155",
+    backgroundColor: "#1e293b",
+    color: "#e2e8f0",
+    fontSize: 14,
+    outline: "none",
+  },
+  removeButton: {
+    padding: "4px 8px",
+    borderRadius: 4,
+    border: "none",
+    backgroundColor: "transparent",
+    color: "#64748b",
+    fontSize: 14,
+    cursor: "pointer",
   },
 };
