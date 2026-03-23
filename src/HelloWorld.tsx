@@ -25,21 +25,38 @@ type CharPlacement = {
 };
 
 const SCENE_LAYOUTS: CharPlacement[][] = [
+  // Scene 0: char1 vs char2 face-off
   [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ],
+  // Scene 1: char3 solo hero shot
   [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -100 },
   ],
+  // Scene 2: char2 vs char3
   [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ],
+  // Scene 3: char1 solo hero shot from right
+  [
+    { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
+  ],
+  // Scene 4: char1 vs char3 showdown
+  [
+    { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
+    { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
+  ],
+  // Scene 5: all three — group shot
   [
     { src: CHAR1, side: "left", scale: 1.0, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
+  ],
+  // Scene 6: char2 solo hero shot
+  [
+    { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ],
 ];
 

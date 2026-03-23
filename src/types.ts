@@ -30,6 +30,9 @@ export const defaultVideoProps: VideoProps = {
   scenes: [
     { text: "Welcome to the show" },
     { text: "Something amazing happens" },
+    { text: "New challengers approach" },
+    { text: "The battle intensifies" },
+    { text: "Who will come out on top?" },
     { text: "Stay tuned for more" },
   ],
 };
