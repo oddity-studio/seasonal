@@ -23,6 +23,8 @@ type CharPlacement = {
   bottomPct: number; // percentage from bottom
   flip?: boolean;
   offsetX?: number; // px offset after slide-in
+  widthPct?: number; // if set, size by width % instead of full height
+  leftPct?: number; // explicit left position in %
 };
 
 const SCENE_LAYOUTS: CharPlacement[][] = [
@@ -59,6 +61,12 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
   [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ],
+  // Scene 7: title — all three side by side, each 1/3 width
+  [
+    { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0 },
+    { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33 },
+    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
+  ],
 ];
 
 const FighterChar: React.FC<{
@@ -88,24 +96,30 @@ const FighterChar: React.FC<{
 
   const isLeft = placement.side === "left";
   const flipX = placement.flip ? -1 : 1;
+  const useWidth = placement.widthPct != null;
 
   return (
     <div
       style={{
         position: "absolute",
         bottom: `${placement.bottomPct - 2}%`,
-        left: isLeft ? "-5%" : undefined,
-        right: isLeft ? undefined : "-5%",
-        height: "100%",
+        left: placement.leftPct != null ? `${placement.leftPct}%` : isLeft ? "-5%" : undefined,
+        right: placement.leftPct != null ? undefined : isLeft ? undefined : "-5%",
+        height: useWidth ? undefined : "100%",
+        width: useWidth ? `${placement.widthPct}%` : undefined,
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
-        transformOrigin: isLeft ? "bottom left" : "bottom right",
+        transformOrigin: "bottom center",
         pointerEvents: "none" as const,
+        overflow: "hidden",
       }}
     >
       <img
         src={placement.src}
-        style={{ height: "100%", width: "auto", display: "block" }}
+        style={useWidth
+          ? { width: "100%", height: "auto", display: "block", position: "absolute", bottom: 0 }
+          : { height: "100%", width: "auto", display: "block" }
+        }
       />
     </div>
   );
@@ -226,8 +240,8 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
             background: `linear-gradient(135deg, #000000, ${colorScheme.dark})`,
           }}
         >
-          {/* Title characters — all three slide in */}
-          <CharacterLayer layoutIndex={3} />
+          {/* Title characters — all three side by side */}
+          <CharacterLayer layoutIndex={7} />
 
           <div
             style={{
