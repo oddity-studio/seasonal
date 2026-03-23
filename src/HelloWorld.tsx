@@ -5,6 +5,7 @@ import {
   spring,
   interpolate,
   Sequence,
+  Img,
 } from "remotion";
 import type { VideoProps, ColorScheme } from "./types";
 import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
@@ -117,7 +118,7 @@ const FighterChar: React.FC<{
           pointerEvents: "none" as const,
         }}
       >
-        <img
+        <Img
           src={placement.src}
           style={{
             height: "100%",
@@ -148,7 +149,7 @@ const FighterChar: React.FC<{
         pointerEvents: "none" as const,
       }}
     >
-      <img
+      <Img
         src={placement.src}
         style={{ height: "100%", width: "auto", display: "block" }}
       />
@@ -314,7 +315,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
                   filter: `drop-shadow(0 0 ${glowIntensity}px rgba(255,255,255,0.8)) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight})`,
                 }}
               >
-                <img
+                <Img
                   src={LOGO}
                   style={{ width: 1000, height: "auto" }}
                 />

@@ -64,6 +64,11 @@ export default function Home() {
             controls
             autoPlay
             loop
+            renderLoading={() => (
+              <div style={{ width: "100%", aspectRatio: "9/16", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#000" }}>
+                <p style={{ color: "#666", fontSize: 14 }}>Loading assets...</p>
+              </div>
+            )}
           />
         </div>
 
