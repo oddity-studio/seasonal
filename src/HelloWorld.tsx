@@ -1,6 +1,5 @@
 import {
   AbsoluteFill,
-  Img,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -8,14 +7,23 @@ import {
   Sequence,
   staticFile,
 } from "remotion";
+/* eslint-disable @next/next/no-img-element */
 import type { VideoProps, ColorScheme } from "./types";
 
 const SCENE_DURATION = 90; // 3 seconds per scene at 30fps
 
+// staticFile for Remotion Studio, basePath prefix for Next.js Player
+const charPath = (name: string) => {
+  if (typeof window !== "undefined" && window.remotion_staticBase !== undefined) {
+    return staticFile(name);
+  }
+  return `/seasonal/${name}`;
+};
+
 const CHARACTERS = [
-  staticFile("char1.png"),
-  staticFile("char2.png"),
-  staticFile("char3.png"),
+  charPath("char1.png"),
+  charPath("char2.png"),
+  charPath("char3.png"),
 ];
 
 // Character positioning presets for fight-game style layouts
@@ -90,7 +98,7 @@ const FighterChar: React.FC<{
         pointerEvents: "none" as const,
       }}
     >
-      <Img
+      <img
         src={placement.src}
         style={{ width: "100%", height: "auto", display: "block" }}
       />
