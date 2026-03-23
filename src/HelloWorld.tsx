@@ -194,11 +194,9 @@ const SHARDS: { polygon: string; cx: number; cy: number }[] = [
   { polygon: "55% 80%, 75% 72%, 100% 60%, 100% 100%, 45% 100%", cx: 75, cy: 82 },
 ];
 
-const GlassShatter: React.FC<{ frame: number; colors: ColorScheme; variant: number }> = ({
-  frame,
-  colors,
-  variant,
-}) => {
+// Computes per-shard transform for the glass shatter effect.
+// Returns null when the effect hasn't started yet.
+function getShatterTransforms(frame: number): { dx: number; dy: number; rotate: number; scale: number; opacity: number }[] | null {
   const shatterStart = SCENE_DURATION - 20;
   if (frame < shatterStart) return null;
 
@@ -206,47 +204,20 @@ const GlassShatter: React.FC<{ frame: number; colors: ColorScheme; variant: numb
     extrapolateRight: "clamp",
   });
 
-  const fillColors = [colors.dark, colors.light, colors.highlight, "#ffffff", "#000000"];
+  return SHARDS.map((shard, i) => {
+    const delay = (i % 4) * 0.06;
+    const p = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
+    const eased = p * p;
 
-  return (
-    <AbsoluteFill style={{ zIndex: 50, pointerEvents: "none" }}>
-      {SHARDS.map((shard, i) => {
-        // Each shard has its own delay and direction
-        const delay = (i % 4) * 0.08;
-        const p = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
-        const eased = p * p; // ease-in for acceleration
-
-        // Direction away from center
-        const dx = (shard.cx - 50) * 3 * eased;
-        const dy = (shard.cy - 50) * 3 * eased;
-        const rotate = ((i % 2 === 0 ? 1 : -1) * 45 + i * 15) * eased;
-        const scale = 1 + eased * 0.5;
-        const opacity = 1 - eased;
-
-        const fill = fillColors[i % fillColors.length];
-
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              inset: 0,
-              clipPath: `polygon(${shard.polygon})`,
-              backgroundColor: variant % 2 === 0 ? fill : undefined,
-              background:
-                variant % 2 === 1
-                  ? `linear-gradient(${i * 30}deg, ${colors.dark}, ${colors.highlight})`
-                  : undefined,
-              transform: `translate(${dx}%, ${dy}%) rotate(${rotate}deg) scale(${scale})`,
-              opacity,
-              boxShadow: "0 0 20px rgba(255,255,255,0.6)",
-            }}
-          />
-        );
-      })}
-    </AbsoluteFill>
-  );
-};
+    return {
+      dx: (shard.cx - 50) * 6 * eased,
+      dy: (shard.cy - 50) * 6 * eased,
+      rotate: ((i % 2 === 0 ? 1 : -1) * 60 + i * 20) * eased,
+      scale: 1 + eased * 0.3,
+      opacity: 1 - eased * eased,
+    };
+  });
+}
 
 const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number }> = ({
   text,
@@ -293,30 +264,21 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
       break;
   }
 
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        background,
-      }}
-    >
-      {/* Character layer behind text */}
-      <CharacterLayer layoutIndex={index} />
+  const angles = [
+    { z: -12, x: 18 },
+    { z: 10, x: -15 },
+    { z: -15, x: 22 },
+    { z: 8, x: -20 },
+    { z: -18, x: 14 },
+    { z: 14, x: -18 },
+    { z: -10, x: 25 },
+  ];
+  const a = angles[index % angles.length];
 
-      {/* Text overlay */}
-      {(() => {
-        const angles = [
-          { z: -12, x: 18 },
-          { z: 10, x: -15 },
-          { z: -15, x: 22 },
-          { z: 8, x: -20 },
-          { z: -18, x: 14 },
-          { z: 14, x: -18 },
-          { z: -10, x: 25 },
-        ];
-        const a = angles[index % angles.length];
-        return (
+  // The full scene content rendered as a fragment so it can be reused in shards
+  const sceneContent = (
+    <>
+      <CharacterLayer layoutIndex={index} />
       <div
         style={{
           opacity,
@@ -343,11 +305,65 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           {text}
         </p>
       </div>
-        );
-      })()}
+    </>
+  );
 
-      {/* Glass shatter exit on even scenes */}
-      {useShatter && <GlassShatter frame={frame} colors={colors} variant={variant} />}
+  const shatterTransforms = useShatter ? getShatterTransforms(frame) : null;
+
+  // If shatter is active, render scene copies clipped to each shard polygon
+  if (shatterTransforms) {
+    return (
+      <AbsoluteFill style={{ background: "#000" }}>
+        {SHARDS.map((shard, i) => {
+          const t = shatterTransforms[i];
+          return (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                inset: 0,
+                clipPath: `polygon(${shard.polygon})`,
+                transform: `translate(${t.dx}%, ${t.dy}%) rotate(${t.rotate}deg) scale(${t.scale})`,
+                opacity: t.opacity,
+                willChange: "transform, opacity",
+              }}
+            >
+              {/* Each shard shows the full scene, clipped */}
+              <AbsoluteFill
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  background,
+                }}
+              >
+                {sceneContent}
+              </AbsoluteFill>
+              {/* Bright edge highlight per shard */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  border: "2px solid rgba(255,255,255,0.5)",
+                  clipPath: `polygon(${shard.polygon})`,
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
+          );
+        })}
+      </AbsoluteFill>
+    );
+  }
+
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        background,
+      }}
+    >
+      {sceneContent}
     </AbsoluteFill>
   );
 };
