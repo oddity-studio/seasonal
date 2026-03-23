@@ -7,6 +7,9 @@ import {
   Sequence,
 } from "remotion";
 import type { VideoProps, ColorScheme } from "./types";
+import { loadFont } from "@remotion/google-fonts/Bangers";
+
+const { fontFamily } = loadFont();
 
 const SCENE_DURATION = 90; // 3 seconds per scene at 30fps
 
@@ -253,6 +256,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
         <p
           style={{
             fontSize,
+            fontFamily,
             fontWeight: 700,
             color: textColor,
             margin: 0,
@@ -327,6 +331,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           >
             <p
               style={{
+                fontFamily,
                 fontSize: 48,
                 color: colorScheme.light,
                 margin: 0,
