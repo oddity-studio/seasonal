@@ -29,7 +29,7 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
     { src: CHAR2, side: "right", scale: 1.0, bottomPct: 0, flip: true },
   ],
   [
-    { src: CHAR3, side: "left", scale: 1.4, bottomPct: 5 },
+    { src: CHAR3, side: "left", scale: 1.0, bottomPct: 0 },
   ],
   [
     { src: CHAR2, side: "left", scale: 1.0, bottomPct: 0 },
