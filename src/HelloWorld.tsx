@@ -259,6 +259,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
             lineHeight: 1.0,
             textTransform: "uppercase",
             textShadow: textGlow,
+            mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
           }}
         >
           {text}
