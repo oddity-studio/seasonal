@@ -227,7 +227,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
       <div
         style={{
           opacity,
-          transform: `translateY(${y}px)`,
+          transform: `translateY(${y}px) perspective(600px) rotateZ(-8deg) rotateX(12deg)`,
           textAlign: "center",
           padding: "0 80px",
           zIndex: 1,
@@ -299,7 +299,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           <div
             style={{
               opacity: titleOpacity,
-              transform: `translateY(${titleY}px)`,
+              transform: `translateY(${titleY}px) perspective(600px) rotateZ(-8deg) rotateX(12deg)`,
               textAlign: "center",
               zIndex: 1,
             }}
