@@ -10,9 +10,10 @@ import type { VideoProps, ColorScheme } from "./types";
 
 const SCENE_DURATION = 90; // 3 seconds per scene at 30fps
 
-const CHAR1 = "/seasonal/char1.png";
-const CHAR2 = "/seasonal/char2.png";
-const CHAR3 = "/seasonal/char3.png";
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const CHAR1 = `${BASE}/char1.png`;
+const CHAR2 = `${BASE}/char2.png`;
+const CHAR3 = `${BASE}/char3.png`;
 
 // Character positioning presets for fight-game style layouts
 type CharPlacement = {
