@@ -75,7 +75,7 @@ const FighterChar: React.FC<{
         position: "absolute",
         bottom: `${placement.bottomPct}%`,
         [isLeft ? "left" : "right"]: isLeft ? "-5%" : "-5%",
-        height: "100%",
+        height: "110%",
         opacity: exitOpacity,
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
         transformOrigin: isLeft ? "bottom left" : "bottom right",
