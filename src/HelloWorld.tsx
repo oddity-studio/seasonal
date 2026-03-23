@@ -177,6 +177,77 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
+// Glass shatter shards — pre-computed triangular fragments
+const SHARDS: { polygon: string; cx: number; cy: number }[] = [
+  { polygon: "0% 0%, 25% 0%, 15% 20%", cx: 13, cy: 7 },
+  { polygon: "25% 0%, 55% 0%, 40% 25%, 15% 20%", cx: 34, cy: 11 },
+  { polygon: "55% 0%, 80% 0%, 70% 18%, 40% 25%", cx: 61, cy: 11 },
+  { polygon: "80% 0%, 100% 0%, 100% 22%, 70% 18%", cx: 88, cy: 10 },
+  { polygon: "0% 0%, 15% 20%, 8% 45%", cx: 8, cy: 22 },
+  { polygon: "15% 20%, 40% 25%, 50% 50%, 8% 45%", cx: 28, cy: 35 },
+  { polygon: "40% 25%, 70% 18%, 100% 22%, 92% 55%, 50% 50%", cx: 70, cy: 34 },
+  { polygon: "0% 45%, 8% 45%, 50% 50%, 20% 70%", cx: 20, cy: 52 },
+  { polygon: "50% 50%, 92% 55%, 100% 22%, 100% 60%, 75% 72%", cx: 83, cy: 52 },
+  { polygon: "50% 50%, 75% 72%, 55% 80%", cx: 60, cy: 67 },
+  { polygon: "0% 45%, 20% 70%, 10% 85%, 0% 100%", cx: 8, cy: 75 },
+  { polygon: "20% 70%, 55% 80%, 45% 100%, 0% 100%, 10% 85%", cx: 26, cy: 87 },
+  { polygon: "55% 80%, 75% 72%, 100% 60%, 100% 100%, 45% 100%", cx: 75, cy: 82 },
+];
+
+const GlassShatter: React.FC<{ frame: number; colors: ColorScheme; variant: number }> = ({
+  frame,
+  colors,
+  variant,
+}) => {
+  const shatterStart = SCENE_DURATION - 20;
+  if (frame < shatterStart) return null;
+
+  const progress = interpolate(frame, [shatterStart, SCENE_DURATION], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
+  const fillColors = [colors.dark, colors.light, colors.highlight, "#ffffff", "#000000"];
+
+  return (
+    <AbsoluteFill style={{ zIndex: 50, pointerEvents: "none" }}>
+      {SHARDS.map((shard, i) => {
+        // Each shard has its own delay and direction
+        const delay = (i % 4) * 0.08;
+        const p = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
+        const eased = p * p; // ease-in for acceleration
+
+        // Direction away from center
+        const dx = (shard.cx - 50) * 3 * eased;
+        const dy = (shard.cy - 50) * 3 * eased;
+        const rotate = ((i % 2 === 0 ? 1 : -1) * 45 + i * 15) * eased;
+        const scale = 1 + eased * 0.5;
+        const opacity = 1 - eased;
+
+        const fill = fillColors[i % fillColors.length];
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              inset: 0,
+              clipPath: `polygon(${shard.polygon})`,
+              backgroundColor: variant % 2 === 0 ? fill : undefined,
+              background:
+                variant % 2 === 1
+                  ? `linear-gradient(${i * 30}deg, ${colors.dark}, ${colors.highlight})`
+                  : undefined,
+              transform: `translate(${dx}%, ${dy}%) rotate(${rotate}deg) scale(${scale})`,
+              opacity,
+              boxShadow: "0 0 20px rgba(255,255,255,0.6)",
+            }}
+          />
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number }> = ({
   text,
   index,
@@ -186,9 +257,10 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  const useShatter = index % 2 === 0;
   const enter = spring({ frame, fps, config: { damping: 200 } });
-  const exitStart = SCENE_DURATION - 15;
-  const exit = frame > exitStart ? interpolate(frame, [exitStart, SCENE_DURATION], [1, 0], { extrapolateRight: "clamp" }) : 1;
+  const exitStart = SCENE_DURATION - (useShatter ? 20 : 15);
+  const exit = (!useShatter && frame > exitStart) ? interpolate(frame, [exitStart, SCENE_DURATION], [1, 0], { extrapolateRight: "clamp" }) : 1;
   const opacity = enter * exit;
   const y = interpolate(enter, [0, 1], [40, 0]);
 
@@ -273,6 +345,9 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
       </div>
         );
       })()}
+
+      {/* Glass shatter exit on even scenes */}
+      {useShatter && <GlassShatter frame={frame} colors={colors} variant={variant} />}
     </AbsoluteFill>
   );
 };
