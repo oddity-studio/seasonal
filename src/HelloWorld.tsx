@@ -247,11 +247,11 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme }> 
       >
         <p
           style={{
-            fontSize: 100,
+            fontSize: 200,
             fontWeight: 700,
             color: textColor,
             margin: 0,
-            lineHeight: 1.2,
+            lineHeight: 1.0,
             textTransform: "uppercase",
             textShadow: "0 4px 20px rgba(0,0,0,0.7)",
           }}
