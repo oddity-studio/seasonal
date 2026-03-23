@@ -290,7 +290,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
               >
                 <img
                   src={LOGO}
-                  style={{ width: 300, height: "auto" }}
+                  style={{ width: 500, height: "auto" }}
                 />
               </div>
             );
