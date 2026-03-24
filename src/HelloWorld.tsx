@@ -177,13 +177,16 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number }> = ({
+const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number }> = ({
   text,
   index,
   colors,
   fontSize = 150,
   y: yOffset = 0,
   x: xOffset = 0,
+  rotateZ: rZ,
+  rotateX: rX,
+  perspective: persp,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -236,7 +239,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
 
       {/* Text overlay */}
       {(() => {
-        const angles = [
+        const defaultAngles = [
           { z: -12, x: 18 },
           { z: 10, x: -15 },
           { z: -15, x: 22 },
@@ -245,7 +248,9 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           { z: 14, x: -18 },
           { z: -10, x: 25 },
         ];
-        const a = angles[index % angles.length];
+        const fallback = defaultAngles[index % defaultAngles.length];
+        const a = { z: rZ ?? fallback.z, x: rX ?? fallback.x };
+        const perspectiveVal = persp ?? 400;
 
         const words = text.split(" ");
         const totalWords = words.length;
@@ -265,7 +270,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           <div
             style={{
               opacity: exit,
-              transform: `translateX(${xOffset}px) translateY(${y}px) perspective(400px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
+              transform: `translateX(${xOffset}px) translateY(${y}px) perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
               textAlign: "center",
               padding: "0 80px",
               zIndex: 1,
@@ -386,7 +391,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           from={SCENE_DURATION * (i + 1)}
           durationInFrames={SCENE_DURATION}
         >
-          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} />
+          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} />
         </Sequence>
       ))}
     </AbsoluteFill>
