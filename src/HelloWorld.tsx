@@ -30,6 +30,7 @@ type CharPlacement = {
   offsetX?: number; // px offset after slide-in
   widthPct?: number; // if set, size by width % instead of full height
   leftPct?: number; // explicit left position in %
+  opacity?: number; // base opacity (defaults to 1)
 };
 
 const SCENE_LAYOUTS: CharPlacement[][] = [
@@ -58,7 +59,7 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
   ],
   // Scene 5: all three — group shot
   [
-    { src: CHAR1, side: "left", scale: 1.0, bottomPct: 0 },
+    { src: CHAR1, side: "left", scale: 1.0, bottomPct: 0, opacity: 0.5 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ],
@@ -79,8 +80,7 @@ const FighterChar: React.FC<{
   frame: number;
   fps: number;
   charIndex: number;
-  totalChars: number;
-}> = ({ placement, frame, fps, charIndex, totalChars }) => {
+}> = ({ placement, frame, fps, charIndex }) => {
   // Slide in from the side
   const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 5 });
   const offscreen = placement.side === "left" ? -600 : 600;
@@ -98,7 +98,7 @@ const FighterChar: React.FC<{
     ? interpolate(frame, [exitStart, SCENE_DURATION], [0, 1], { extrapolateRight: "clamp" })
     : 0;
   const exitScale = 1 + exitProgress * 0.3;
-  const baseOpacity = totalChars >= 2 ? 0.5 : 1;
+  const baseOpacity = placement.opacity ?? 1;
   const exitOpacity = baseOpacity * (1 - exitProgress);
 
   const isLeft = placement.side === "left";
@@ -173,7 +173,6 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
           frame={frame}
           fps={fps}
           charIndex={ci}
-          totalChars={layout.length}
         />
       ))}
     </div>
