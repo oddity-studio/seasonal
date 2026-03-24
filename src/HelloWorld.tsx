@@ -14,7 +14,7 @@ import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
 
 const { fontFamily } = loadFont();
 
-const SCENE_DURATION = 90; // 3 seconds per scene at 30fps
+const SCENE_DURATION = 180; // 3 seconds per scene at 60fps
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAR1 = `${BASE}/char1.png`;
@@ -83,18 +83,18 @@ const FighterChar: React.FC<{
   charIndex: number;
 }> = ({ placement, frame, fps, charIndex }) => {
   // Slide in from the side
-  const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 5 });
+  const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 10 });
   const offscreen = placement.side === "left" ? -600 : 600;
   const restX = placement.offsetX ?? 0;
   const slideX = interpolate(slideIn, [0, 1], [offscreen, restX]);
 
   // Idle bob — fighting stance sway
-  const bob = Math.sin(frame * 0.12 + charIndex * 2) * 6;
+  const bob = Math.sin(frame * 0.06 + charIndex * 2) * 6;
   // Subtle horizontal sway
-  const sway = Math.sin(frame * 0.08 + charIndex * 3) * 4;
+  const sway = Math.sin(frame * 0.04 + charIndex * 3) * 4;
 
   // Exit: scale up and fade out
-  const exitStart = SCENE_DURATION - 15;
+  const exitStart = SCENE_DURATION - 30;
   const exitProgress = frame > exitStart
     ? interpolate(frame, [exitStart, SCENE_DURATION], [0, 1], { extrapolateRight: "clamp" })
     : 0;
@@ -198,7 +198,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   const { fps } = useVideoConfig();
 
   const enter = spring({ frame, fps, config: { damping: 200 } });
-  const exitStart = SCENE_DURATION - 15;
+  const exitStart = SCENE_DURATION - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, SCENE_DURATION], [1, 0], { extrapolateRight: "clamp" }) : 1;
   const opacity = enter * exit;
   const y = interpolate(enter, [0, 1], [40, 0]) + yOffset;
@@ -283,7 +283,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
 
         const words = text.split(" ");
         const totalWords = words.length;
-        const revealWindow = SCENE_DURATION - 25;
+        const revealWindow = SCENE_DURATION - 50;
         const lineHeight = fontSize * 1.1;
 
         const wordSprings = words.map((_, wi) => {
@@ -366,9 +366,9 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           {/* Flashy logo */}
           {(() => {
             const logoScale = spring({ frame, fps, config: { damping: 10, stiffness: 80, mass: 0.5 } });
-            const logoPulse = Math.sin(frame * 0.15) * 0.08;
-            const logoRotate = Math.sin(frame * 0.1) * 3;
-            const glowIntensity = Math.sin(frame * 0.2) * 20 + 30;
+            const logoPulse = Math.sin(frame * 0.075) * 0.08;
+            const logoRotate = Math.sin(frame * 0.05) * 3;
+            const glowIntensity = Math.sin(frame * 0.1) * 20 + 30;
             return (
               <div
                 style={{

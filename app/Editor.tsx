@@ -1,129 +1,239 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
-import html2canvas from "html2canvas-pro";
 
-const SCENE_DURATION = 90;
-const FPS = 30;
+const SCENE_DURATION = 180;
+const FPS = 60;
 
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
   const [rendering, setRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [recordingMode, setRecordingMode] = useState(false);
   const playerRef = useRef<PlayerRef>(null);
 
   const handleDownload = useCallback(async () => {
-    const playerContent = document.querySelector(".player-wrap > div") as HTMLElement;
-    if (!playerContent) {
-      alert("Cannot find the player element.");
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      alert(
+        'Screen capture not supported. Use Chrome or run "npm run render" for offline export.',
+      );
+      return;
+    }
+    if (typeof VideoEncoder === "undefined") {
+      alert(
+        'Video encoding not supported. Use Chrome 94+ or run "npm run render" for offline export.',
+      );
       return;
     }
 
+    const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
+    const durationMs = (totalFrames / FPS) * 1000;
+
     setRendering(true);
+    setRecordingMode(true);
     setRenderProgress(0);
+
+    // Wait for recording overlay to render
+    await new Promise((r) => setTimeout(r, 600));
+
+    let displayStream: MediaStream | null = null;
+
     try {
-      const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
-      const durationSec = totalFrames / FPS;
+      const playerWrap = document.querySelector(
+        ".player-wrap",
+      ) as HTMLElement;
+      if (!playerWrap) throw new Error("Player element not found");
 
-      // Recording canvas at composition resolution
-      const recordCanvas = document.createElement("canvas");
-      recordCanvas.width = 1080;
-      recordCanvas.height = 1920;
-      const ctx = recordCanvas.getContext("2d")!;
-
-      // Set up audio: decode music.wav and route to a MediaStream destination
-      const audioCtx = new AudioContext();
+      // Pre-load and decode audio
       const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+      const audioCtx = new AudioContext();
       const audioResp = await fetch(`${BASE}/music.wav`);
-      const audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
-      const audioSource = audioCtx.createBufferSource();
-      audioSource.buffer = audioBuf;
-      const audioDest = audioCtx.createMediaStreamDestination();
-      audioSource.connect(audioDest);
+      const audioBuf = await audioCtx.decodeAudioData(
+        await audioResp.arrayBuffer(),
+      );
+      await audioCtx.close();
 
-      // Combine video (from canvas) + audio streams
-      const videoStream = recordCanvas.captureStream(FPS);
-      const combinedStream = new MediaStream([
-        ...videoStream.getVideoTracks(),
-        ...audioDest.stream.getAudioTracks(),
-      ]);
-
-      const recorder = new MediaRecorder(combinedStream, {
-        mimeType: "video/webm;codecs=vp9,opus",
-        videoBitsPerSecond: 8_000_000,
-      });
-      const chunks: Blob[] = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-      const donePromise = new Promise<void>((resolve) => {
-        recorder.onstop = () => resolve();
+      // Set up MP4 muxer
+      const { Muxer, ArrayBufferTarget } = await import("mp4-muxer");
+      const target = new ArrayBufferTarget();
+      const muxer = new Muxer({
+        target,
+        video: { codec: "avc", width: 1080, height: 1920 },
+        audio: {
+          codec: "aac",
+          sampleRate: audioBuf.sampleRate,
+          numberOfChannels: audioBuf.numberOfChannels,
+        },
+        fastStart: "in-memory",
       });
 
-      // Start recording, audio, and playback simultaneously
-      recorder.start();
-      audioSource.start();
+      // Video encoder (H.264)
+      const videoEncoder = new VideoEncoder({
+        output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+        error: (e) => console.error("VideoEncoder:", e),
+      });
+      videoEncoder.configure({
+        codec: "avc1.640034",
+        width: 1080,
+        height: 1920,
+        bitrate: 10_000_000,
+        framerate: FPS,
+      });
+
+      // Audio encoder (AAC)
+      const audioEncoder = new AudioEncoder({
+        output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+        error: (e) => console.error("AudioEncoder:", e),
+      });
+      audioEncoder.configure({
+        codec: "mp4a.40.2",
+        sampleRate: audioBuf.sampleRate,
+        numberOfChannels: audioBuf.numberOfChannels,
+        bitrate: 128_000,
+      });
+
+      // Capture the current tab
+      displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: FPS } },
+        // @ts-expect-error preferCurrentTab is a newer Chrome API
+        preferCurrentTab: true,
+      });
+
+      // Crop to the player element if CropTarget is available (Chrome 104+)
+      let cropSuccess = false;
+      // @ts-expect-error CropTarget is a newer Chrome API
+      if (typeof CropTarget !== "undefined") {
+        try {
+          // @ts-expect-error CropTarget is a newer Chrome API
+          const ct = await CropTarget.fromElement(playerWrap);
+          // @ts-expect-error cropTo is a newer Chrome API
+          await displayStream.getVideoTracks()[0].cropTo(ct);
+          cropSuccess = true;
+        } catch {
+          /* CropTarget not supported, fall back to manual crop */
+        }
+      }
+
+      // For manual crop fallback: get player position
+      const rect = playerWrap.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const sx = Math.round(rect.left * dpr);
+      const sy = Math.round(rect.top * dpr);
+      const sw = Math.round(rect.width * dpr);
+      const sh = Math.round(rect.height * dpr);
+
+      // Offscreen canvas for frame resizing
+      const offscreen = new OffscreenCanvas(1080, 1920);
+      const offCtx = offscreen.getContext("2d")!;
+
+      // Start playback
       playerRef.current?.seekTo(0);
       playerRef.current?.play();
-
       const startTime = performance.now();
-      let pendingCapture = false;
+      let frameCount = 0;
 
-      // Real-time capture loop: runs at display refresh rate, captures
-      // frames as fast as html2canvas can manage, skips if still busy
-      await new Promise<void>((resolve) => {
-        const loop = () => {
-          const elapsedSec = (performance.now() - startTime) / 1000;
-          setRenderProgress(Math.min(100, Math.round((elapsedSec / durationSec) * 100)));
+      // Read frames from the captured video track
+      const videoTrack = displayStream.getVideoTracks()[0];
+      const processor = new MediaStreamTrackProcessor({ track: videoTrack });
+      const reader = processor.readable.getReader();
 
-          if (elapsedSec >= durationSec) {
-            playerRef.current?.pause();
-            try { audioSource.stop(); } catch {}
-            recorder.stop();
-            resolve();
-            return;
-          }
+      while (true) {
+        const { value: frame, done } = await reader.read();
+        if (done || !frame) break;
 
-          if (!pendingCapture) {
-            pendingCapture = true;
-            html2canvas(playerContent, {
-              backgroundColor: "#000000",
-              logging: false,
-              useCORS: true,
-              scale: 1,
-            })
-              .then((captured) => {
-                ctx.drawImage(captured, 0, 0, 1080, 1920);
-                pendingCapture = false;
-              })
-              .catch(() => {
-                pendingCapture = false;
-              });
-          }
+        const elapsed = performance.now() - startTime;
+        if (elapsed >= durationMs) {
+          frame.close();
+          break;
+        }
 
-          requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
-      });
+        // Draw frame to offscreen canvas (crop if needed, always resize to 1080x1920)
+        if (cropSuccess) {
+          offCtx.drawImage(frame, 0, 0, 1080, 1920);
+        } else {
+          offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, 1080, 1920);
+        }
 
-      await donePromise;
+        const outputFrame = new VideoFrame(offscreen, {
+          timestamp: frame.timestamp,
+        });
+        videoEncoder.encode(outputFrame, {
+          keyFrame: frameCount % 120 === 0,
+        });
+        outputFrame.close();
+        frame.close();
+        frameCount++;
 
-      const blob = new Blob(chunks, { type: "video/webm" });
+        setRenderProgress(
+          Math.min(95, Math.round((elapsed / durationMs) * 100)),
+        );
+      }
+
+      // Stop capture + playback
+      playerRef.current?.pause();
+      videoTrack.stop();
+      displayStream.getTracks().forEach((t) => t.stop());
+      displayStream = null;
+
+      // Encode audio from the decoded WAV buffer
+      const CHUNK_SIZE = 1024;
+      const maxSamples = Math.min(
+        audioBuf.length,
+        Math.ceil((audioBuf.sampleRate * durationMs) / 1000),
+      );
+      for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
+        const len = Math.min(CHUNK_SIZE, maxSamples - i);
+        const data = new Float32Array(len * audioBuf.numberOfChannels);
+        for (let c = 0; c < audioBuf.numberOfChannels; c++) {
+          data.set(
+            audioBuf.getChannelData(c).subarray(i, i + len),
+            c * len,
+          );
+        }
+        const ad = new AudioData({
+          format: "f32-planar",
+          sampleRate: audioBuf.sampleRate,
+          numberOfFrames: len,
+          numberOfChannels: audioBuf.numberOfChannels,
+          timestamp: Math.round((i / audioBuf.sampleRate) * 1_000_000),
+          data,
+        });
+        audioEncoder.encode(ad);
+        ad.close();
+      }
+
+      // Finalize MP4
+      await videoEncoder.flush();
+      await audioEncoder.flush();
+      videoEncoder.close();
+      audioEncoder.close();
+      muxer.finalize();
+
+      setRenderProgress(100);
+
+      // Download
+      const blob = new Blob([target.buffer], { type: "video/mp4" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "seasonal.webm";
+      a.download = "seasonal.mp4";
       a.click();
       URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to record video. Check the console for details.");
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === "NotAllowedError") {
+        // User cancelled the share dialog — no alert needed
+      } else {
+        console.error(err);
+        alert("Recording failed. Check the console for details.");
+      }
     } finally {
+      displayStream?.getTracks().forEach((t) => t.stop());
       setRendering(false);
+      setRecordingMode(false);
       setRenderProgress(0);
     }
   }, [props]);
@@ -133,10 +243,16 @@ export default function Editor() {
     setProps((prev) => ({ ...prev, seasonNumber: digits }));
   };
 
-  const updateScene = (index: number, field: keyof Scene, value: string | number) => {
+  const updateScene = (
+    index: number,
+    field: keyof Scene,
+    value: string | number,
+  ) => {
     setProps((prev) => ({
       ...prev,
-      scenes: prev.scenes.map((s, i) => (i === index ? { ...s, [field]: value } : s)),
+      scenes: prev.scenes.map((s, i) =>
+        i === index ? { ...s, [field]: value } : s,
+      ),
     }));
   };
 
@@ -168,17 +284,25 @@ export default function Editor() {
       <h1 style={styles.heading}>Seasonal Video Creator</h1>
 
       <div style={styles.main}>
-        <div style={styles.preview} data-player>
-          <style>{`
-            .player-wrap [data-remotion-player-controls] {
-              opacity: 0 !important;
-              transition: opacity 0.3s ease !important;
-            }
-            .player-wrap:hover [data-remotion-player-controls] {
-              opacity: 1 !important;
-            }
-          `}</style>
-          <div className="player-wrap">
+        <div
+          style={recordingMode ? styles.recordingOverlay : styles.preview}
+          data-player
+        >
+          {!recordingMode && (
+            <style>{`
+              .player-wrap [data-remotion-player-controls] {
+                opacity: 0 !important;
+                transition: opacity 0.3s ease !important;
+              }
+              .player-wrap:hover [data-remotion-player-controls] {
+                opacity: 1 !important;
+              }
+            `}</style>
+          )}
+          <div
+            className="player-wrap"
+            style={recordingMode ? styles.recordingPlayerWrap : undefined}
+          >
             <Player
               ref={playerRef}
               component={HelloWorld}
@@ -188,98 +312,123 @@ export default function Editor() {
               fps={FPS}
               compositionWidth={1080}
               compositionHeight={1920}
-              style={{ width: "100%", aspectRatio: "9/16" }}
-              controls
-              clickToPlay
-              loop
+              style={
+                recordingMode
+                  ? { width: "100%", height: "100%" }
+                  : { width: "100%", aspectRatio: "9/16" }
+              }
+              controls={!recordingMode}
+              clickToPlay={!recordingMode}
+              loop={!recordingMode}
               renderLoading={() => (
-                <div style={{ width: "100%", aspectRatio: "9/16", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#000" }}>
-                  <p style={{ color: "#666", fontSize: 14 }}>Loading assets...</p>
+                <div
+                  style={{
+                    width: "100%",
+                    aspectRatio: "9/16",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#000",
+                  }}
+                >
+                  <p style={{ color: "#666", fontSize: 14 }}>
+                    Loading assets...
+                  </p>
                 </div>
               )}
             />
           </div>
-          <button
-            style={{
-              ...styles.downloadButton,
-              opacity: rendering ? 0.6 : 1,
-              cursor: rendering ? "not-allowed" : "pointer",
-            }}
-            onClick={handleDownload}
-            disabled={rendering}
-          >
-            {rendering ? `Recording… ${renderProgress}%` : "Download Video"}
-          </button>
+          {!recordingMode && (
+            <button
+              style={{
+                ...styles.downloadButton,
+                opacity: rendering ? 0.6 : 1,
+                cursor: rendering ? "not-allowed" : "pointer",
+              }}
+              onClick={handleDownload}
+              disabled={rendering}
+            >
+              {rendering
+                ? `Recording\u2026 ${renderProgress}%`
+                : "Download MP4"}
+            </button>
+          )}
         </div>
 
-        <div style={styles.controls}>
-          <h2 style={styles.controlsHeading}>Customize</h2>
+        {!recordingMode && (
+          <div style={styles.controls}>
+            <h2 style={styles.controlsHeading}>Customize</h2>
 
-          <label style={styles.label}>
-            Season Number
-            <input
-              style={styles.input}
-              value={props.seasonNumber}
-              onChange={(e) => updateSeason(e.target.value)}
-              placeholder="01"
-              maxLength={2}
-            />
-          </label>
+            <label style={styles.label}>
+              Season Number
+              <input
+                style={styles.input}
+                value={props.seasonNumber}
+                onChange={(e) => updateSeason(e.target.value)}
+                placeholder="01"
+                maxLength={2}
+              />
+            </label>
 
-          <div>
-            <span style={styles.label}>Color Scheme</span>
-            <div style={styles.colorRow}>
-              {(["dark", "light", "highlight"] as const).map((key) => (
-                <label key={key} style={styles.colorLabel}>
+            <div>
+              <span style={styles.label}>Color Scheme</span>
+              <div style={styles.colorRow}>
+                {(["dark", "light", "highlight"] as const).map((key) => (
+                  <label key={key} style={styles.colorLabel}>
+                    <input
+                      type="color"
+                      value={props.colorScheme[key]}
+                      onChange={(e) => updateColor(key, e.target.value)}
+                      style={styles.colorInput}
+                    />
+                    <span style={styles.colorName}>{key}</span>
+                    <span style={styles.colorHex}>
+                      {props.colorScheme[key]}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={styles.scenesHeader}>
+              <span style={styles.label}>Scenes</span>
+              <button style={styles.addButton} onClick={addScene}>
+                + Add Scene
+              </button>
+            </div>
+
+            <div style={styles.scenesList}>
+              {props.scenes.map((scene, i) => (
+                <div key={i} style={styles.sceneRow}>
+                  <span style={styles.sceneNumber}>{i + 1}</span>
                   <input
-                    type="color"
-                    value={props.colorScheme[key]}
-                    onChange={(e) => updateColor(key, e.target.value)}
-                    style={styles.colorInput}
+                    style={styles.sceneInput}
+                    value={scene.text}
+                    onChange={(e) => updateScene(i, "text", e.target.value)}
+                    placeholder={`Scene ${i + 1} text...`}
                   />
-                  <span style={styles.colorName}>{key}</span>
-                  <span style={styles.colorHex}>{props.colorScheme[key]}</span>
-                </label>
+                  <input
+                    style={styles.fontSizeInput}
+                    type="number"
+                    value={scene.fontSize ?? 200}
+                    onChange={(e) =>
+                      updateScene(i, "fontSize", Number(e.target.value))
+                    }
+                    title="Font size (px)"
+                  />
+                  {props.scenes.length > 1 && (
+                    <button
+                      style={styles.removeButton}
+                      onClick={() => removeScene(i)}
+                    >
+                      x
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           </div>
-
-          <div style={styles.scenesHeader}>
-            <span style={styles.label}>Scenes</span>
-            <button style={styles.addButton} onClick={addScene}>
-              + Add Scene
-            </button>
-          </div>
-
-          <div style={styles.scenesList}>
-            {props.scenes.map((scene, i) => (
-              <div key={i} style={styles.sceneRow}>
-                <span style={styles.sceneNumber}>{i + 1}</span>
-                <input
-                  style={styles.sceneInput}
-                  value={scene.text}
-                  onChange={(e) => updateScene(i, "text", e.target.value)}
-                  placeholder={`Scene ${i + 1} text...`}
-                />
-                <input
-                  style={styles.fontSizeInput}
-                  type="number"
-                  value={scene.fontSize ?? 200}
-                  onChange={(e) => updateScene(i, "fontSize", Number(e.target.value))}
-                  title="Font size (px)"
-                />
-                {props.scenes.length > 1 && (
-                  <button
-                    style={styles.removeButton}
-                    onClick={() => removeScene(i)}
-                  >
-                    x
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -310,6 +459,19 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     overflow: "hidden",
     border: "1px solid #1e293b",
+  },
+  recordingOverlay: {
+    position: "fixed" as const,
+    inset: 0,
+    zIndex: 9999,
+    backgroundColor: "#000",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  recordingPlayerWrap: {
+    height: "100vh",
+    aspectRatio: "9/16",
   },
   controls: {
     display: "flex",
