@@ -7,7 +7,6 @@ import {
   Sequence,
   Img,
   OffthreadVideo,
-  staticFile,
 } from "remotion";
 import type { VideoProps, ColorScheme, Scene } from "./types";
 import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
@@ -248,7 +247,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           }}
         >
           <OffthreadVideo
-            src={staticFile(backgroundVideo.src)}
+            src={`${BASE}${backgroundVideo.src}`}
             muted
             style={{
               width: "100%",
