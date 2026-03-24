@@ -128,30 +128,6 @@ export default function Editor() {
                   onChange={(e) => updateScene(i, "fontSize", Number(e.target.value))}
                   title="Font size (px)"
                 />
-                <input
-                  style={styles.smallInput}
-                  type="number"
-                  value={scene.rotateZ ?? ""}
-                  onChange={(e) => updateScene(i, "rotateZ", e.target.value === "" ? undefined as unknown as number : Number(e.target.value))}
-                  title="Rotate Z (deg)"
-                  placeholder="rZ"
-                />
-                <input
-                  style={styles.smallInput}
-                  type="number"
-                  value={scene.rotateX ?? ""}
-                  onChange={(e) => updateScene(i, "rotateX", e.target.value === "" ? undefined as unknown as number : Number(e.target.value))}
-                  title="Rotate X (deg)"
-                  placeholder="rX"
-                />
-                <input
-                  style={styles.smallInput}
-                  type="number"
-                  value={scene.perspective ?? ""}
-                  onChange={(e) => updateScene(i, "perspective", e.target.value === "" ? undefined as unknown as number : Number(e.target.value))}
-                  title="Perspective (px)"
-                  placeholder="persp"
-                />
                 {props.scenes.length > 1 && (
                   <button
                     style={styles.removeButton}
@@ -308,17 +284,6 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: "#1e293b",
     color: "#e2e8f0",
     fontSize: 13,
-    textAlign: "center" as const,
-    outline: "none",
-  },
-  smallInput: {
-    width: 48,
-    padding: "8px 4px",
-    borderRadius: 8,
-    border: "1px solid #334155",
-    backgroundColor: "#1e293b",
-    color: "#e2e8f0",
-    fontSize: 12,
     textAlign: "center" as const,
     outline: "none",
   },
