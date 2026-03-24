@@ -1,36 +1,67 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Player } from "@remotion/player";
+import { useState, useCallback, useRef } from "react";
+import { Player, type PlayerRef } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
 const SCENE_DURATION = 90;
+const FPS = 30;
 
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
   const [rendering, setRendering] = useState(false);
+  const playerRef = useRef<PlayerRef>(null);
 
   const handleDownload = useCallback(async () => {
+    const container = document.querySelector("[data-player]");
+    const canvas = container?.querySelector("canvas");
+    if (!canvas) {
+      alert("Cannot find the player canvas. Try playing the video first.");
+      return;
+    }
+
     setRendering(true);
     try {
-      const res = await fetch("/api/render", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(props),
+      const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
+      const stream = canvas.captureStream(FPS);
+      const recorder = new MediaRecorder(stream, {
+        mimeType: "video/webm;codecs=vp9",
+        videoBitsPerSecond: 8_000_000,
       });
-      if (!res.ok) throw new Error("Render failed");
-      const blob = await res.blob();
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      const done = new Promise<void>((resolve) => {
+        recorder.onstop = () => resolve();
+      });
+
+      // Start from beginning and play
+      playerRef.current?.seekTo(0);
+      playerRef.current?.play();
+      recorder.start();
+
+      // Wait for playback to finish
+      const durationMs = (totalFrames / FPS) * 1000;
+      await new Promise((r) => setTimeout(r, durationMs + 500));
+
+      recorder.stop();
+      playerRef.current?.pause();
+      await done;
+
+      const blob = new Blob(chunks, { type: "video/webm" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "seasonal.mp4";
+      a.download = "seasonal.webm";
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      alert("Failed to render video. Check the console for details.");
+      alert("Failed to record video. Check the console for details.");
     } finally {
       setRendering(false);
     }
@@ -76,13 +107,14 @@ export default function Editor() {
       <h1 style={styles.heading}>Seasonal Video Creator</h1>
 
       <div style={styles.main}>
-        <div style={styles.preview}>
+        <div style={styles.preview} data-player>
           <Player
+            ref={playerRef}
             component={HelloWorld}
             schema={videoPropsSchema}
             inputProps={props}
             durationInFrames={Math.max(1, totalFrames)}
-            fps={30}
+            fps={FPS}
             compositionWidth={1080}
             compositionHeight={1920}
             style={{ width: "100%", aspectRatio: "9/16" }}
@@ -104,7 +136,7 @@ export default function Editor() {
             onClick={handleDownload}
             disabled={rendering}
           >
-            {rendering ? "Rendering..." : "Download Video"}
+            {rendering ? "Recording..." : "Download Video"}
           </button>
         </div>
 
