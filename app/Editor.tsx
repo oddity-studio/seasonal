@@ -5,7 +5,7 @@ import { Player, type PlayerRef } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 
 const SCENE_DURATION = 90;
 const FPS = 30;
