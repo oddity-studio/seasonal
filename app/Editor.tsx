@@ -5,6 +5,7 @@ import { Player, type PlayerRef } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
+import html2canvas from "html2canvas";
 
 const SCENE_DURATION = 90;
 const FPS = 30;
@@ -12,20 +13,39 @@ const FPS = 30;
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
   const [rendering, setRendering] = useState(false);
+  const [renderProgress, setRenderProgress] = useState(0);
   const playerRef = useRef<PlayerRef>(null);
 
   const handleDownload = useCallback(async () => {
     const container = document.querySelector("[data-player]");
-    const canvas = container?.querySelector("canvas");
-    if (!canvas) {
-      alert("Cannot find the player canvas. Try playing the video first.");
+    if (!container) {
+      alert("Cannot find the player element.");
+      return;
+    }
+
+    // Find the Remotion player content container inside
+    const playerContent =
+      container.querySelector("[data-remotion-canvas]") ??
+      container.querySelector("div[style]");
+    if (!playerContent) {
+      alert("Cannot find the player content.");
       return;
     }
 
     setRendering(true);
+    setRenderProgress(0);
     try {
       const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
-      const stream = canvas.captureStream(FPS);
+
+      // Create a recording canvas at composition resolution
+      const recordCanvas = document.createElement("canvas");
+      recordCanvas.width = 1080;
+      recordCanvas.height = 1920;
+      const ctx = recordCanvas.getContext("2d")!;
+
+      // Use captureStream(0) for manual frame pushing
+      const stream = recordCanvas.captureStream(0);
+      const track = stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack;
       const recorder = new MediaRecorder(stream, {
         mimeType: "video/webm;codecs=vp9",
         videoBitsPerSecond: 8_000_000,
@@ -34,22 +54,34 @@ export default function Editor() {
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunks.push(e.data);
       };
-
       const done = new Promise<void>((resolve) => {
         recorder.onstop = () => resolve();
       });
 
-      // Start from beginning and play
-      playerRef.current?.seekTo(0);
-      playerRef.current?.play();
       recorder.start();
 
-      // Wait for playback to finish
-      const durationMs = (totalFrames / FPS) * 1000;
-      await new Promise((r) => setTimeout(r, durationMs + 500));
+      // Pause player and capture frame-by-frame
+      playerRef.current?.pause();
+
+      for (let frame = 0; frame < totalFrames; frame++) {
+        playerRef.current?.seekTo(frame);
+        // Wait for React to render the new frame
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        const captured = await html2canvas(playerContent as HTMLElement, {
+          backgroundColor: "#000000",
+          logging: false,
+          useCORS: true,
+          scale: 1,
+        });
+
+        ctx.drawImage(captured, 0, 0, 1080, 1920);
+        track.requestFrame();
+
+        setRenderProgress(Math.round(((frame + 1) / totalFrames) * 100));
+      }
 
       recorder.stop();
-      playerRef.current?.pause();
       await done;
 
       const blob = new Blob(chunks, { type: "video/webm" });
@@ -64,6 +96,7 @@ export default function Editor() {
       alert("Failed to record video. Check the console for details.");
     } finally {
       setRendering(false);
+      setRenderProgress(0);
     }
   }, [props]);
 
@@ -136,7 +169,7 @@ export default function Editor() {
             onClick={handleDownload}
             disabled={rendering}
           >
-            {rendering ? "Recording..." : "Download Video"}
+            {rendering ? `Recording… ${renderProgress}%` : "Download Video"}
           </button>
         </div>
 
