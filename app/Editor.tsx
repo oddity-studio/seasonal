@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Player } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
@@ -10,6 +10,31 @@ const SCENE_DURATION = 90;
 
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
+  const [rendering, setRendering] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    setRendering(true);
+    try {
+      const res = await fetch("/api/render", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(props),
+      });
+      if (!res.ok) throw new Error("Render failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "seasonal.mp4";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to render video. Check the console for details.");
+    } finally {
+      setRendering(false);
+    }
+  }, [props]);
 
   const updateSeason = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 2);
@@ -70,6 +95,17 @@ export default function Editor() {
               </div>
             )}
           />
+          <button
+            style={{
+              ...styles.downloadButton,
+              opacity: rendering ? 0.6 : 1,
+              cursor: rendering ? "not-allowed" : "pointer",
+            }}
+            onClick={handleDownload}
+            disabled={rendering}
+          >
+            {rendering ? "Rendering..." : "Download Video"}
+          </button>
         </div>
 
         <div style={styles.controls}>
@@ -286,6 +322,18 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     textAlign: "center" as const,
     outline: "none",
+  },
+  downloadButton: {
+    marginTop: 12,
+    padding: "12px 20px",
+    borderRadius: 8,
+    border: "none",
+    backgroundColor: "#e2e8f0",
+    color: "#0a0a0a",
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: "pointer",
+    width: "100%",
   },
   removeButton: {
     padding: "4px 8px",
