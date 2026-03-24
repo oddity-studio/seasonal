@@ -61,7 +61,7 @@ const SCENE_LAYOUTS: CharPlacement[][] = [
   ],
   // Scene 5: all three — group shot
   [
-    { src: CHAR1, side: "left", scale: 1.0, bottomPct: 0, opacity: 0.5 },
+    { src: CHAR3, side: "left", scale: 1.0, bottomPct: 0, opacity: 0.5 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ],
