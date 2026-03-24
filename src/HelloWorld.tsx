@@ -132,6 +132,7 @@ const FighterChar: React.FC<{
             left: "50%",
             transform: `translateX(calc(-50% + ${slideX + sway}px)) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
             transformOrigin: "bottom center",
+            willChange: "transform",
           }}
         />
       </div>
@@ -150,6 +151,7 @@ const FighterChar: React.FC<{
         transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
         transformOrigin: isLeft ? "bottom left" : "bottom right",
         pointerEvents: "none" as const,
+        willChange: "transform, opacity",
       }}
     >
       <Img

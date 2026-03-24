@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { HelloWorld } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
@@ -141,25 +141,36 @@ export default function Editor() {
 
       <div style={styles.main}>
         <div style={styles.preview} data-player>
-          <Player
-            ref={playerRef}
-            component={HelloWorld}
-            schema={videoPropsSchema}
-            inputProps={props}
-            durationInFrames={Math.max(1, totalFrames)}
-            fps={FPS}
-            compositionWidth={1080}
-            compositionHeight={1920}
-            style={{ width: "100%", aspectRatio: "9/16" }}
-            controls
-            autoPlay
-            loop
-            renderLoading={() => (
-              <div style={{ width: "100%", aspectRatio: "9/16", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#000" }}>
-                <p style={{ color: "#666", fontSize: 14 }}>Loading assets...</p>
-              </div>
-            )}
-          />
+          <style>{`
+            .player-wrap [data-remotion-player-controls] {
+              opacity: 0 !important;
+              transition: opacity 0.3s ease !important;
+            }
+            .player-wrap:hover [data-remotion-player-controls] {
+              opacity: 1 !important;
+            }
+          `}</style>
+          <div className="player-wrap">
+            <Player
+              ref={playerRef}
+              component={HelloWorld}
+              schema={videoPropsSchema}
+              inputProps={props}
+              durationInFrames={Math.max(1, totalFrames)}
+              fps={FPS}
+              compositionWidth={1080}
+              compositionHeight={1920}
+              style={{ width: "100%", aspectRatio: "9/16" }}
+              controls
+              clickToPlay
+              loop
+              renderLoading={() => (
+                <div style={{ width: "100%", aspectRatio: "9/16", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#000" }}>
+                  <p style={{ color: "#666", fontSize: 14 }}>Loading assets...</p>
+                </div>
+              )}
+            />
+          </div>
           <button
             style={{
               ...styles.downloadButton,
