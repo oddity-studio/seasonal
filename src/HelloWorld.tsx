@@ -1,3 +1,4 @@
+import React from "react";
 import {
   AbsoluteFill,
   useCurrentFrame,
@@ -10,6 +11,7 @@ import {
   Audio,
 } from "remotion";
 import type { VideoProps, ColorScheme, Scene } from "./types";
+import { LottieTransition, TRANSITION_DURATION } from "./LottieTransition";
 import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
 
 const { fontFamily } = loadFont();
@@ -416,16 +418,28 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Background music */}
       <Audio src={`${BASE}/music.wav`} volume={1} />
 
-      {/* Scene cards */}
-      {scenes.map((scene, i) => (
-        <Sequence
-          key={i}
-          from={SCENE_DURATION * (i + 1)}
-          durationInFrames={SCENE_DURATION}
-        >
-          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
-        </Sequence>
-      ))}
+      {/* Scene cards with Lottie transitions */}
+      {scenes.map((scene, i) => {
+        const sceneStart = SCENE_DURATION + i * (SCENE_DURATION + TRANSITION_DURATION);
+        return (
+          <React.Fragment key={i}>
+            {/* Lottie transition before each scene */}
+            <Sequence
+              from={sceneStart}
+              durationInFrames={TRANSITION_DURATION}
+            >
+              <LottieTransition />
+            </Sequence>
+            {/* Scene card */}
+            <Sequence
+              from={sceneStart + TRANSITION_DURATION}
+              durationInFrames={SCENE_DURATION}
+            >
+              <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
+            </Sequence>
+          </React.Fragment>
+        );
+      })}
     </AbsoluteFill>
   );
 };
