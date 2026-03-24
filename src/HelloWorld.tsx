@@ -7,6 +7,7 @@ import {
   Sequence,
   Img,
   OffthreadVideo,
+  Audio,
 } from "remotion";
 import type { VideoProps, ColorScheme, Scene } from "./types";
 import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
@@ -409,6 +410,9 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           </div>
         </AbsoluteFill>
       </Sequence>
+
+      {/* Background music */}
+      <Audio src={`${BASE}/music.wav`} volume={1} />
 
       {/* Scene cards */}
       {scenes.map((scene, i) => (
