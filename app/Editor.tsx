@@ -17,18 +17,9 @@ export default function Editor() {
   const playerRef = useRef<PlayerRef>(null);
 
   const handleDownload = useCallback(async () => {
-    const container = document.querySelector("[data-player]");
-    if (!container) {
-      alert("Cannot find the player element.");
-      return;
-    }
-
-    // Find the Remotion player content container inside
-    const playerContent =
-      container.querySelector("[data-remotion-canvas]") ??
-      container.querySelector("div[style]");
+    const playerContent = document.querySelector(".player-wrap > div") as HTMLElement;
     if (!playerContent) {
-      alert("Cannot find the player content.");
+      alert("Cannot find the player element.");
       return;
     }
 
@@ -36,53 +27,90 @@ export default function Editor() {
     setRenderProgress(0);
     try {
       const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
+      const durationSec = totalFrames / FPS;
 
-      // Create a recording canvas at composition resolution
+      // Recording canvas at composition resolution
       const recordCanvas = document.createElement("canvas");
       recordCanvas.width = 1080;
       recordCanvas.height = 1920;
       const ctx = recordCanvas.getContext("2d")!;
 
-      // Use captureStream(0) for manual frame pushing
-      const stream = recordCanvas.captureStream(0);
-      const track = stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack;
-      const recorder = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp9",
+      // Set up audio: decode music.wav and route to a MediaStream destination
+      const audioCtx = new AudioContext();
+      const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+      const audioResp = await fetch(`${BASE}/music.wav`);
+      const audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
+      const audioSource = audioCtx.createBufferSource();
+      audioSource.buffer = audioBuf;
+      const audioDest = audioCtx.createMediaStreamDestination();
+      audioSource.connect(audioDest);
+
+      // Combine video (from canvas) + audio streams
+      const videoStream = recordCanvas.captureStream(FPS);
+      const combinedStream = new MediaStream([
+        ...videoStream.getVideoTracks(),
+        ...audioDest.stream.getAudioTracks(),
+      ]);
+
+      const recorder = new MediaRecorder(combinedStream, {
+        mimeType: "video/webm;codecs=vp9,opus",
         videoBitsPerSecond: 8_000_000,
       });
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunks.push(e.data);
       };
-      const done = new Promise<void>((resolve) => {
+      const donePromise = new Promise<void>((resolve) => {
         recorder.onstop = () => resolve();
       });
 
+      // Start recording, audio, and playback simultaneously
       recorder.start();
+      audioSource.start();
+      playerRef.current?.seekTo(0);
+      playerRef.current?.play();
 
-      // Pause player and capture frame-by-frame
-      playerRef.current?.pause();
+      const startTime = performance.now();
+      let pendingCapture = false;
 
-      for (let frame = 0; frame < totalFrames; frame++) {
-        playerRef.current?.seekTo(frame);
-        // Wait for React to render the new frame
-        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      // Real-time capture loop: runs at display refresh rate, captures
+      // frames as fast as html2canvas can manage, skips if still busy
+      await new Promise<void>((resolve) => {
+        const loop = () => {
+          const elapsedSec = (performance.now() - startTime) / 1000;
+          setRenderProgress(Math.min(100, Math.round((elapsedSec / durationSec) * 100)));
 
-        const captured = await html2canvas(playerContent as HTMLElement, {
-          backgroundColor: "#000000",
-          logging: false,
-          useCORS: true,
-          scale: 1,
-        });
+          if (elapsedSec >= durationSec) {
+            playerRef.current?.pause();
+            try { audioSource.stop(); } catch {}
+            recorder.stop();
+            resolve();
+            return;
+          }
 
-        ctx.drawImage(captured, 0, 0, 1080, 1920);
-        track.requestFrame();
+          if (!pendingCapture) {
+            pendingCapture = true;
+            html2canvas(playerContent, {
+              backgroundColor: "#000000",
+              logging: false,
+              useCORS: true,
+              scale: 1,
+            })
+              .then((captured) => {
+                ctx.drawImage(captured, 0, 0, 1080, 1920);
+                pendingCapture = false;
+              })
+              .catch(() => {
+                pendingCapture = false;
+              });
+          }
 
-        setRenderProgress(Math.round(((frame + 1) / totalFrames) * 100));
-      }
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      });
 
-      recorder.stop();
-      await done;
+      await donePromise;
 
       const blob = new Blob(chunks, { type: "video/webm" });
       const url = URL.createObjectURL(blob);
