@@ -6,7 +6,7 @@ import {
   interpolate,
   Sequence,
   Img,
-  OffthreadVideo,
+  Video,
   Audio,
 } from "remotion";
 import type { VideoProps, ColorScheme, Scene } from "./types";
@@ -246,7 +246,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
             mixBlendMode: (backgroundVideo.blendMode as React.CSSProperties["mixBlendMode"]) ?? "normal",
           }}
         >
-          <OffthreadVideo
+          <Video
             src={`${BASE}${backgroundVideo.src}`}
             muted
             startFrom={backgroundVideo.startFrom ?? 0}
@@ -261,6 +261,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
       )}
 
       {/* Character layer behind text */}
+
       <CharacterLayer layoutIndex={index} />
 
       {/* Text overlay */}
