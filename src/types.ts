@@ -10,6 +10,7 @@ export const backgroundVideoSchema = z.object({
   src: z.string(),
   scale: z.number().optional(),
   blendMode: z.string().optional(),
+  startFrom: z.number().optional(),
 });
 
 export const sceneSchema = z.object({
@@ -44,7 +45,7 @@ export const defaultVideoProps: VideoProps = {
     { text: "Welcome to the show", fontSize: 150, y: 300, x: 0, rotateZ: -12, rotateX: 18 },
     { text: "Something amazing happens", fontSize: 150 },
     { text: "New challengers approach", fontSize: 150 },
-    { text: "The battle intensifies", fontSize: 150, backgroundVideo: { src: "/video.mp4", scale: 1.2, blendMode: "overlay" } },
+    { text: "The battle intensifies", fontSize: 150, backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "overlay", startFrom: 300 } },
     { text: "Who will come out on top?", fontSize: 150, y: 300, x: 0, rotateZ: 10, rotateX: -15 },
     { text: "Stay tuned for more", fontSize: 150 },
   ],

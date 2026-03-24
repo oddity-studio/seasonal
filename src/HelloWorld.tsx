@@ -249,6 +249,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           <OffthreadVideo
             src={`${BASE}${backgroundVideo.src}`}
             muted
+            startFrom={backgroundVideo.startFrom ?? 0}
             style={{
               width: "100%",
               height: "100%",
