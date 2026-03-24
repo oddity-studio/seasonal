@@ -6,8 +6,10 @@ import {
   interpolate,
   Sequence,
   Img,
+  OffthreadVideo,
+  staticFile,
 } from "remotion";
-import type { VideoProps, ColorScheme } from "./types";
+import type { VideoProps, ColorScheme, Scene } from "./types";
 import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
 
 const { fontFamily } = loadFont();
@@ -179,7 +181,7 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number }> = ({
+const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
   text,
   index,
   colors,
@@ -189,6 +191,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   rotateZ: rZ,
   rotateX: rX,
   perspective: persp,
+  backgroundVideo,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -236,6 +239,27 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
         background,
       }}
     >
+      {/* Background video layer */}
+      {backgroundVideo && (
+        <AbsoluteFill
+          style={{
+            overflow: "hidden",
+            mixBlendMode: (backgroundVideo.blendMode as React.CSSProperties["mixBlendMode"]) ?? "normal",
+          }}
+        >
+          <OffthreadVideo
+            src={staticFile(backgroundVideo.src)}
+            muted
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: `scale(${backgroundVideo.scale ?? 1})`,
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
       {/* Character layer behind text */}
       <CharacterLayer layoutIndex={index} />
 
@@ -393,7 +417,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           from={SCENE_DURATION * (i + 1)}
           durationInFrames={SCENE_DURATION}
         >
-          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} />
+          <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
         </Sequence>
       ))}
     </AbsoluteFill>
