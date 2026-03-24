@@ -270,7 +270,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
           <div
             style={{
               opacity: exit,
-              transform: `translateX(${xOffset}px) translateY(${y}px) perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg)`,
+              transform: `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${xOffset}px) translateY(${y}px)`,
               textAlign: "center",
               padding: "0 80px",
               zIndex: 1,
