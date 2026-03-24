@@ -79,7 +79,8 @@ const FighterChar: React.FC<{
   frame: number;
   fps: number;
   charIndex: number;
-}> = ({ placement, frame, fps, charIndex }) => {
+  totalChars: number;
+}> = ({ placement, frame, fps, charIndex, totalChars }) => {
   // Slide in from the side
   const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 5 });
   const offscreen = placement.side === "left" ? -600 : 600;
@@ -97,7 +98,8 @@ const FighterChar: React.FC<{
     ? interpolate(frame, [exitStart, SCENE_DURATION], [0, 1], { extrapolateRight: "clamp" })
     : 0;
   const exitScale = 1 + exitProgress * 0.3;
-  const exitOpacity = 1 - exitProgress;
+  const baseOpacity = totalChars >= 2 ? 0.5 : 1;
+  const exitOpacity = baseOpacity * (1 - exitProgress);
 
   const isLeft = placement.side === "left";
   const flipX = placement.flip ? -1 : 1;
@@ -171,6 +173,7 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
           frame={frame}
           fps={fps}
           charIndex={ci}
+          totalChars={layout.length}
         />
       ))}
     </div>
