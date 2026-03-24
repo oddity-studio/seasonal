@@ -35,10 +35,10 @@ export const defaultVideoProps: VideoProps = {
   },
   scenes: [
     { text: "Welcome to the show", fontSize: 150, y: 300, x: 100, rotateZ: -12, rotateX: 18 },
-    { text: "Something amazing happens", fontSize: 150 },
+    { text: "Something amazing happens", fontSize: 150, x: -100 },
     { text: "New challengers approach", fontSize: 150 },
     { text: "The battle intensifies", fontSize: 150 },
     { text: "Who will come out on top?", fontSize: 150, y: 300, x: 100, rotateZ: 10, rotateX: -15 },
-    { text: "Stay tuned for more", fontSize: 150 },
+    { text: "Stay tuned for more", fontSize: 150, x: -100 },
   ],
 };
