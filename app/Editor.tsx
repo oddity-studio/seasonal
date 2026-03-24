@@ -62,6 +62,7 @@ export default function Editor() {
       const target = new ArrayBufferTarget();
       const muxer = new Muxer({
         target,
+        firstTimestampBehavior: "offset",
         video: { codec: "avc", width: 1080, height: 1920 },
         audio: {
           codec: "aac",
