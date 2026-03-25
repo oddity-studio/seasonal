@@ -59,7 +59,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ] },
   // 3: char1 solo hero shot from right + background video
-  { label: "S12 Scene4", characters: [
+  { label: "Video Cube", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 } },
   // 4: char1 vs char3 showdown
@@ -77,7 +77,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ] },
   // 7: title — all three side by side, each 1/3 width
-  { label: "S12 Scene8", characters: [
+  { label: "S12 Cover", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
