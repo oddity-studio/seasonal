@@ -408,19 +408,23 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
     >
       <CharacterLayer layoutIndex={layoutIndex} />
 
-      {/* Flashy logo */}
+      {/* Logo stomp */}
       {(() => {
-        const logoScale = spring({ frame, fps, config: { damping: 10, stiffness: 80, mass: 0.5 } });
-        const logoPulse = Math.sin(frame * 0.075) * 0.08;
-        const logoRotate = Math.sin(frame * 0.05) * 3;
-        const glowIntensity = Math.sin(frame * 0.1) * 20 + 30;
+        // Heavy stomp: starts overscaled, slams down with high stiffness
+        const stomp = spring({ frame, fps, config: { damping: 12, stiffness: 200, mass: 1.2 } });
+        const logoScale = interpolate(stomp, [0, 1], [2.5, 1]);
+        const logoOpacity = interpolate(stomp, [0, 0.15], [0, 1], { extrapolateRight: "clamp" });
+        // Subtle breathe after landing — very minimal
+        const breathe = stomp >= 0.95 ? Math.sin((frame - 20) * 0.03) * 0.015 : 0;
+        const glowIntensity = interpolate(stomp, [0, 0.3, 1], [80, 50, 20]);
         return (
           <div
             style={{
               position: "absolute",
               top: "50%",
               left: "50%",
-              transform: `translate(-50%, -50%) scale(${logoScale + logoPulse}) rotate(${logoRotate}deg)`,
+              transform: `translate(-50%, -50%) scale(${logoScale + breathe})`,
+              opacity: logoOpacity,
               zIndex: 10,
               filter: `drop-shadow(0 0 ${glowIntensity}px rgba(255,255,255,0.8)) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight})`,
             }}
