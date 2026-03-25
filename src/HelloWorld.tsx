@@ -432,7 +432,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
             </Sequence>
             {/* Lottie transition overlay — starts 6 frames before scene */}
             <Sequence
-              from={sceneStart - 6}
+              from={sceneStart - 12}
               durationInFrames={TRANSITION_DURATION}
             >
               <LottieTransition />
