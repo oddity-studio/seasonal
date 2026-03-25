@@ -6,35 +6,43 @@ import { useEffect, useState } from "react";
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const TRANSITION_DURATION = 30; // frames (0.5s at 60fps)
 
-// Module-level cache so the JSON is fetched once and reused across all mounts
-let cachedData: LottieAnimationData | null = null;
-let fetchPromise: Promise<LottieAnimationData> | null = null;
+// Per-URL cache so each transition JSON is fetched once and reused
+const cache = new Map<string, LottieAnimationData>();
+const pending = new Map<string, Promise<LottieAnimationData>>();
 
 function preloadTransition(url: string): Promise<LottieAnimationData> {
-  if (cachedData) return Promise.resolve(cachedData);
-  if (!fetchPromise) {
-    fetchPromise = fetch(url)
+  const cached = cache.get(url);
+  if (cached) return Promise.resolve(cached);
+  let p = pending.get(url);
+  if (!p) {
+    p = fetch(url)
       .then((res) => res.json())
       .then((data: LottieAnimationData) => {
-        cachedData = data;
+        cache.set(url, data);
+        pending.delete(url);
         return data;
       });
+    pending.set(url, p);
   }
-  return fetchPromise;
+  return p;
 }
 
 const LottieTransition: React.FC<{
   src?: string;
 }> = ({ src }) => {
   const frame = useCurrentFrame();
-  const [animationData, setAnimationData] = useState<LottieAnimationData | null>(cachedData);
-
   const filePath = src || `${BASE}/picker/transitions/flash.json`;
+  const [animationData, setAnimationData] = useState<LottieAnimationData | null>(cache.get(filePath) ?? null);
 
   useEffect(() => {
-    if (animationData) return;
+    const cached = cache.get(filePath);
+    if (cached) {
+      setAnimationData(cached);
+      return;
+    }
+    setAnimationData(null);
     preloadTransition(filePath).then((data) => setAnimationData(data));
-  }, [filePath, animationData]);
+  }, [filePath]);
 
   if (!animationData) {
     // Fallback: simple black flash while loading
