@@ -363,6 +363,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       {/* Text overlay */}
       {(() => {
         const isScene2 = layoutIndex === 1;
+        const isScene5 = layoutIndex === 4;
         const defaultAngles = [
           { z: -12, x: 18 },
           { z: 10, x: -15 },
@@ -388,7 +389,11 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
         // Shift container up so the newest word stays at screen center
         const visibleProgress = wordSprings.reduce((sum, s) => sum + s, 0);
-        const shiftUp = isScene2 ? 0 : Math.max(0, visibleProgress - 1) * lineHeight;
+        // Scene5: linear scroll from bottom to top
+        const scene5Scroll = isScene5
+          ? interpolate(frame, [0, SCENE_DURATION - 30], [400, -totalWords * lineHeight * 0.4], { extrapolateRight: "clamp" })
+          : 0;
+        const shiftUp = isScene2 ? 0 : isScene5 ? -scene5Scroll : Math.max(0, visibleProgress - 1) * lineHeight;
 
         return (
           <div
@@ -408,11 +413,10 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               }}
             >
             {words.map((word, wi) => {
-              const wordY = isScene2 ? 0 : interpolate(wordSprings[wi], [0, 1], [30, 0]);
-              // Scene2: snap appear (opacity 0 → 1 with no slide)
+              const wordY = (isScene2 || isScene5) ? 0 : interpolate(wordSprings[wi], [0, 1], [30, 0]);
               const wordOpacity = isScene2
                 ? interpolate(wordSprings[wi], [0, 0.5], [0, 1], { extrapolateRight: "clamp" })
-                : wordSprings[wi];
+                : isScene5 ? enter : wordSprings[wi];
               return (
                 <p
                   key={wi}
