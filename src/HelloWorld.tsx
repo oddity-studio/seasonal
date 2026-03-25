@@ -12,9 +12,29 @@ import {
 } from "remotion";
 import type { VideoProps, ColorScheme, Scene } from "./types";
 import { LottieTransition, TRANSITION_DURATION } from "./LottieTransition";
-import { loadFont } from "@remotion/google-fonts/DelaGothicOne";
+import { loadFont as loadDelaGothicOne } from "@remotion/google-fonts/DelaGothicOne";
+import { loadFont as loadExo2 } from "@remotion/google-fonts/Exo2";
+import { loadFont as loadPermanentMarker } from "@remotion/google-fonts/PermanentMarker";
+import { loadFont as loadAnton } from "@remotion/google-fonts/Anton";
+import { loadFont as loadBigShoulders } from "@remotion/google-fonts/BigShoulders";
+import { loadFont as loadBowlbyOneSC } from "@remotion/google-fonts/BowlbyOneSC";
+import { loadFont as loadFugazOne } from "@remotion/google-fonts/FugazOne";
+import { loadFont as loadPassionOne } from "@remotion/google-fonts/PassionOne";
+import { loadFont as loadMontserrat } from "@remotion/google-fonts/Montserrat";
 
-const { fontFamily } = loadFont();
+const FONT_MAP: Record<string, string> = {
+  "Dela Gothic One": loadDelaGothicOne().fontFamily,
+  "Exo 2": loadExo2().fontFamily,
+  "Permanent Marker": loadPermanentMarker().fontFamily,
+  "Anton": loadAnton().fontFamily,
+  "Big Shoulders": loadBigShoulders().fontFamily,
+  "Bowlby One SC": loadBowlbyOneSC().fontFamily,
+  "Fugaz One": loadFugazOne().fontFamily,
+  "Passion One": loadPassionOne().fontFamily,
+  "Montserrat": loadMontserrat().fontFamily,
+};
+
+export const FONT_OPTIONS = Object.keys(FONT_MAP);
 
 const SCENE_DURATION = 180; // 3 seconds per scene at 60fps
 
@@ -193,11 +213,12 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
+const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontFamily: string; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
   text,
   index,
   layoutIndex,
   colors,
+  fontFamily,
   fontSize = 150,
   y: yOffset = 0,
   x: xOffset = 0,
@@ -362,7 +383,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   );
 };
 
-const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number }> = ({ colorScheme, layoutIndex }) => {
+const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number; fontFamily: string }> = ({ colorScheme, layoutIndex, fontFamily }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -430,7 +451,8 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7, music = "Tournament.mp3", transition = "flash.json" }) => {
+export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One" }) => {
+  const fontFamily = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
   const introFrames = showIntro ? SCENE_DURATION : 0;
 
   return (
@@ -438,7 +460,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Intro title card */}
       {showIntro && (
         <Sequence durationInFrames={SCENE_DURATION}>
-          <TitleCard colorScheme={colorScheme} layoutIndex={introLayout} />
+          <TitleCard colorScheme={colorScheme} fontFamily={fontFamily} layoutIndex={introLayout} />
         </Sequence>
       )}
 
@@ -456,7 +478,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
               from={sceneStart}
               durationInFrames={SCENE_DURATION}
             >
-              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
+              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontFamily={fontFamily} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
             </Sequence>
             {/* Lottie transition overlay */}
             <Sequence
@@ -472,7 +494,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Outro title card */}
       {showOutro && (
         <Sequence from={introFrames + scenes.length * SCENE_DURATION} durationInFrames={SCENE_DURATION}>
-          <TitleCard colorScheme={colorScheme} layoutIndex={outroLayout} />
+          <TitleCard colorScheme={colorScheme} fontFamily={fontFamily} layoutIndex={outroLayout} />
         </Sequence>
       )}
     </AbsoluteFill>

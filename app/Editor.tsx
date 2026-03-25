@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -466,6 +466,22 @@ export default function Editor() {
                     <option value="Arrow.json">Arrow</option>
                     <option value="Box1.json">Box1</option>
                     <option value="Box2.json">Box2</option>
+                  </select>
+                </label>
+                <label style={styles.styleLabel}>
+                  Font
+                  <select
+                    style={styles.layoutSelect}
+                    value={props.font || "Dela Gothic One"}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, font: e.target.value }))
+                    }
+                  >
+                    {FONT_OPTIONS.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
                   </select>
                 </label>
               </div>

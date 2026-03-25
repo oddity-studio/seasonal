@@ -34,6 +34,7 @@ export const videoPropsSchema = z.object({
   outroLayout: z.number().optional(),
   music: z.string().optional(),
   transition: z.string().optional(),
+  font: z.string().optional(),
   scenes: z.array(sceneSchema),
 });
 
@@ -49,6 +50,7 @@ export const defaultVideoProps: VideoProps = {
   outroLayout: 7,
   music: "Tournament.mp3",
   transition: "flash.json",
+  font: "Dela Gothic One",
   colorScheme: {
     dark: "#953f0c",
     light: "#dfbf67",
