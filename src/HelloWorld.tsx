@@ -418,24 +418,24 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Background music */}
       <Audio src={`${BASE}/music.wav`} volume={1} />
 
-      {/* Scene cards with Lottie transitions */}
+      {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {
-        const sceneStart = SCENE_DURATION + i * (SCENE_DURATION + TRANSITION_DURATION);
+        const sceneStart = SCENE_DURATION + i * SCENE_DURATION;
         return (
           <React.Fragment key={i}>
-            {/* Lottie transition before each scene */}
+            {/* Scene card */}
+            <Sequence
+              from={sceneStart}
+              durationInFrames={SCENE_DURATION}
+            >
+              <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
+            </Sequence>
+            {/* Lottie transition overlay at scene start */}
             <Sequence
               from={sceneStart}
               durationInFrames={TRANSITION_DURATION}
             >
               <LottieTransition />
-            </Sequence>
-            {/* Scene card */}
-            <Sequence
-              from={sceneStart + TRANSITION_DURATION}
-              durationInFrames={SCENE_DURATION}
-            >
-              <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
             </Sequence>
           </React.Fragment>
         );

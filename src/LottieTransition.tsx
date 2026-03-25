@@ -46,6 +46,7 @@ const LottieTransition: React.FC<{
         style={{
           backgroundColor: "#000",
           opacity: Math.max(0, Math.min(1, opacity)),
+          mixBlendMode: "screen",
         }}
       />
     );
@@ -56,7 +57,7 @@ const LottieTransition: React.FC<{
   const scaleRatio = (1920 / 1080) * (1920 / 1080); // ~3.16x width relative to container
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden", justifyContent: "center", alignItems: "center" }}>
+    <AbsoluteFill style={{ overflow: "hidden", justifyContent: "center", alignItems: "center", mixBlendMode: "screen" }}>
       <Lottie
         animationData={animationData}
         playbackRate={1}
