@@ -391,14 +391,14 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const visibleProgress = wordSprings.reduce((sum, s) => sum + s, 0);
         // Scene5: linear scroll from bottom to top
         const scene5Scroll = isScene5
-          ? interpolate(frame, [0, SCENE_DURATION - 30], [400, -totalWords * lineHeight * 0.4], { extrapolateRight: "clamp" })
+          ? interpolate(frame, [0, SCENE_DURATION], [500, -totalWords * lineHeight * 0.6])
           : 0;
         const shiftUp = isScene2 ? 0 : isScene5 ? -scene5Scroll : Math.max(0, visibleProgress - 1) * lineHeight;
 
         return (
           <div
             style={{
-              opacity: exit,
+              opacity: isScene5 ? 1 : exit,
               transform: isScene2
                 ? `translateX(${resolvedX}px) translateY(${resolvedY}px)`
                 : `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
