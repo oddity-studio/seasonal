@@ -449,7 +449,6 @@ export default function Editor() {
                   >
                     <option value="Tournament.mp3">Tournament</option>
                     <option value="Main Lobby.mp3">Main Lobby</option>
-                    <option value="music.wav">music.wav</option>
                   </select>
                 </label>
                 <label style={styles.styleLabel}>
@@ -462,7 +461,9 @@ export default function Editor() {
                     }
                   >
                     <option value="flash.json">Flash</option>
-                    <option value="placeholder.json">Circle Wipe</option>
+                    <option value="Arrow.json">Arrow</option>
+                    <option value="Box1.json">Box1</option>
+                    <option value="Box2.json">Box2</option>
                   </select>
                 </label>
               </div>
