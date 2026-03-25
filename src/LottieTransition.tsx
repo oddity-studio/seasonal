@@ -1,8 +1,9 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { Lottie } from "@remotion/lottie";
 import type { LottieAnimationData } from "@remotion/lottie";
 import { useEffect, useState } from "react";
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const TRANSITION_DURATION = 30; // frames (0.5s at 60fps)
 
 const LottieTransition: React.FC<{
@@ -13,7 +14,7 @@ const LottieTransition: React.FC<{
   const [animationData, setAnimationData] = useState<LottieAnimationData | null>(null);
   const [error, setError] = useState(false);
 
-  const filePath = src || staticFile("transitions/flash.json");
+  const filePath = src || `${BASE}/transitions/flash.json`;
 
   useEffect(() => {
     fetch(filePath)
