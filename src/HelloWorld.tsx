@@ -408,6 +408,90 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
     >
       <CharacterLayer layoutIndex={layoutIndex} />
 
+      {/* Explosion burst on logo impact */}
+      {(() => {
+        const stomp = spring({ frame, fps, config: { damping: 12, stiffness: 200, mass: 1.2 } });
+        // Burst triggers when stomp passes ~0.8 (near landing)
+        const burstProgress = interpolate(stomp, [0.7, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+        const burstScale = interpolate(burstProgress, [0, 1], [0.3, 4]);
+        const burstOpacity = interpolate(burstProgress, [0, 0.15, 0.5, 1], [0, 0.9, 0.5, 0]);
+        // Secondary ring — delayed
+        const ring2Progress = interpolate(stomp, [0.8, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+        const ring2Scale = interpolate(ring2Progress, [0, 1], [0.2, 3.5]);
+        const ring2Opacity = interpolate(ring2Progress, [0, 0.1, 0.4, 1], [0, 0.7, 0.3, 0]);
+        // Radial rays
+        const rayCount = 12;
+        const rays = Array.from({ length: rayCount }, (_, i) => {
+          const angle = (i / rayCount) * 360;
+          const rayLength = interpolate(burstProgress, [0, 1], [0, 600 + (i % 3) * 200]);
+          const rayOpacity = interpolate(burstProgress, [0, 0.1, 0.6, 1], [0, 0.8, 0.3, 0]);
+          return { angle, rayLength, rayOpacity };
+        });
+
+        return (
+          <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" as const, overflow: "hidden" }}>
+            {/* Shockwave ring 1 */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: 400,
+              height: 400,
+              marginLeft: -200,
+              marginTop: -200,
+              borderRadius: "50%",
+              border: `3px solid ${colorScheme.highlight}`,
+              transform: `scale(${burstScale})`,
+              opacity: burstOpacity,
+              boxShadow: `0 0 60px 20px ${colorScheme.highlight}, inset 0 0 60px 20px ${colorScheme.highlight}`,
+            }} />
+            {/* Shockwave ring 2 */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: 300,
+              height: 300,
+              marginLeft: -150,
+              marginTop: -150,
+              borderRadius: "50%",
+              border: `2px solid ${colorScheme.light}`,
+              transform: `scale(${ring2Scale})`,
+              opacity: ring2Opacity,
+              boxShadow: `0 0 40px 10px ${colorScheme.light}`,
+            }} />
+            {/* Radial light rays */}
+            {rays.map((ray, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: 3,
+                height: ray.rayLength,
+                background: `linear-gradient(to bottom, ${colorScheme.highlight}, transparent)`,
+                transformOrigin: "top center",
+                transform: `rotate(${ray.angle}deg)`,
+                opacity: ray.rayOpacity,
+              }} />
+            ))}
+            {/* Center flash */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: 200,
+              height: 200,
+              marginLeft: -100,
+              marginTop: -100,
+              borderRadius: "50%",
+              background: `radial-gradient(circle, rgba(255,255,255,0.9) 0%, ${colorScheme.highlight}80 40%, transparent 70%)`,
+              transform: `scale(${interpolate(burstProgress, [0, 0.3, 1], [0, 2, 3])})`,
+              opacity: interpolate(burstProgress, [0, 0.1, 0.4, 1], [0, 1, 0.4, 0]),
+            }} />
+          </div>
+        );
+      })()}
+
       {/* Logo stomp */}
       {(() => {
         // Heavy stomp: starts overscaled, slams down with high stiffness
