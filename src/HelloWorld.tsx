@@ -22,16 +22,23 @@ import { loadFont as loadFugazOne } from "@remotion/google-fonts/FugazOne";
 import { loadFont as loadPassionOne } from "@remotion/google-fonts/PassionOne";
 import { loadFont as loadMontserrat } from "@remotion/google-fonts/Montserrat";
 
-const FONT_MAP: Record<string, string> = {
-  "Dela Gothic One": loadDelaGothicOne().fontFamily,
-  "Exo 2": loadExo2().fontFamily,
-  "Permanent Marker": loadPermanentMarker().fontFamily,
-  "Anton": loadAnton().fontFamily,
-  "Big Shoulders": loadBigShoulders().fontFamily,
-  "Bowlby One SC": loadBowlbyOneSC().fontFamily,
-  "Fugaz One": loadFugazOne().fontFamily,
-  "Passion One": loadPassionOne().fontFamily,
-  "Montserrat": loadMontserrat().fontFamily,
+type FontConfig = {
+  fontFamily: string;
+  fontWeight?: number;
+  fontStyle?: string;
+  lineHeight?: number;
+};
+
+const FONT_MAP: Record<string, FontConfig> = {
+  "Dela Gothic One": { fontFamily: loadDelaGothicOne().fontFamily },
+  "Exo 2": { fontFamily: loadExo2().fontFamily, fontWeight: 900, fontStyle: "italic" },
+  "Permanent Marker": { fontFamily: loadPermanentMarker().fontFamily },
+  "Anton": { fontFamily: loadAnton().fontFamily },
+  "Big Shoulders": { fontFamily: loadBigShoulders().fontFamily, fontWeight: 600 },
+  "Bowlby One SC": { fontFamily: loadBowlbyOneSC().fontFamily },
+  "Fugaz One": { fontFamily: loadFugazOne().fontFamily },
+  "Passion One": { fontFamily: loadPassionOne().fontFamily, lineHeight: 0.85 },
+  "Montserrat": { fontFamily: loadMontserrat().fontFamily, fontWeight: 900, fontStyle: "italic" },
 };
 
 export const FONT_OPTIONS = Object.keys(FONT_MAP);
@@ -213,12 +220,12 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontFamily: string; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
+const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
   text,
   index,
   layoutIndex,
   colors,
-  fontFamily,
+  fontConfig,
   fontSize = 150,
   y: yOffset = 0,
   x: xOffset = 0,
@@ -358,11 +365,12 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                   key={wi}
                   style={{
                     fontSize: resolvedFontSize,
-                    fontFamily,
-                    fontWeight: 700,
+                    fontFamily: fontConfig.fontFamily,
+                    fontWeight: fontConfig.fontWeight ?? 700,
+                    fontStyle: fontConfig.fontStyle ?? "normal",
                     color: textColor,
                     margin: 0,
-                    lineHeight: 1.0,
+                    lineHeight: fontConfig.lineHeight ?? 1.0,
                     letterSpacing: 8,
                     textTransform: "uppercase",
                     textShadow: textGlow,
@@ -383,7 +391,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   );
 };
 
-const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number; fontFamily: string }> = ({ colorScheme, layoutIndex, fontFamily }) => {
+const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number; fontConfig: FontConfig }> = ({ colorScheme, layoutIndex, fontConfig }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -435,7 +443,9 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
       >
         <p
           style={{
-            fontFamily,
+            fontFamily: fontConfig.fontFamily,
+            fontWeight: fontConfig.fontWeight ?? 700,
+            fontStyle: fontConfig.fontStyle ?? "normal",
             fontSize: 48,
             color: colorScheme.light,
             margin: 0,
@@ -452,7 +462,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
 };
 
 export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One" }) => {
-  const fontFamily = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
+  const fontConfig = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
   const introFrames = showIntro ? SCENE_DURATION : 0;
 
   return (
@@ -460,7 +470,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Intro title card */}
       {showIntro && (
         <Sequence durationInFrames={SCENE_DURATION}>
-          <TitleCard colorScheme={colorScheme} fontFamily={fontFamily} layoutIndex={introLayout} />
+          <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={introLayout} />
         </Sequence>
       )}
 
@@ -478,7 +488,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
               from={sceneStart}
               durationInFrames={SCENE_DURATION}
             >
-              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontFamily={fontFamily} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
+              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
             </Sequence>
             {/* Lottie transition overlay */}
             <Sequence
@@ -494,7 +504,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Outro title card */}
       {showOutro && (
         <Sequence from={introFrames + scenes.length * SCENE_DURATION} durationInFrames={SCENE_DURATION}>
-          <TitleCard colorScheme={colorScheme} fontFamily={fontFamily} layoutIndex={outroLayout} />
+          <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={outroLayout} />
         </Sequence>
       )}
     </AbsoluteFill>
