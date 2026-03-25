@@ -37,45 +37,50 @@ type CharPlacement = {
   opacity?: number; // base opacity (defaults to 1)
 };
 
-const SCENE_LAYOUTS: CharPlacement[][] = [
+type SceneLayout = {
+  characters: CharPlacement[];
+  backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
+};
+
+const SCENE_LAYOUTS: SceneLayout[] = [
   // Scene 0: char1 vs char2 face-off
-  [
+  { characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ],
+  ] },
   // Scene 1: char3 solo hero shot
-  [
+  { characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
-  ],
+  ] },
   // Scene 2: char2 vs char3
-  [
+  { characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ],
-  // Scene 3: char1 solo hero shot from right
-  [
+  ] },
+  // Scene 3: char1 solo hero shot from right + background video
+  { characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ],
+  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 } },
   // Scene 4: char1 vs char3 showdown
-  [
+  { characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
-  ],
+  ] },
   // Scene 5: all three — group shot
-  [
+  { characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
-  ],
+  ] },
   // Scene 6: char2 solo hero shot
-  [
+  { characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
-  ],
+  ] },
   // Scene 7: title — all three side by side, each 1/3 width
-  [
+  { characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
-  ],
+  ] },
 ];
 
 const FighterChar: React.FC<{
@@ -171,7 +176,7 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
 
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-      {layout.map((placement, ci) => (
+      {layout.characters.map((placement, ci) => (
         <FighterChar
           key={ci}
           placement={placement}
@@ -194,10 +199,14 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   rotateZ: rZ,
   rotateX: rX,
   perspective: persp,
-  backgroundVideo,
+  backgroundVideo: backgroundVideoProp,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  // Use scene-level backgroundVideo if provided, otherwise fall back to layout default
+  const layoutBgVideo = SCENE_LAYOUTS[index % SCENE_LAYOUTS.length].backgroundVideo;
+  const backgroundVideo = backgroundVideoProp ?? layoutBgVideo;
 
   const enter = spring({ frame, fps, config: { damping: 200 } });
   const exitStart = SCENE_DURATION - 30;
