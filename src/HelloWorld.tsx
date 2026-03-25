@@ -66,53 +66,46 @@ type CharPlacement = {
 
 type SceneLayout = {
   label: string;
+  category: string;
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
   textDefaults?: { x?: number; y?: number; fontSize?: number };
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
-  // 0: char1 vs char2 face-off
-  { label: "S12 Scene1", characters: [
+  { label: "S12 Scene1", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ] },
-  // 1: char3 solo hero shot
-  { label: "S12 Scene2", characters: [
+  { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
   ] },
-  // 2: char2 vs char3
-  { label: "S12 Scene3", characters: [
+  { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ], textDefaults: { x: 80, fontSize: 204 } },
-  // 3: char1 solo hero shot from right + background video
-  { label: "Video Cube", characters: [
+  { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200 } },
-  // 4: char1 vs char3 showdown
-  { label: "S12 Scene5", characters: [
+  { label: "S12 Scene5", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
   ], textDefaults: { y: 200 } },
-  // 5: all three — group shot
-  { label: "S12 Scene6", characters: [
+  { label: "S12 Scene6", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ] },
-  // 6: char2 solo hero shot
-  { label: "S12 Scene7", characters: [
+  { label: "S12 Scene7", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ] },
-  // 7: title — all three side by side, each 1/3 width
-  { label: "S12 Cover", characters: [
+  { label: "S12 Cover", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ] },
 ];
 
-export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label }));
+export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
 
 const FighterChar: React.FC<{
   placement: CharPlacement;

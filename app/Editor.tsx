@@ -14,7 +14,14 @@ export default function Editor() {
   const [rendering, setRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
   const [recordingMode, setRecordingMode] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
   const playerRef = useRef<PlayerRef>(null);
+
+  // Group layouts by category
+  const categories = LAYOUT_OPTIONS.reduce<Record<string, typeof LAYOUT_OPTIONS>>((acc, opt) => {
+    (acc[opt.category] ??= []).push(opt);
+    return acc;
+  }, {});
 
   const handleDownload = useCallback(async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -357,7 +364,15 @@ export default function Editor() {
 
         {!recordingMode && (
           <div style={styles.controls}>
-            <h2 style={styles.controlsHeading}>Customize</h2>
+            <div style={styles.customizeHeader}>
+              <h2 style={styles.controlsHeading}>Customize</h2>
+              <button
+                style={styles.galleryButton}
+                onClick={() => setShowGallery(true)}
+              >
+                Scene Gallery
+              </button>
+            </div>
 
             <div>
               <span style={styles.label}>Color Scheme</span>
@@ -548,6 +563,40 @@ export default function Editor() {
           </div>
         )}
       </div>
+
+      {/* Gallery Modal */}
+      {showGallery && (
+        <div style={styles.modalOverlay} onClick={() => setShowGallery(false)}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <h2 style={{ margin: 0, fontSize: 20, color: "#fff" }}>Scene Gallery</h2>
+              <button
+                style={styles.modalClose}
+                onClick={() => setShowGallery(false)}
+              >
+                x
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              {Object.entries(categories).map(([category, layouts]) => (
+                <div key={category}>
+                  <h3 style={styles.categoryHeading}>{category}</h3>
+                  <div style={styles.galleryGrid}>
+                    {layouts.map((opt) => (
+                      <div key={opt.index} style={styles.galleryCard}>
+                        <div style={styles.galleryPreview}>
+                          <span style={styles.galleryIndex}>{opt.index}</span>
+                        </div>
+                        <span style={styles.galleryLabel}>{opt.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -764,5 +813,98 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#64748b",
     fontSize: 14,
     cursor: "pointer",
+  },
+  customizeHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  galleryButton: {
+    padding: "6px 14px",
+    borderRadius: 6,
+    border: "1px solid #334155",
+    backgroundColor: "transparent",
+    color: "#94a3b8",
+    fontSize: 13,
+    cursor: "pointer",
+  },
+  modalOverlay: {
+    position: "fixed" as const,
+    inset: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  modalContent: {
+    backgroundColor: "#111118",
+    border: "1px solid #1e293b",
+    borderRadius: 12,
+    width: 640,
+    maxHeight: "80vh",
+    display: "flex",
+    flexDirection: "column" as const,
+    overflow: "hidden",
+  },
+  modalHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px 20px",
+    borderBottom: "1px solid #1e293b",
+  },
+  modalClose: {
+    background: "none",
+    border: "none",
+    color: "#64748b",
+    fontSize: 18,
+    cursor: "pointer",
+    padding: "4px 8px",
+  },
+  modalBody: {
+    padding: 20,
+    overflowY: "auto" as const,
+  },
+  categoryHeading: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#94a3b8",
+    margin: "0 0 12px 0",
+    textTransform: "uppercase" as const,
+    letterSpacing: 1,
+  },
+  galleryGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: 12,
+    marginBottom: 24,
+  },
+  galleryCard: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    gap: 6,
+    cursor: "default",
+  },
+  galleryPreview: {
+    width: "100%",
+    aspectRatio: "9/16",
+    borderRadius: 8,
+    backgroundColor: "#1e293b",
+    border: "1px solid #334155",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  galleryIndex: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: "#334155",
+  },
+  galleryLabel: {
+    fontSize: 11,
+    color: "#94a3b8",
+    textAlign: "center" as const,
   },
 };
