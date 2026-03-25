@@ -237,11 +237,14 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
       }}
     >
       {Array.from({ length: BAR_COUNT }, (_, i) => {
-        // Multiple sine waves at different speeds for energetic look
-        const h1 = Math.sin(frame * 0.15 + i * 0.7) * 0.5 + 0.5;
-        const h2 = Math.sin(frame * 0.22 + i * 1.3 + 2) * 0.3 + 0.3;
-        const h3 = Math.sin(frame * 0.08 + i * 0.4 + 5) * 0.2 + 0.2;
-        const height = Math.min(1, h1 + h2 + h3) * 500 * enter + 10;
+        // Fast, diverse waveform — multiple frequencies with per-bar phase offsets
+        const seed = (i * 137.5) % 17; // pseudo-random per bar
+        const h1 = Math.sin(frame * 0.35 + i * 1.8) * 0.5 + 0.5;
+        const h2 = Math.sin(frame * 0.5 + i * 2.7 + seed) * 0.4 + 0.4;
+        const h3 = Math.sin(frame * 0.25 + i * 0.9 + seed * 2) * 0.3 + 0.3;
+        const h4 = Math.cos(frame * 0.6 + i * 3.2 + seed * 0.5) * 0.25 + 0.25;
+        const raw = (h1 + h2 + h3 + h4) / 1.45;
+        const height = Math.min(1, raw) * 500 * enter + 10;
         return (
           <div
             key={i}
