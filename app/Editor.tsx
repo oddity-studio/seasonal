@@ -359,79 +359,81 @@ export default function Editor() {
           <div style={styles.controls}>
             <h2 style={styles.controlsHeading}>Customize</h2>
 
-            <div>
-              <span style={styles.label}>Color Scheme</span>
-              <div style={styles.colorRow}>
-                {(["dark", "light", "highlight"] as const).map((key) => (
-                  <label key={key} style={styles.colorLabel}>
-                    <input
-                      type="color"
-                      value={props.colorScheme[key]}
-                      onChange={(e) => updateColor(key, e.target.value)}
-                      style={styles.colorInput}
-                    />
-                    <span style={styles.colorName}>{key}</span>
-                    <span style={styles.colorHex}>
-                      {props.colorScheme[key]}
-                    </span>
-                  </label>
-                ))}
+            <div style={styles.topRow}>
+              <div style={{ flex: 1 }}>
+                <span style={styles.label}>Color Scheme</span>
+                <div style={styles.colorRow}>
+                  {(["dark", "light", "highlight"] as const).map((key) => (
+                    <label key={key} style={styles.colorLabel}>
+                      <input
+                        type="color"
+                        value={props.colorScheme[key]}
+                        onChange={(e) => updateColor(key, e.target.value)}
+                        style={styles.colorInput}
+                      />
+                      <span style={styles.colorName}>{key}</span>
+                      <span style={styles.colorHex}>
+                        {props.colorScheme[key]}
+                      </span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <span style={styles.label}>Intro / Outro</span>
-              <div style={styles.introOutroRow}>
-                <label style={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={props.showIntro !== false}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
-                    }
-                    style={styles.checkbox}
-                  />
-                  Intro
-                  <select
-                    style={styles.layoutSelect}
-                    value={props.introLayout ?? 7}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, introLayout: Number(e.target.value) }))
-                    }
-                    disabled={props.showIntro === false}
-                  >
-                    {LAYOUT_OPTIONS.map((opt) => (
-                      <option key={opt.index} value={opt.index}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label style={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={props.showOutro === true}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
-                    }
-                    style={styles.checkbox}
-                  />
-                  Outro
-                  <select
-                    style={styles.layoutSelect}
-                    value={props.outroLayout ?? 7}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, outroLayout: Number(e.target.value) }))
-                    }
-                    disabled={!props.showOutro}
-                  >
-                    {LAYOUT_OPTIONS.map((opt) => (
-                      <option key={opt.index} value={opt.index}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div style={{ flex: 1 }}>
+                <span style={styles.label}>Intro / Outro</span>
+                <div style={styles.introOutroRow}>
+                  <label style={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={props.showIntro !== false}
+                      onChange={(e) =>
+                        setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
+                      }
+                      style={styles.checkbox}
+                    />
+                    Intro
+                    <select
+                      style={styles.layoutSelect}
+                      value={props.introLayout ?? 7}
+                      onChange={(e) =>
+                        setProps((prev) => ({ ...prev, introLayout: Number(e.target.value) }))
+                      }
+                      disabled={props.showIntro === false}
+                    >
+                      {LAYOUT_OPTIONS.map((opt) => (
+                        <option key={opt.index} value={opt.index}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={props.showOutro === true}
+                      onChange={(e) =>
+                        setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
+                      }
+                      style={styles.checkbox}
+                    />
+                    Outro
+                    <select
+                      style={styles.layoutSelect}
+                      value={props.outroLayout ?? 7}
+                      onChange={(e) =>
+                        setProps((prev) => ({ ...prev, outroLayout: Number(e.target.value) }))
+                      }
+                      disabled={!props.showOutro}
+                    >
+                      {LAYOUT_OPTIONS.map((opt) => (
+                        <option key={opt.index} value={opt.index}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -597,6 +599,10 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#e2e8f0",
     fontSize: 14,
     outline: "none",
+  },
+  topRow: {
+    display: "flex",
+    gap: 16,
   },
   styleRow: {
     display: "flex",
