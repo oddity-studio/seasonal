@@ -213,6 +213,53 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
+const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const enter = spring({ frame, fps, config: { damping: 14, mass: 0.5 } });
+  const BAR_COUNT = 48;
+  const BAR_WIDTH = 1080 / BAR_COUNT;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        width: "100%",
+        height: 350,
+        display: "flex",
+        alignItems: "flex-end",
+        gap: 0,
+        opacity: enter * 0.7,
+        pointerEvents: "none" as const,
+      }}
+    >
+      {Array.from({ length: BAR_COUNT }, (_, i) => {
+        // Multiple sine waves at different speeds for energetic look
+        const h1 = Math.sin(frame * 0.15 + i * 0.7) * 0.5 + 0.5;
+        const h2 = Math.sin(frame * 0.22 + i * 1.3 + 2) * 0.3 + 0.3;
+        const h3 = Math.sin(frame * 0.08 + i * 0.4 + 5) * 0.2 + 0.2;
+        const height = Math.min(1, h1 + h2 + h3) * 300 * enter + 8;
+        return (
+          <div
+            key={i}
+            style={{
+              width: BAR_WIDTH - 2,
+              height,
+              marginLeft: 1,
+              marginRight: 1,
+              backgroundColor: color,
+              borderRadius: 3,
+              opacity: 0.6 + h1 * 0.4,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
   text,
   index,
@@ -303,8 +350,10 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         </AbsoluteFill>
       )}
 
-      {/* Character layer behind text */}
+      {/* Sound waveform for Scene5 */}
+      {layoutIndex === 4 && <SoundWaveform color={colors.light} />}
 
+      {/* Character layer behind text */}
       <CharacterLayer layoutIndex={layoutIndex} />
 
       {/* Text overlay */}
