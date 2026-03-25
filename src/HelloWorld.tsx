@@ -227,11 +227,12 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
         bottom: 0,
         left: 0,
         width: "100%",
-        height: 350,
+        height: 600,
         display: "flex",
         alignItems: "flex-end",
         gap: 0,
         opacity: enter * 0.7,
+        mixBlendMode: "screen" as const,
         pointerEvents: "none" as const,
       }}
     >
@@ -240,7 +241,7 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
         const h1 = Math.sin(frame * 0.15 + i * 0.7) * 0.5 + 0.5;
         const h2 = Math.sin(frame * 0.22 + i * 1.3 + 2) * 0.3 + 0.3;
         const h3 = Math.sin(frame * 0.08 + i * 0.4 + 5) * 0.2 + 0.2;
-        const height = Math.min(1, h1 + h2 + h3) * 300 * enter + 8;
+        const height = Math.min(1, h1 + h2 + h3) * 500 * enter + 10;
         return (
           <div
             key={i}
@@ -350,11 +351,11 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         </AbsoluteFill>
       )}
 
-      {/* Sound waveform for Scene5 */}
-      {layoutIndex === 4 && <SoundWaveform color={colors.light} />}
-
       {/* Character layer behind text */}
       <CharacterLayer layoutIndex={layoutIndex} />
+
+      {/* Sound waveform for Scene5 — in front of characters */}
+      {layoutIndex === 4 && <SoundWaveform color={colors.light} />}
 
       {/* Text overlay */}
       {(() => {
