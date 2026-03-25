@@ -430,9 +430,9 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
             >
               <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
             </Sequence>
-            {/* Lottie transition overlay at scene start */}
+            {/* Lottie transition overlay — starts 6 frames before scene */}
             <Sequence
-              from={sceneStart}
+              from={sceneStart - 6}
               durationInFrames={TRANSITION_DURATION}
             >
               <LottieTransition />
