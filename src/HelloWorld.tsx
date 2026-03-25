@@ -237,14 +237,14 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
       }}
     >
       {Array.from({ length: BAR_COUNT }, (_, i) => {
-        // Fast, diverse waveform — multiple frequencies with per-bar phase offsets
-        const seed = (i * 137.5) % 17; // pseudo-random per bar
-        const h1 = Math.sin(frame * 0.35 + i * 1.8) * 0.5 + 0.5;
-        const h2 = Math.sin(frame * 0.5 + i * 2.7 + seed) * 0.4 + 0.4;
-        const h3 = Math.sin(frame * 0.25 + i * 0.9 + seed * 2) * 0.3 + 0.3;
-        const h4 = Math.cos(frame * 0.6 + i * 3.2 + seed * 0.5) * 0.25 + 0.25;
-        const raw = (h1 + h2 + h3 + h4) / 1.45;
-        const height = Math.min(1, raw) * 500 * enter + 10;
+        // Slower waves with strong per-bar variation via large phase offsets
+        const seed = ((i * 137.5) % 17) + i * 0.3;
+        const h1 = Math.sin(frame * 0.12 + seed * 2.5) * 0.5 + 0.5;
+        const h2 = Math.sin(frame * 0.18 + seed * 4.1 + 3) * 0.5 + 0.5;
+        const h3 = Math.cos(frame * 0.09 + seed * 1.7 + 7) * 0.5 + 0.5;
+        // Mix so bars peak at very different times
+        const raw = h1 * 0.4 + h2 * 0.35 + h3 * 0.25;
+        const height = raw * raw * 500 * enter + 6;
         return (
           <div
             key={i}
@@ -354,11 +354,11 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         </AbsoluteFill>
       )}
 
-      {/* Character layer behind text */}
-      <CharacterLayer layoutIndex={layoutIndex} />
-
-      {/* Sound waveform for Scene5 — in front of characters */}
+      {/* Sound waveform for Scene5 — behind characters */}
       {layoutIndex === 4 && <SoundWaveform color={colors.light} />}
+
+      {/* Character layer */}
+      <CharacterLayer layoutIndex={layoutIndex} />
 
       {/* Text overlay */}
       {(() => {
