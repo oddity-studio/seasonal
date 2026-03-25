@@ -28,6 +28,10 @@ export const sceneSchema = z.object({
 export const videoPropsSchema = z.object({
   seasonNumber: z.string(),
   colorScheme: colorSchemeSchema,
+  showIntro: z.boolean().optional(),
+  introLayout: z.number().optional(),
+  showOutro: z.boolean().optional(),
+  outroLayout: z.number().optional(),
   scenes: z.array(sceneSchema),
 });
 
@@ -37,6 +41,10 @@ export type VideoProps = z.infer<typeof videoPropsSchema>;
 
 export const defaultVideoProps: VideoProps = {
   seasonNumber: "01",
+  showIntro: true,
+  introLayout: 7,
+  showOutro: false,
+  outroLayout: 7,
   colorScheme: {
     dark: "#953f0c",
     light: "#dfbf67",

@@ -30,7 +30,9 @@ export default function Editor() {
       return;
     }
 
-    const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
+    const introFrames = props.showIntro !== false ? SCENE_DURATION : 0;
+  const outroFrames = props.showOutro ? SCENE_DURATION : 0;
+  const totalFrames = introFrames + props.scenes.length * SCENE_DURATION + outroFrames;
     const durationMs = (totalFrames / FPS) * 1000;
 
     setRendering(true);
@@ -278,7 +280,9 @@ export default function Editor() {
     }));
   };
 
-  const totalFrames = SCENE_DURATION * (props.scenes.length + 1);
+  const introFrames = props.showIntro !== false ? SCENE_DURATION : 0;
+  const outroFrames = props.showOutro ? SCENE_DURATION : 0;
+  const totalFrames = introFrames + props.scenes.length * SCENE_DURATION + outroFrames;
 
   return (
     <div style={styles.container}>
@@ -388,6 +392,62 @@ export default function Editor() {
                     </span>
                   </label>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <span style={styles.label}>Intro / Outro</span>
+              <div style={styles.introOutroRow}>
+                <label style={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={props.showIntro !== false}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
+                    }
+                    style={styles.checkbox}
+                  />
+                  Intro
+                  <select
+                    style={styles.layoutSelect}
+                    value={props.introLayout ?? 7}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, introLayout: Number(e.target.value) }))
+                    }
+                    disabled={props.showIntro === false}
+                  >
+                    {LAYOUT_OPTIONS.map((opt) => (
+                      <option key={opt.index} value={opt.index}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label style={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={props.showOutro === true}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
+                    }
+                    style={styles.checkbox}
+                  />
+                  Outro
+                  <select
+                    style={styles.layoutSelect}
+                    value={props.outroLayout ?? 7}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, outroLayout: Number(e.target.value) }))
+                    }
+                    disabled={!props.showOutro}
+                  >
+                    {LAYOUT_OPTIONS.map((opt) => (
+                      <option key={opt.index} value={opt.index}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
             </div>
 
@@ -519,6 +579,26 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#e2e8f0",
     fontSize: 14,
     outline: "none",
+  },
+  introOutroRow: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    marginTop: 8,
+  },
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 14,
+    color: "#e2e8f0",
+    cursor: "pointer",
+  },
+  checkbox: {
+    width: 16,
+    height: 16,
+    cursor: "pointer",
+    accentColor: "#94a3b8",
   },
   scenesHeader: {
     display: "flex",

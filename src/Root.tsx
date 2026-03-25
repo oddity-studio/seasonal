@@ -5,8 +5,9 @@ const SCENE_DURATION = 180;
 
 export const RemotionRoot: React.FC = () => {
   const sceneCount = defaultVideoProps.scenes.length;
-  // Title + scenes (transitions overlay scene starts, no extra time)
-  const totalFrames = SCENE_DURATION + sceneCount * SCENE_DURATION;
+  const introFrames = defaultVideoProps.showIntro !== false ? SCENE_DURATION : 0;
+  const outroFrames = defaultVideoProps.showOutro ? SCENE_DURATION : 0;
+  const totalFrames = introFrames + sceneCount * SCENE_DURATION + outroFrames;
 
   return (
     <Composition

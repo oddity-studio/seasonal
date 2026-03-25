@@ -357,7 +357,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes }) => {
+const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number }> = ({ colorScheme, layoutIndex }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -365,75 +365,84 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
   const titleY = interpolate(titleOpacity, [0, 1], [30, 0]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000000" }}>
-      {/* Title card */}
-      <Sequence durationInFrames={SCENE_DURATION}>
-        <AbsoluteFill
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            background: `linear-gradient(135deg, #000000, ${colorScheme.dark})`,
-          }}
-        >
-          {/* Title characters — all three side by side */}
-          <CharacterLayer layoutIndex={7} />
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        background: `linear-gradient(135deg, #000000, ${colorScheme.dark})`,
+      }}
+    >
+      <CharacterLayer layoutIndex={layoutIndex} />
 
-          {/* Flashy logo */}
-          {(() => {
-            const logoScale = spring({ frame, fps, config: { damping: 10, stiffness: 80, mass: 0.5 } });
-            const logoPulse = Math.sin(frame * 0.075) * 0.08;
-            const logoRotate = Math.sin(frame * 0.05) * 3;
-            const glowIntensity = Math.sin(frame * 0.1) * 20 + 30;
-            return (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: `translate(-50%, -50%) scale(${logoScale + logoPulse}) rotate(${logoRotate}deg)`,
-                  zIndex: 10,
-                  filter: `drop-shadow(0 0 ${glowIntensity}px rgba(255,255,255,0.8)) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight})`,
-                }}
-              >
-                <Img
-                  src={LOGO}
-                  style={{ width: 1000, height: "auto" }}
-                />
-              </div>
-            );
-          })()}
-
+      {/* Flashy logo */}
+      {(() => {
+        const logoScale = spring({ frame, fps, config: { damping: 10, stiffness: 80, mass: 0.5 } });
+        const logoPulse = Math.sin(frame * 0.075) * 0.08;
+        const logoRotate = Math.sin(frame * 0.05) * 3;
+        const glowIntensity = Math.sin(frame * 0.1) * 20 + 30;
+        return (
           <div
             style={{
-              opacity: titleOpacity,
-              transform: `translateY(${titleY}px) perspective(400px) rotateZ(-14deg) rotateX(20deg)`,
-              textAlign: "center",
-              zIndex: 1,
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: `translate(-50%, -50%) scale(${logoScale + logoPulse}) rotate(${logoRotate}deg)`,
+              zIndex: 10,
+              filter: `drop-shadow(0 0 ${glowIntensity}px rgba(255,255,255,0.8)) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight})`,
             }}
           >
-            <p
-              style={{
-                fontFamily,
-                fontSize: 48,
-                color: colorScheme.light,
-                margin: 0,
-                letterSpacing: 10,
-                textTransform: "uppercase",
-                textShadow: "0 2px 10px rgba(0,0,0,0.8)",
-              }}
-            >
-              Season
-            </p>
+            <Img
+              src={LOGO}
+              style={{ width: 1000, height: "auto" }}
+            />
           </div>
-        </AbsoluteFill>
-      </Sequence>
+        );
+      })()}
+
+      <div
+        style={{
+          opacity: titleOpacity,
+          transform: `translateY(${titleY}px) perspective(400px) rotateZ(-14deg) rotateX(20deg)`,
+          textAlign: "center",
+          zIndex: 1,
+        }}
+      >
+        <p
+          style={{
+            fontFamily,
+            fontSize: 48,
+            color: colorScheme.light,
+            margin: 0,
+            letterSpacing: 10,
+            textTransform: "uppercase",
+            textShadow: "0 2px 10px rgba(0,0,0,0.8)",
+          }}
+        >
+          Season
+        </p>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7 }) => {
+  const introFrames = showIntro ? SCENE_DURATION : 0;
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#000000" }}>
+      {/* Intro title card */}
+      {showIntro && (
+        <Sequence durationInFrames={SCENE_DURATION}>
+          <TitleCard colorScheme={colorScheme} layoutIndex={introLayout} />
+        </Sequence>
+      )}
 
       {/* Background music */}
       <Audio src={`${BASE}/music.wav`} volume={1} />
 
       {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {
-        const sceneStart = SCENE_DURATION + i * SCENE_DURATION;
+        const sceneStart = introFrames + i * SCENE_DURATION;
         return (
           <React.Fragment key={i}>
             {/* Scene card */}
@@ -443,7 +452,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
             >
               <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
             </Sequence>
-            {/* Lottie transition overlay — starts 6 frames before scene */}
+            {/* Lottie transition overlay */}
             <Sequence
               from={sceneStart - 12}
               durationInFrames={TRANSITION_DURATION}
@@ -453,6 +462,13 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           </React.Fragment>
         );
       })}
+
+      {/* Outro title card */}
+      {showOutro && (
+        <Sequence from={introFrames + scenes.length * SCENE_DURATION} durationInFrames={SCENE_DURATION}>
+          <TitleCard colorScheme={colorScheme} layoutIndex={outroLayout} />
+        </Sequence>
+      )}
     </AbsoluteFill>
   );
 };
