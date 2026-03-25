@@ -79,11 +79,11 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ] },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
-  ] },
+  ], textDefaults: { y: 200 } },
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ], textDefaults: { x: 80, fontSize: 204 } },
+  ], textDefaults: { x: 80, y: 200, fontSize: 204 } },
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200 } },
@@ -94,7 +94,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene6", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
-  ] },
+  ], textDefaults: { y: 200 } },
   { label: "S12 Scene7", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ] },
