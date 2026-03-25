@@ -45,39 +45,39 @@ type SceneLayout = {
 
 const SCENE_LAYOUTS: SceneLayout[] = [
   // 0: char1 vs char2 face-off
-  { label: "Char1 vs Char2", characters: [
+  { label: "S12 Scene1", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ] },
   // 1: char3 solo hero shot
-  { label: "Char3 Solo", characters: [
+  { label: "S12 Scene2", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
   ] },
   // 2: char2 vs char3
-  { label: "Char2 vs Char3", characters: [
+  { label: "S12 Scene3", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ] },
   // 3: char1 solo hero shot from right + background video
-  { label: "Char1 Solo + Video", characters: [
+  { label: "S12 Scene4", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 } },
   // 4: char1 vs char3 showdown
-  { label: "Char1 vs Char3", characters: [
+  { label: "S12 Scene5", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
   ] },
   // 5: all three — group shot
-  { label: "Group Shot", characters: [
+  { label: "S12 Scene6", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ] },
   // 6: char2 solo hero shot
-  { label: "Char2 Solo", characters: [
+  { label: "S12 Scene7", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ] },
   // 7: title — all three side by side, each 1/3 width
-  { label: "All Three", characters: [
+  { label: "S12 Scene8", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
