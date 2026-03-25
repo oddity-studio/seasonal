@@ -359,81 +359,23 @@ export default function Editor() {
           <div style={styles.controls}>
             <h2 style={styles.controlsHeading}>Customize</h2>
 
-            <div style={styles.topRow}>
-              <div style={{ flex: 1 }}>
-                <span style={styles.label}>Color Scheme</span>
-                <div style={styles.colorRow}>
-                  {(["dark", "light", "highlight"] as const).map((key) => (
-                    <label key={key} style={styles.colorLabel}>
-                      <input
-                        type="color"
-                        value={props.colorScheme[key]}
-                        onChange={(e) => updateColor(key, e.target.value)}
-                        style={styles.colorInput}
-                      />
-                      <span style={styles.colorName}>{key}</span>
-                      <span style={styles.colorHex}>
-                        {props.colorScheme[key]}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ flex: 1 }}>
-                <span style={styles.label}>Intro / Outro</span>
-                <div style={styles.introOutroRow}>
-                  <label style={styles.checkboxLabel}>
+            <div>
+              <span style={styles.label}>Color Scheme</span>
+              <div style={styles.colorRow}>
+                {(["dark", "light", "highlight"] as const).map((key) => (
+                  <label key={key} style={styles.colorLabel}>
                     <input
-                      type="checkbox"
-                      checked={props.showIntro !== false}
-                      onChange={(e) =>
-                        setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
-                      }
-                      style={styles.checkbox}
+                      type="color"
+                      value={props.colorScheme[key]}
+                      onChange={(e) => updateColor(key, e.target.value)}
+                      style={styles.colorInput}
                     />
-                    Intro
-                    <select
-                      style={styles.layoutSelect}
-                      value={props.introLayout ?? 7}
-                      onChange={(e) =>
-                        setProps((prev) => ({ ...prev, introLayout: Number(e.target.value) }))
-                      }
-                      disabled={props.showIntro === false}
-                    >
-                      {LAYOUT_OPTIONS.map((opt) => (
-                        <option key={opt.index} value={opt.index}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                    <span style={styles.colorName}>{key}</span>
+                    <span style={styles.colorHex}>
+                      {props.colorScheme[key]}
+                    </span>
                   </label>
-                  <label style={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={props.showOutro === true}
-                      onChange={(e) =>
-                        setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
-                      }
-                      style={styles.checkbox}
-                    />
-                    Outro
-                    <select
-                      style={styles.layoutSelect}
-                      value={props.outroLayout ?? 7}
-                      onChange={(e) =>
-                        setProps((prev) => ({ ...prev, outroLayout: Number(e.target.value) }))
-                      }
-                      disabled={!props.showOutro}
-                    >
-                      {LAYOUT_OPTIONS.map((opt) => (
-                        <option key={opt.index} value={opt.index}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -495,8 +437,42 @@ export default function Editor() {
             </div>
 
             <div style={styles.scenesList}>
+              {/* Intro row */}
+              <div style={styles.sceneRow}>
+                <input
+                  type="checkbox"
+                  checked={props.showIntro !== false}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
+                  }
+                  style={styles.checkbox}
+                  title="Enable intro"
+                />
+                <span style={styles.sceneNumber}>0</span>
+                <select
+                  style={styles.layoutSelect}
+                  value={props.introLayout ?? 7}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, introLayout: Number(e.target.value) }))
+                  }
+                  disabled={props.showIntro === false}
+                >
+                  {LAYOUT_OPTIONS.map((opt) => (
+                    <option key={opt.index} value={opt.index}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <span style={{
+                  ...styles.sceneFixedName,
+                  opacity: props.showIntro === false ? 0.4 : 1,
+                }}>Intro</span>
+              </div>
+
+              {/* Scene rows */}
               {props.scenes.map((scene, i) => (
                 <div key={i} style={styles.sceneRow}>
+                  <span style={{ ...styles.sceneNumber, width: 16 }} />
                   <span style={styles.sceneNumber}>{i + 1}</span>
                   <select
                     style={styles.layoutSelect}
@@ -537,6 +513,38 @@ export default function Editor() {
                   )}
                 </div>
               ))}
+
+              {/* Outro row */}
+              <div style={styles.sceneRow}>
+                <input
+                  type="checkbox"
+                  checked={props.showOutro === true}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
+                  }
+                  style={styles.checkbox}
+                  title="Enable outro"
+                />
+                <span style={styles.sceneNumber}>{props.scenes.length + 1}</span>
+                <select
+                  style={styles.layoutSelect}
+                  value={props.outroLayout ?? 7}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, outroLayout: Number(e.target.value) }))
+                  }
+                  disabled={!props.showOutro}
+                >
+                  {LAYOUT_OPTIONS.map((opt) => (
+                    <option key={opt.index} value={opt.index}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <span style={{
+                  ...styles.sceneFixedName,
+                  opacity: props.showOutro ? 1 : 0.4,
+                }}>Outro</span>
+              </div>
             </div>
           </div>
         )}
@@ -616,10 +624,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     outline: "none",
   },
-  topRow: {
-    display: "flex",
-    gap: 16,
-  },
   styleRow: {
     display: "flex",
     gap: 12,
@@ -632,20 +636,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     color: "#94a3b8",
     flex: 1,
-  },
-  introOutroRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    marginTop: 8,
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    fontSize: 14,
-    color: "#e2e8f0",
-    cursor: "pointer",
   },
   checkbox: {
     width: 16,
@@ -683,6 +673,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     minWidth: 20,
     textAlign: "center" as const,
+  },
+  sceneFixedName: {
+    flex: 1,
+    padding: "8px 12px",
+    fontSize: 14,
+    color: "#94a3b8",
+    fontWeight: 500,
   },
   sceneInput: {
     flex: 1,
