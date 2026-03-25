@@ -55,11 +55,11 @@ export const defaultVideoProps: VideoProps = {
     highlight: "#fefdfb",
   },
   scenes: [
-    { text: "Welcome to the show", fontSize: 150, y: 300, x: 0, rotateZ: -12, rotateX: 18 },
-    { text: "Something amazing happens", fontSize: 150 },
-    { text: "New challengers approach", fontSize: 150 },
-    { text: "The battle intensifies", fontSize: 150 },
-    { text: "Who will come out on top?", fontSize: 150, y: 300, x: 0, rotateZ: 10, rotateX: -15 },
-    { text: "Stay tuned for more", fontSize: 150 },
+    { text: "New Season Starts Now", fontSize: 150, y: 300, x: 0, rotateZ: -12, rotateX: 18 },
+    { text: "Make Your Mark", fontSize: 150 },
+    { text: "And Forge Your Legacy", fontSize: 150 },
+    { text: "With Our New Tools", fontSize: 150 },
+    { text: "Sounds Packs Unlocks Tutorials Apps Plugins And More...", fontSize: 150, y: 300, x: 0, rotateZ: 10, rotateX: -15 },
+    { text: "Right Here Right Now", fontSize: 150 },
   ],
 };
