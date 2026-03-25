@@ -439,15 +439,6 @@ export default function Editor() {
             <div style={styles.scenesList}>
               {/* Intro row */}
               <div style={styles.sceneRow}>
-                <input
-                  type="checkbox"
-                  checked={props.showIntro !== false}
-                  onChange={(e) =>
-                    setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
-                  }
-                  style={styles.checkbox}
-                  title="Enable intro"
-                />
                 <span style={styles.sceneNumber}>0</span>
                 <select
                   style={styles.layoutSelect}
@@ -467,12 +458,20 @@ export default function Editor() {
                   ...styles.sceneFixedName,
                   opacity: props.showIntro === false ? 0.4 : 1,
                 }}>Intro</span>
+                <input
+                  type="checkbox"
+                  checked={props.showIntro !== false}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
+                  }
+                  style={styles.checkbox}
+                  title="Enable intro"
+                />
               </div>
 
               {/* Scene rows */}
               {props.scenes.map((scene, i) => (
                 <div key={i} style={styles.sceneRow}>
-                  <span style={{ ...styles.sceneNumber, width: 16 }} />
                   <span style={styles.sceneNumber}>{i + 1}</span>
                   <select
                     style={styles.layoutSelect}
@@ -516,15 +515,6 @@ export default function Editor() {
 
               {/* Outro row */}
               <div style={styles.sceneRow}>
-                <input
-                  type="checkbox"
-                  checked={props.showOutro === true}
-                  onChange={(e) =>
-                    setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
-                  }
-                  style={styles.checkbox}
-                  title="Enable outro"
-                />
                 <span style={styles.sceneNumber}>{props.scenes.length + 1}</span>
                 <select
                   style={styles.layoutSelect}
@@ -544,6 +534,15 @@ export default function Editor() {
                   ...styles.sceneFixedName,
                   opacity: props.showOutro ? 1 : 0.4,
                 }}>Outro</span>
+                <input
+                  type="checkbox"
+                  checked={props.showOutro === true}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
+                  }
+                  style={styles.checkbox}
+                  title="Enable outro"
+                />
               </div>
             </div>
           </div>
