@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
-import { Player, type PlayerRef } from "@remotion/player";
+import { useState, useCallback, useRef, useMemo } from "react";
+import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
 import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
@@ -585,7 +585,21 @@ export default function Editor() {
                     {layouts.map((opt) => (
                       <div key={opt.index} style={styles.galleryCard}>
                         <div style={styles.galleryPreview}>
-                          <span style={styles.galleryIndex}>{opt.index}</span>
+                          <Thumbnail
+                            component={HelloWorld}
+                            inputProps={{
+                              ...props,
+                              showIntro: false,
+                              showOutro: false,
+                              scenes: [{ text: opt.label, fontSize: 100, layout: opt.index }],
+                            }}
+                            durationInFrames={SCENE_DURATION}
+                            fps={FPS}
+                            compositionWidth={1080}
+                            compositionHeight={1920}
+                            frameToDisplay={60}
+                            style={{ width: "100%", height: "100%", borderRadius: 8 }}
+                          />
                         </div>
                         <span style={styles.galleryLabel}>{opt.label}</span>
                       </div>
