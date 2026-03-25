@@ -12,18 +12,21 @@ const PRELOAD_IMAGES = [
   `${BASE}/logo.webp`,
 ];
 
-function preloadImages(): Promise<void[]> {
-  return Promise.all(
-    PRELOAD_IMAGES.map(
-      (src) =>
-        new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = src;
-        })
-    )
+function preloadAssets(): Promise<unknown[]> {
+  const imageLoads = PRELOAD_IMAGES.map(
+    (src) =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = src;
+      })
   );
+  // Preload Lottie transition JSON
+  const transitionLoad = fetch(`${BASE}/transitions/flash.json`)
+    .then((res) => res.json())
+    .catch(() => {});
+  return Promise.all([...imageLoads, transitionLoad]);
 }
 
 export default function Home() {
@@ -32,7 +35,7 @@ export default function Home() {
   const [dots, setDots] = useState("");
 
   useEffect(() => {
-    preloadImages().then(() => setLoaded(true));
+    preloadAssets().then(() => setLoaded(true));
   }, []);
 
   useEffect(() => {
