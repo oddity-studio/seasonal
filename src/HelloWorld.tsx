@@ -79,7 +79,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ] },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
-  ], textDefaults: { y: 100 } },
+  ], textDefaults: { y: 100, fontSize: 195 } },
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
@@ -423,7 +423,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     fontStyle: fontConfig.fontStyle ?? "normal",
                     color: textColor,
                     margin: 0,
-                    lineHeight: isScene2 ? (fontConfig.lineHeight ?? 1.0) * 0.7 : (fontConfig.lineHeight ?? 1.0),
+                    lineHeight: fontConfig.lineHeight ?? 1.0,
                     letterSpacing: 8,
                     textTransform: "uppercase",
                     textShadow: textGlow,
