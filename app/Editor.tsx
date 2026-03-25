@@ -591,7 +591,7 @@ export default function Editor() {
                               ...props,
                               showIntro: false,
                               showOutro: false,
-                              scenes: [{ text: opt.label, fontSize: 100, layout: opt.index }],
+                              scenes: [{ text: category, fontSize: 100, layout: opt.index }],
                             }}
                             durationInFrames={SCENE_DURATION}
                             fps={FPS}
