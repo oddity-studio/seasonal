@@ -79,7 +79,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ] },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
-  ], textDefaults: { y: 100, fontSize: 195 } },
+  ], textDefaults: { y: 100, fontSize: 254 } },
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
