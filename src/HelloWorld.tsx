@@ -362,6 +362,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Text overlay */}
       {(() => {
+        const isScene2 = layoutIndex === 1;
         const defaultAngles = [
           { z: -12, x: 18 },
           { z: 10, x: -15 },
@@ -372,8 +373,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           { z: -10, x: 25 },
         ];
         const fallback = defaultAngles[index % defaultAngles.length];
-        const a = { z: rZ ?? fallback.z, x: rX ?? fallback.x };
-        const perspectiveVal = persp ?? 400;
+        const a = isScene2 ? { z: 0, x: 0 } : { z: rZ ?? fallback.z, x: rX ?? fallback.x };
+        const perspectiveVal = isScene2 ? 0 : (persp ?? 400);
 
         const words = text.split(" ");
         const totalWords = words.length;
@@ -387,13 +388,15 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
         // Shift container up so the newest word stays at screen center
         const visibleProgress = wordSprings.reduce((sum, s) => sum + s, 0);
-        const shiftUp = Math.max(0, visibleProgress - 1) * lineHeight;
+        const shiftUp = isScene2 ? 0 : Math.max(0, visibleProgress - 1) * lineHeight;
 
         return (
           <div
             style={{
               opacity: exit,
-              transform: `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
+              transform: isScene2
+                ? `translateX(${resolvedX}px) translateY(${resolvedY}px)`
+                : `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
               textAlign: "center",
               padding: "0 80px",
               zIndex: 1,
@@ -405,7 +408,11 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               }}
             >
             {words.map((word, wi) => {
-              const wordY = interpolate(wordSprings[wi], [0, 1], [30, 0]);
+              const wordY = isScene2 ? 0 : interpolate(wordSprings[wi], [0, 1], [30, 0]);
+              // Scene2: snap appear (opacity 0 → 1 with no slide)
+              const wordOpacity = isScene2
+                ? interpolate(wordSprings[wi], [0, 0.5], [0, 1], { extrapolateRight: "clamp" })
+                : wordSprings[wi];
               return (
                 <p
                   key={wi}
@@ -421,8 +428,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     textTransform: "uppercase",
                     textShadow: textGlow,
                     mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
-                    opacity: wordSprings[wi],
-                    transform: `translateY(${wordY}px)`,
+                    opacity: wordOpacity,
+                    transform: isScene2 ? "none" : `translateY(${wordY}px)`,
                   }}
                 >
                   {word}
