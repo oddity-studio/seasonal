@@ -29,7 +29,7 @@ const LottieTransition: React.FC<{
   const frame = useCurrentFrame();
   const [animationData, setAnimationData] = useState<LottieAnimationData | null>(cachedData);
 
-  const filePath = src || `${BASE}/transitions/flash.json`;
+  const filePath = src || `${BASE}/picker/transitions/flash.json`;
 
   useEffect(() => {
     if (animationData) return;

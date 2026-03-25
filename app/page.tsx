@@ -23,7 +23,7 @@ function preloadAssets(): Promise<unknown[]> {
       })
   );
   // Preload Lottie transition JSON
-  const transitionLoad = fetch(`${BASE}/transitions/flash.json`)
+  const transitionLoad = fetch(`${BASE}/picker/transitions/flash.json`)
     .then((res) => res.json())
     .catch(() => {});
   return Promise.all([...imageLoads, transitionLoad]);

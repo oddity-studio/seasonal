@@ -53,7 +53,7 @@ export default function Editor() {
       // Pre-load and decode audio
       const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
       const audioCtx = new AudioContext();
-      const audioResp = await fetch(`${BASE}/music.wav`);
+      const audioResp = await fetch(`${BASE}/picker/music/${props.music || "Tournament.mp3"}`);
       const audioBuf = await audioCtx.decodeAudioData(
         await audioResp.arrayBuffer(),
       );
@@ -440,14 +440,29 @@ export default function Editor() {
               <div style={styles.styleRow}>
                 <label style={styles.styleLabel}>
                   Music
-                  <select style={styles.layoutSelect} value="music.wav" disabled>
+                  <select
+                    style={styles.layoutSelect}
+                    value={props.music || "Tournament.mp3"}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, music: e.target.value }))
+                    }
+                  >
+                    <option value="Tournament.mp3">Tournament</option>
+                    <option value="Main Lobby.mp3">Main Lobby</option>
                     <option value="music.wav">music.wav</option>
                   </select>
                 </label>
                 <label style={styles.styleLabel}>
                   Transition
-                  <select style={styles.layoutSelect} value="flash.json" disabled>
-                    <option value="flash.json">flash.json</option>
+                  <select
+                    style={styles.layoutSelect}
+                    value={props.transition || "flash.json"}
+                    onChange={(e) =>
+                      setProps((prev) => ({ ...prev, transition: e.target.value }))
+                    }
+                  >
+                    <option value="flash.json">Flash</option>
+                    <option value="placeholder.json">Circle Wipe</option>
                   </select>
                 </label>
               </div>

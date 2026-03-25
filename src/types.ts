@@ -32,6 +32,8 @@ export const videoPropsSchema = z.object({
   introLayout: z.number().optional(),
   showOutro: z.boolean().optional(),
   outroLayout: z.number().optional(),
+  music: z.string().optional(),
+  transition: z.string().optional(),
   scenes: z.array(sceneSchema),
 });
 
@@ -45,6 +47,8 @@ export const defaultVideoProps: VideoProps = {
   introLayout: 7,
   showOutro: false,
   outroLayout: 7,
+  music: "Tournament.mp3",
+  transition: "flash.json",
   colorScheme: {
     dark: "#953f0c",
     light: "#dfbf67",

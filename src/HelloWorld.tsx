@@ -425,7 +425,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7 }) => {
+export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7, music = "Tournament.mp3", transition = "flash.json" }) => {
   const introFrames = showIntro ? SCENE_DURATION : 0;
 
   return (
@@ -438,7 +438,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       )}
 
       {/* Background music */}
-      <Audio src={`${BASE}/music.wav`} volume={1} />
+      <Audio src={`${BASE}/picker/music/${music}`} volume={1} />
 
       {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {
@@ -457,7 +457,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
               from={sceneStart - 12}
               durationInFrames={TRANSITION_DURATION}
             >
-              <LottieTransition />
+              <LottieTransition src={`${BASE}/picker/transitions/${transition}`} />
             </Sequence>
           </React.Fragment>
         );
