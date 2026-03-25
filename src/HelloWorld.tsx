@@ -411,14 +411,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
       {/* Explosion burst on logo impact */}
       {(() => {
         const stomp = spring({ frame, fps, config: { damping: 12, stiffness: 200, mass: 1.2 } });
-        // Burst triggers when stomp passes ~0.8 (near landing)
         const burstProgress = interpolate(stomp, [0.7, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-        const burstScale = interpolate(burstProgress, [0, 1], [0.3, 4]);
-        const burstOpacity = interpolate(burstProgress, [0, 0.15, 0.5, 1], [0, 0.9, 0.5, 0]);
-        // Secondary ring — delayed
-        const ring2Progress = interpolate(stomp, [0.8, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-        const ring2Scale = interpolate(ring2Progress, [0, 1], [0.2, 3.5]);
-        const ring2Opacity = interpolate(ring2Progress, [0, 0.1, 0.4, 1], [0, 0.7, 0.3, 0]);
         // Radial rays
         const rayCount = 12;
         const rays = Array.from({ length: rayCount }, (_, i) => {
@@ -430,36 +423,6 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
 
         return (
           <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" as const, overflow: "hidden" }}>
-            {/* Shockwave ring 1 */}
-            <div style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: 400,
-              height: 400,
-              marginLeft: -200,
-              marginTop: -200,
-              borderRadius: "50%",
-              border: `3px solid ${colorScheme.highlight}`,
-              transform: `scale(${burstScale})`,
-              opacity: burstOpacity,
-              boxShadow: `0 0 60px 20px ${colorScheme.highlight}, inset 0 0 60px 20px ${colorScheme.highlight}`,
-            }} />
-            {/* Shockwave ring 2 */}
-            <div style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: 300,
-              height: 300,
-              marginLeft: -150,
-              marginTop: -150,
-              borderRadius: "50%",
-              border: `2px solid ${colorScheme.light}`,
-              transform: `scale(${ring2Scale})`,
-              opacity: ring2Opacity,
-              boxShadow: `0 0 40px 10px ${colorScheme.light}`,
-            }} />
             {/* Radial light rays */}
             {rays.map((ray, i) => (
               <div key={i} style={{
