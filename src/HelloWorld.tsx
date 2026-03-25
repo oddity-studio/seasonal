@@ -245,7 +245,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const y = interpolate(enter, [0, 1], [40, 0]) + resolvedY;
 
   // Scene style variants cycling through the color scheme + black/white
-  const variant = index % 4;
+  const variant = layoutIndex % 4;
   let background: string;
   let textColor: string;
 
