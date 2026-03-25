@@ -15,6 +15,7 @@ export const backgroundVideoSchema = z.object({
 
 export const sceneSchema = z.object({
   text: z.string(),
+  layout: z.number().optional(),
   fontSize: z.number().optional(),
   y: z.number().optional(),
   x: z.number().optional(),

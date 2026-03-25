@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
-import { HelloWorld } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -402,6 +402,20 @@ export default function Editor() {
               {props.scenes.map((scene, i) => (
                 <div key={i} style={styles.sceneRow}>
                   <span style={styles.sceneNumber}>{i + 1}</span>
+                  <select
+                    style={styles.layoutSelect}
+                    value={scene.layout ?? i}
+                    onChange={(e) =>
+                      updateScene(i, "layout", Number(e.target.value))
+                    }
+                    title="Scene template"
+                  >
+                    {LAYOUT_OPTIONS.map((opt) => (
+                      <option key={opt.index} value={opt.index}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     style={styles.sceneInput}
                     value={scene.text}
@@ -578,6 +592,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     color: "#475569",
     fontFamily: "monospace",
+  },
+  layoutSelect: {
+    padding: "8px 6px",
+    borderRadius: 8,
+    border: "1px solid #334155",
+    backgroundColor: "#1e293b",
+    color: "#e2e8f0",
+    fontSize: 12,
+    outline: "none",
+    cursor: "pointer",
+    minWidth: 0,
   },
   fontSizeInput: {
     width: 56,

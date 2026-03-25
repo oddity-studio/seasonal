@@ -38,50 +38,53 @@ type CharPlacement = {
 };
 
 type SceneLayout = {
+  label: string;
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
-  // Scene 0: char1 vs char2 face-off
-  { characters: [
+  // 0: char1 vs char2 face-off
+  { label: "Char1 vs Char2", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ] },
-  // Scene 1: char3 solo hero shot
-  { characters: [
+  // 1: char3 solo hero shot
+  { label: "Char3 Solo", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
   ] },
-  // Scene 2: char2 vs char3
-  { characters: [
+  // 2: char2 vs char3
+  { label: "Char2 vs Char3", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ] },
-  // Scene 3: char1 solo hero shot from right + background video
-  { characters: [
+  // 3: char1 solo hero shot from right + background video
+  { label: "Char1 Solo + Video", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 } },
-  // Scene 4: char1 vs char3 showdown
-  { characters: [
+  // 4: char1 vs char3 showdown
+  { label: "Char1 vs Char3", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
   ] },
-  // Scene 5: all three — group shot
-  { characters: [
+  // 5: all three — group shot
+  { label: "Group Shot", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ] },
-  // Scene 6: char2 solo hero shot
-  { characters: [
+  // 6: char2 solo hero shot
+  { label: "Char2 Solo", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ] },
-  // Scene 7: title — all three side by side, each 1/3 width
-  { characters: [
+  // 7: title — all three side by side, each 1/3 width
+  { label: "All Three", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ] },
 ];
+
+export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label }));
 
 const FighterChar: React.FC<{
   placement: CharPlacement;
@@ -189,9 +192,10 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
+const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
   text,
   index,
+  layoutIndex,
   colors,
   fontSize = 150,
   y: yOffset = 0,
@@ -205,8 +209,8 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
   const { fps } = useVideoConfig();
 
   // Use scene-level backgroundVideo if provided, otherwise fall back to layout default
-  const layoutBgVideo = SCENE_LAYOUTS[index % SCENE_LAYOUTS.length].backgroundVideo;
-  const backgroundVideo = backgroundVideoProp ?? layoutBgVideo;
+  const resolvedLayout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
+  const backgroundVideo = backgroundVideoProp ?? resolvedLayout.backgroundVideo;
 
   const enter = spring({ frame, fps, config: { damping: 200 } });
   const exitStart = SCENE_DURATION - 30;
@@ -275,7 +279,7 @@ const SceneCard: React.FC<{ text: string; index: number; colors: ColorScheme; fo
 
       {/* Character layer behind text */}
 
-      <CharacterLayer layoutIndex={index} />
+      <CharacterLayer layoutIndex={layoutIndex} />
 
       {/* Text overlay */}
       {(() => {
@@ -437,7 +441,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
               from={sceneStart}
               durationInFrames={SCENE_DURATION}
             >
-              <SceneCard text={scene.text} index={i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
+              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
             </Sequence>
             {/* Lottie transition overlay — starts 6 frames before scene */}
             <Sequence
