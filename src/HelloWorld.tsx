@@ -41,6 +41,7 @@ type SceneLayout = {
   label: string;
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
+  textDefaults?: { x?: number; y?: number; fontSize?: number };
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
@@ -57,16 +58,16 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene3", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ] },
+  ], textDefaults: { x: 80, fontSize: 170 } },
   // 3: char1 solo hero shot from right + background video
   { label: "Video Cube", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 } },
+  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200 } },
   // 4: char1 vs char3 showdown
   { label: "S12 Scene5", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
-  ] },
+  ], textDefaults: { y: 200 } },
   // 5: all three — group shot
   { label: "S12 Scene6", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
@@ -208,15 +209,19 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Use scene-level backgroundVideo if provided, otherwise fall back to layout default
+  // Use scene-level values if provided, otherwise fall back to layout defaults
   const resolvedLayout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
+  const td = resolvedLayout.textDefaults;
   const backgroundVideo = backgroundVideoProp ?? resolvedLayout.backgroundVideo;
+  const resolvedFontSize = fontSize ?? td?.fontSize ?? 150;
+  const resolvedX = xOffset || td?.x || 0;
+  const resolvedY = yOffset || td?.y || 0;
 
   const enter = spring({ frame, fps, config: { damping: 200 } });
   const exitStart = SCENE_DURATION - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, SCENE_DURATION], [1, 0], { extrapolateRight: "clamp" }) : 1;
   const opacity = enter * exit;
-  const y = interpolate(enter, [0, 1], [40, 0]) + yOffset;
+  const y = interpolate(enter, [0, 1], [40, 0]) + resolvedY;
 
   // Scene style variants cycling through the color scheme + black/white
   const variant = index % 4;
@@ -299,7 +304,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const words = text.split(" ");
         const totalWords = words.length;
         const revealWindow = SCENE_DURATION - 50;
-        const lineHeight = fontSize * 1.1;
+        const lineHeight = resolvedFontSize * 1.1;
 
         const wordSprings = words.map((_, wi) => {
           const wordDelay = totalWords > 1 ? (wi / (totalWords - 1)) * revealWindow * 0.6 : 0;
@@ -314,7 +319,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           <div
             style={{
               opacity: exit,
-              transform: `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${xOffset}px) translateY(${y}px)`,
+              transform: `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
               textAlign: "center",
               padding: "0 80px",
               zIndex: 1,
@@ -331,7 +336,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 <p
                   key={wi}
                   style={{
-                    fontSize,
+                    fontSize: resolvedFontSize,
                     fontFamily,
                     fontWeight: 700,
                     color: textColor,
