@@ -241,11 +241,6 @@ export default function Editor() {
     }
   }, [props]);
 
-  const updateSeason = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 2);
-    setProps((prev) => ({ ...prev, seasonNumber: digits }));
-  };
-
   const updateScene = (
     index: number,
     field: keyof Scene,
@@ -364,17 +359,6 @@ export default function Editor() {
           <div style={styles.controls}>
             <h2 style={styles.controlsHeading}>Customize</h2>
 
-            <label style={styles.label}>
-              Season Number
-              <input
-                style={styles.input}
-                value={props.seasonNumber}
-                onChange={(e) => updateSeason(e.target.value)}
-                placeholder="01"
-                maxLength={2}
-              />
-            </label>
-
             <div>
               <span style={styles.label}>Color Scheme</span>
               <div style={styles.colorRow}>
@@ -446,6 +430,24 @@ export default function Editor() {
                         {opt.label}
                       </option>
                     ))}
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <span style={styles.label}>Style</span>
+              <div style={styles.styleRow}>
+                <label style={styles.styleLabel}>
+                  Music
+                  <select style={styles.layoutSelect} value="music.wav" disabled>
+                    <option value="music.wav">music.wav</option>
+                  </select>
+                </label>
+                <label style={styles.styleLabel}>
+                  Transition
+                  <select style={styles.layoutSelect} value="flash.json" disabled>
+                    <option value="flash.json">flash.json</option>
                   </select>
                 </label>
               </div>
@@ -579,6 +581,19 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#e2e8f0",
     fontSize: 14,
     outline: "none",
+  },
+  styleRow: {
+    display: "flex",
+    gap: 12,
+    marginTop: 8,
+  },
+  styleLabel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 6,
+    fontSize: 12,
+    color: "#94a3b8",
+    flex: 1,
   },
   introOutroRow: {
     display: "flex",
