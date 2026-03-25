@@ -58,7 +58,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene3", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ], textDefaults: { x: 80, fontSize: 170 } },
+  ], textDefaults: { x: 80, fontSize: 204 } },
   // 3: char1 solo hero shot from right + background video
   { label: "Video Cube", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
@@ -448,6 +448,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
       {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {
         const sceneStart = introFrames + i * SCENE_DURATION;
+        const transitionOffset = transition === "flash.json" ? 12 : 18;
         return (
           <React.Fragment key={i}>
             {/* Scene card */}
@@ -459,7 +460,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
             </Sequence>
             {/* Lottie transition overlay */}
             <Sequence
-              from={sceneStart - 12}
+              from={sceneStart - transitionOffset}
               durationInFrames={TRANSITION_DURATION}
             >
               <LottieTransition src={`${BASE}/picker/transitions/${transition}`} />
