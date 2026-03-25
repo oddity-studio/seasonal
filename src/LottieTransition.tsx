@@ -13,7 +13,7 @@ const LottieTransition: React.FC<{
   const [animationData, setAnimationData] = useState<LottieAnimationData | null>(null);
   const [error, setError] = useState(false);
 
-  const filePath = src || staticFile("transitions/placeholder.json");
+  const filePath = src || staticFile("transitions/flash.json");
 
   useEffect(() => {
     fetch(filePath)
