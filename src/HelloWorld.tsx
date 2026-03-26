@@ -74,6 +74,7 @@ type SceneLayout = {
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
+  titleCard?: boolean;
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
@@ -107,6 +108,12 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ], textDefaults: { rotateZ: 10, rotateX: -15 } },
+  // Logo Stomp — title card as a scene template
+  { label: "Logo Stomp", category: "General", characters: [
+    { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
+    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
+    { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
+  ], titleCard: true },
   // Gradients category — no characters, flat text
   { label: "Sunset", category: "Gradients", characters: [],
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
@@ -590,14 +597,20 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
         const sceneStart = sceneStarts[i];
         const sceneFrames = getSceneFrames(scene);
         const transitionOffset = transition === "flash.json" ? 12 : 18;
+        const sceneLayoutIndex = scene.layout ?? i;
+        const sceneLayout = SCENE_LAYOUTS[sceneLayoutIndex % SCENE_LAYOUTS.length];
         return (
           <React.Fragment key={i}>
-            {/* Scene card */}
+            {/* Scene card or title card */}
             <Sequence
               from={sceneStart}
               durationInFrames={sceneFrames}
             >
-              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
+              {sceneLayout.titleCard ? (
+                <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} />
+              ) : (
+                <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
+              )}
             </Sequence>
             {/* Lottie transition overlay */}
             <Sequence
