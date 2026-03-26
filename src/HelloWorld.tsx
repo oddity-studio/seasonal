@@ -313,7 +313,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
   // 0.68-0.75: pause
   // 0.75-0.93: right
   // 0.93-1.00: pause
-  const moveX = 800; // horizontal movement
+  const moveX = 1000; // horizontal movement
   let dx = 0;
   let dy = 0;
 
