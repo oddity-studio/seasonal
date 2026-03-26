@@ -310,15 +310,9 @@ const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src,
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Belt appears at 50% of the scene
-  const startFrame = Math.floor(sceneDuration * 0.5);
-  const localFrame = Math.max(0, frame - startFrame);
-
-  if (frame < startFrame) return null;
-
-  // Zoom in over ~20 frames with ease-in, then sudden hard stop
+  // Zoom in over ~20 frames with ease-in, then sudden hard stop — starts immediately
   const zoomFrames = 20;
-  const progress = Math.min(localFrame / zoomFrames, 1);
+  const progress = Math.min(frame / zoomFrames, 1);
   const eased = progress * progress; // ease-in: accelerates into the stop
   const scale = interpolate(eased, [0, 1], [0.1, 2]);
   const opacity = interpolate(progress, [0, 0.05], [0, 1], { extrapolateRight: "clamp" });
@@ -330,6 +324,7 @@ const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src,
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      paddingBottom: "15%",
       zIndex: 8,
       pointerEvents: "none" as const,
     }}>
@@ -446,7 +441,10 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const resolvedX = xOffset || td?.x || 0;
   const resolvedY = yOffset || td?.y || 0;
 
-  const enter = spring({ frame, fps, config: { damping: 200 } });
+  // Delay text entrance if belt stomp is present (wait for belt to land)
+  const textDelay = resolvedLayout.beltStomp ? 25 : 0;
+  const textFrame = Math.max(0, frame - textDelay);
+  const enter = spring({ frame: textFrame, fps, config: { damping: 200 } });
   const exitStart = dur - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, dur], [1, 0], { extrapolateRight: "clamp" }) : 1;
   const opacity = enter * exit;
