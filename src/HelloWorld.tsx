@@ -115,10 +115,10 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, #0a0015, #1a0030, ${c.dark})`, textColor: c.light, textGlow: `0 0 20px ${c.light}, 0 0 60px ${c.light}80, 0 0 120px ${c.light}40` }) },
   { label: "Ocean", category: "Gradients", characters: [],
-    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    textDefaults: { y: -60, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(180deg, #0c1445, #1a3a6a, ${c.light})`, textColor: c.highlight, textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Ember", category: "Gradients", characters: [],
-    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    textDefaults: { y: -60, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }) },
 ];
 
