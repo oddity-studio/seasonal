@@ -451,7 +451,7 @@ export default function Editor() {
               <div style={styles.sceneRow}>
                 <span style={styles.sceneNumber}></span>
                 <span style={styles.columnHeader}>Design</span>
-                <span style={{ ...styles.columnHeader, flex: 1 }}>Text</span>
+                <span style={{ flex: 1 }}></span>
                 <span style={{ ...styles.columnHeader, width: 56, textAlign: "center" as const }}>Size</span>
                 <span style={{ ...styles.columnHeader, width: 44, textAlign: "center" as const }}>Time</span>
                 <span style={{ width: 22 }}></span>
