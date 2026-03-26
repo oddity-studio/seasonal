@@ -584,7 +584,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
           }}>
             <div style={{
               fontFamily: fontConfig.fontFamily,
-              fontWeight: fontConfig.weight,
+              fontWeight: fontConfig.fontWeight,
               fontSize,
               color: colorScheme.highlight,
               textAlign: "center",
