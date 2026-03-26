@@ -447,6 +447,16 @@ export default function Editor() {
             </div>
 
             <div style={styles.scenesList}>
+              {/* Column headers */}
+              <div style={styles.sceneRow}>
+                <span style={styles.sceneNumber}></span>
+                <span style={styles.columnHeader}>Design</span>
+                <span style={{ ...styles.columnHeader, flex: 1 }}>Text</span>
+                <span style={{ ...styles.columnHeader, width: 56, textAlign: "center" as const }}>Size</span>
+                <span style={{ ...styles.columnHeader, width: 44, textAlign: "center" as const }}>Time</span>
+                <span style={{ width: 22 }}></span>
+              </div>
+
               {/* Intro row */}
               <div style={styles.sceneRow}>
                 <span style={styles.sceneNumber}>0</span>
@@ -734,6 +744,13 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     gap: 8,
     alignItems: "center",
+  },
+  columnHeader: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: "#475569",
+    textTransform: "uppercase" as const,
+    letterSpacing: 1,
   },
   sceneNumber: {
     fontSize: 12,
