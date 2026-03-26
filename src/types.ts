@@ -56,7 +56,7 @@ export const defaultVideoProps: VideoProps = {
   colorScheme: {
     dark: "#953f0c",
     light: "#dfbf67",
-    highlight: "#fefdfb",
+    highlight: "#ffaa00",
   },
   scenes: [
     { text: "", fontSize: 80, layout: 11 },
