@@ -61,7 +61,7 @@ export const defaultVideoProps: VideoProps = {
     { text: "Make Your Mark", fontSize: 150 },
     { text: "And Forge Your Legacy", fontSize: 150 },
     { text: "With Our New Tools", fontSize: 150 },
-    { text: "Sounds Tutorials Apps Plugins And More...", fontSize: 150, y: 300, x: 0, rotateZ: 10, rotateX: -15 },
+    { text: "Sounds Packs Effects Tutorials Apps Plugins And More...", fontSize: 150, y: 300, x: 0, rotateZ: 10, rotateX: -15 },
     { text: "Right Here Right Now", fontSize: 150 },
   ],
 };
