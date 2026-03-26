@@ -102,7 +102,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
-  { label: "Grunge Belt", category: "General", characters: [],
+  { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     beltStomp: { src: BELT1 },
     textDefaults: { y: 200, fontSize: 120, rotateX: 10, mode: "flat" },
@@ -720,7 +720,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
         return (
           <div style={{
             position: "absolute",
-            bottom: "8%",
+            bottom: "18%",
             left: 0,
             right: 0,
             zIndex: 15,
