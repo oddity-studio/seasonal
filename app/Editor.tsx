@@ -403,6 +403,7 @@ export default function Editor() {
                   >
                     <option value="Tournament.mp3">Tournament</option>
                     <option value="Main Lobby.mp3">Main Lobby</option>
+                    <option value="Sydosys.mp3">Sydosys</option>
                   </select>
                 </label>
                 <label style={styles.styleLabel}>
