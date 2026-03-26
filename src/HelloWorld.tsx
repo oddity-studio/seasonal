@@ -95,7 +95,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
   { label: "Brackets", category: "General", characters: [],
-    backgroundImageSrc: BRACKETS, textDefaults: { y: 200, rotateZ: -18, rotateX: -14, mode: "scroll" } },
+    backgroundImageSrc: BRACKETS, textDefaults: { y: -60, fontSize: 200, mode: "flat" } },
   { label: "S12 Scene4", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
