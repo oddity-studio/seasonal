@@ -59,13 +59,13 @@ export const defaultVideoProps: VideoProps = {
     highlight: "#fefdfb",
   },
   scenes: [
-    { text: "", fontSize: 80, layout: 9 },
+    { text: "", fontSize: 80, layout: 10 },
     { text: "New Season Starts Now", fontSize: 150, layout: 0 },
     { text: "Make Your Mark", fontSize: 230, layout: 1 },
     { text: "And Forge Your Legacy", fontSize: 140, layout: 3 },
     { text: "Using Our New Tools", fontSize: 150, layout: 2 },
-    { text: "Sounds Packs Effects Tutorials Apps Plugins And More...", fontSize: 150, layout: 5 },
-    { text: "Right Here Right Now", fontSize: 150, layout: 6 },
-    { text: "", fontSize: 80, layout: 9 },
+    { text: "Sounds Packs Effects Tutorials Apps Plugins And More...", fontSize: 150, layout: 6 },
+    { text: "Right Here Right Now", fontSize: 150, layout: 7 },
+    { text: "", fontSize: 80, layout: 10 },
   ],
 };
