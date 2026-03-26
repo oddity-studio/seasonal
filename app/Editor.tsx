@@ -450,7 +450,7 @@ export default function Editor() {
               {/* Column headers */}
               <div style={styles.sceneRow}>
                 <span style={styles.sceneNumber}></span>
-                <span style={{ ...styles.columnHeader, ...styles.layoutSelect, border: "none", backgroundColor: "transparent", padding: "0 6px" }}>Design</span>
+                <span style={styles.columnHeader}>Design</span>
                 <span style={{ ...styles.columnHeader, flex: 1 }}>Text</span>
                 <span style={{ ...styles.columnHeader, width: 56, textAlign: "center" as const }}>Size</span>
                 <span style={{ ...styles.columnHeader, width: 44, textAlign: "center" as const }}>Time</span>
