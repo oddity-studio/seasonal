@@ -83,7 +83,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ], textDefaults: { x: 80, y: 200, fontSize: 204 } },
+  ], textDefaults: { x: 80, y: 580, fontSize: 204 } },
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200 } },
