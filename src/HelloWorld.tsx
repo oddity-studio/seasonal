@@ -316,10 +316,12 @@ const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src,
 
   if (frame < startFrame) return null;
 
-  // Stomp spring: starts tiny (0.1x) and slams to full size
-  const stomp = spring({ frame: localFrame, fps, config: { damping: 12, stiffness: 200, mass: 1.2 } });
-  const scale = interpolate(stomp, [0, 1], [0.1, 1]);
-  const opacity = interpolate(stomp, [0, 0.15], [0, 1], { extrapolateRight: "clamp" });
+  // Zoom in over ~20 frames with ease-in, then sudden hard stop
+  const zoomFrames = 20;
+  const progress = Math.min(localFrame / zoomFrames, 1);
+  const eased = progress * progress; // ease-in: accelerates into the stop
+  const scale = interpolate(eased, [0, 1], [0.1, 1]);
+  const opacity = interpolate(progress, [0, 0.05], [0, 1], { extrapolateRight: "clamp" });
 
   return (
     <div style={{
