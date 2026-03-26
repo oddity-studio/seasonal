@@ -304,46 +304,42 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
   const t = frame / sceneDuration;
   const moveAmt = 120; // pixels of travel per segment
 
-  // Piecewise linear movement with pauses
-  // 0.00-0.18: down-right
+  // Straight directions: down, pause, right, pause, up, pause, right
+  // 0.00-0.18: down
   // 0.18-0.25: pause
-  // 0.25-0.43: up-right
+  // 0.25-0.43: right
   // 0.43-0.50: pause
-  // 0.50-0.68: down-left
+  // 0.50-0.68: up
   // 0.68-0.75: pause
-  // 0.75-0.93: up-left (back toward start)
+  // 0.75-0.93: right
   // 0.93-1.00: pause
   let dx = 0;
   let dy = 0;
 
   if (t < 0.18) {
     const p = t / 0.18;
-    dx = p * moveAmt;
     dy = p * moveAmt;
   } else if (t < 0.25) {
-    dx = moveAmt;
     dy = moveAmt;
   } else if (t < 0.43) {
     const p = (t - 0.25) / 0.18;
-    dx = moveAmt + p * moveAmt;
-    dy = moveAmt - p * moveAmt;
+    dx = p * moveAmt;
+    dy = moveAmt;
   } else if (t < 0.50) {
-    dx = moveAmt * 2;
-    dy = 0;
-  } else if (t < 0.68) {
-    const p = (t - 0.50) / 0.18;
-    dx = moveAmt * 2 - p * moveAmt;
-    dy = p * moveAmt;
-  } else if (t < 0.75) {
     dx = moveAmt;
     dy = moveAmt;
+  } else if (t < 0.68) {
+    const p = (t - 0.50) / 0.18;
+    dx = moveAmt;
+    dy = moveAmt - p * moveAmt;
+  } else if (t < 0.75) {
+    dx = moveAmt;
+    dy = 0;
   } else if (t < 0.93) {
     const p = (t - 0.75) / 0.18;
-    dx = moveAmt - p * moveAmt;
-    dy = moveAmt - p * moveAmt;
+    dx = moveAmt + p * moveAmt;
   } else {
-    dx = 0;
-    dy = 0;
+    dx = moveAmt * 2;
   }
 
   return (
@@ -359,7 +355,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
           position: "absolute",
           top: "50%",
           left: "50%",
-          width: "250%",
+          width: "350%",
           height: "auto",
           transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`,
           willChange: "transform",
