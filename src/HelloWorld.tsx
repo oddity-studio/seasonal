@@ -65,45 +65,47 @@ type CharPlacement = {
   opacity?: number; // base opacity (defaults to 1)
 };
 
+type TextMode = "normal" | "flat" | "scroll";
+
 type SceneLayout = {
   label: string;
   category: string;
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
-  textDefaults?: { x?: number; y?: number; fontSize?: number };
+  textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene1", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ] },
+  ], textDefaults: { rotateZ: -12, rotateX: 18 } },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
-  ], textDefaults: { y: 100, fontSize: 254 } },
+  ], textDefaults: { y: 100, fontSize: 254, mode: "flat" } },
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ], textDefaults: { x: -20, y: 500, fontSize: 204 } },
+  ], textDefaults: { x: -20, y: 500, fontSize: 204, rotateZ: -15, rotateX: 22 } },
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200 } },
+  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 8, rotateX: -20 } },
   { label: "S12 Scene5", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
-  ], textDefaults: { y: 200 } },
+  ], textDefaults: { y: 200, rotateZ: -18, rotateX: 14, mode: "scroll" } },
   { label: "S12 Scene6", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
-  ], textDefaults: { y: 200 } },
+  ], textDefaults: { y: 200, rotateZ: 14, rotateX: -18 } },
   { label: "S12 Scene7", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
-  ] },
+  ], textDefaults: { rotateZ: -10, rotateX: 25 } },
   { label: "S12 Cover", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
-  ] },
+  ], textDefaults: { rotateZ: 10, rotateX: -15 } },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -358,28 +360,21 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         </AbsoluteFill>
       )}
 
-      {/* Sound waveform for Scene5 — behind characters */}
-      {layoutIndex === 4 && <SoundWaveform color={colors.light} />}
+      {/* Sound waveform for scroll-mode scenes — behind characters */}
+      {td?.mode === "scroll" && <SoundWaveform color={colors.light} />}
 
       {/* Character layer */}
       <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} />
 
       {/* Text overlay */}
       {(() => {
-        const isScene2 = layoutIndex === 1;
-        const isScene5 = layoutIndex === 4;
-        const defaultAngles = [
-          { z: -12, x: 18 },
-          { z: 10, x: -15 },
-          { z: -15, x: 22 },
-          { z: 8, x: -20 },
-          { z: -18, x: 14 },
-          { z: 14, x: -18 },
-          { z: -10, x: 25 },
-        ];
-        const fallback = defaultAngles[index % defaultAngles.length];
-        const a = isScene2 ? { z: 0, x: 0 } : { z: rZ ?? fallback.z, x: rX ?? fallback.x };
-        const perspectiveVal = isScene2 ? 0 : (persp ?? 400);
+        const textMode: TextMode = td?.mode ?? "normal";
+        const isFlat = textMode === "flat";
+        const isScroll = textMode === "scroll";
+        const a = isFlat
+          ? { z: 0, x: 0 }
+          : { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
+        const perspectiveVal = isFlat ? 0 : (persp ?? td?.perspective ?? 400);
 
         const words = text.split(" ");
         const totalWords = words.length;
@@ -393,17 +388,17 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
         // Shift container up so the newest word stays at screen center
         const visibleProgress = wordSprings.reduce((sum, s) => sum + s, 0);
-        // Scene5: linear scroll from bottom to top
-        const scene5Scroll = isScene5
+        // Scroll mode: linear scroll from bottom to top
+        const scrollOffset = isScroll
           ? interpolate(frame, [0, dur], [500, -totalWords * lineHeight * 0.6])
           : 0;
-        const shiftUp = isScene2 ? 0 : isScene5 ? -scene5Scroll : Math.max(0, visibleProgress - 1) * lineHeight;
+        const shiftUp = isFlat ? 0 : isScroll ? -scrollOffset : Math.max(0, visibleProgress - 1) * lineHeight;
 
         return (
           <div
             style={{
-              opacity: isScene5 ? 1 : exit,
-              transform: isScene2
+              opacity: isScroll ? 1 : exit,
+              transform: isFlat
                 ? `translateX(${resolvedX}px) translateY(${resolvedY}px)`
                 : `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
               textAlign: "center",
@@ -417,10 +412,10 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               }}
             >
             {words.map((word, wi) => {
-              const wordY = (isScene2 || isScene5) ? 0 : interpolate(wordSprings[wi], [0, 1], [30, 0]);
-              const wordOpacity = isScene2
+              const wordY = (isFlat || isScroll) ? 0 : interpolate(wordSprings[wi], [0, 1], [30, 0]);
+              const wordOpacity = isFlat
                 ? interpolate(wordSprings[wi], [0, 0.5], [0, 1], { extrapolateRight: "clamp" })
-                : isScene5 ? enter : wordSprings[wi];
+                : isScroll ? enter : wordSprings[wi];
               return (
                 <p
                   key={wi}
@@ -437,7 +432,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     textShadow: textGlow,
                     mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
                     opacity: wordOpacity,
-                    transform: isScene2 ? "none" : `translateY(${wordY}px)`,
+                    transform: isFlat ? "none" : `translateY(${wordY}px)`,
                   }}
                 >
                   {word}
