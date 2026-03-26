@@ -11,6 +11,7 @@ import {
   Audio,
 } from "remotion";
 import type { VideoProps, ColorScheme, Scene } from "./types";
+import { FPS, DEFAULT_SCENE_DURATION, getSceneFrames } from "./types";
 import { LottieTransition, TRANSITION_DURATION } from "./LottieTransition";
 import { loadFont as loadDelaGothicOne } from "@remotion/google-fonts/DelaGothicOne";
 import { loadFont as loadExo2 } from "@remotion/google-fonts/Exo2";
@@ -43,7 +44,7 @@ const FONT_MAP: Record<string, FontConfig> = {
 
 export const FONT_OPTIONS = Object.keys(FONT_MAP);
 
-const SCENE_DURATION = 180; // 3 seconds per scene at 60fps
+const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS; // default scene duration in frames
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAR1 = `${BASE}/char1.png`;
@@ -112,7 +113,8 @@ const FighterChar: React.FC<{
   frame: number;
   fps: number;
   charIndex: number;
-}> = ({ placement, frame, fps, charIndex }) => {
+  sceneDuration?: number;
+}> = ({ placement, frame, fps, charIndex, sceneDuration = SCENE_DURATION }) => {
   // Slide in from the side
   const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 10 });
   const offscreen = placement.side === "left" ? -600 : 600;
@@ -125,9 +127,9 @@ const FighterChar: React.FC<{
   const sway = Math.sin(frame * 0.04 + charIndex * 3) * 4;
 
   // Exit: scale up and fade out
-  const exitStart = SCENE_DURATION - 30;
+  const exitStart = sceneDuration - 30;
   const exitProgress = frame > exitStart
-    ? interpolate(frame, [exitStart, SCENE_DURATION], [0, 1], { extrapolateRight: "clamp" })
+    ? interpolate(frame, [exitStart, sceneDuration], [0, 1], { extrapolateRight: "clamp" })
     : 0;
   const exitScale = 1 + exitProgress * 0.3;
   const baseOpacity = placement.opacity ?? 1;
@@ -193,7 +195,7 @@ const FighterChar: React.FC<{
   );
 };
 
-const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
+const CharacterLayer: React.FC<{ layoutIndex: number; sceneDuration?: number }> = ({ layoutIndex, sceneDuration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const layout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
@@ -207,6 +209,7 @@ const CharacterLayer: React.FC<{ layoutIndex: number }> = ({ layoutIndex }) => {
           frame={frame}
           fps={fps}
           charIndex={ci}
+          sceneDuration={sceneDuration}
         />
       ))}
     </div>
@@ -264,7 +267,7 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"] }> = ({
+const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
   text,
   index,
   layoutIndex,
@@ -277,6 +280,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   rotateX: rX,
   perspective: persp,
   backgroundVideo: backgroundVideoProp,
+  sceneDuration: dur = SCENE_DURATION,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -290,8 +294,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const resolvedY = yOffset || td?.y || 0;
 
   const enter = spring({ frame, fps, config: { damping: 200 } });
-  const exitStart = SCENE_DURATION - 30;
-  const exit = frame > exitStart ? interpolate(frame, [exitStart, SCENE_DURATION], [1, 0], { extrapolateRight: "clamp" }) : 1;
+  const exitStart = dur - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, dur], [1, 0], { extrapolateRight: "clamp" }) : 1;
   const opacity = enter * exit;
   const y = interpolate(enter, [0, 1], [40, 0]) + resolvedY;
 
@@ -358,7 +362,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       {layoutIndex === 4 && <SoundWaveform color={colors.light} />}
 
       {/* Character layer */}
-      <CharacterLayer layoutIndex={layoutIndex} />
+      <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} />
 
       {/* Text overlay */}
       {(() => {
@@ -379,7 +383,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
         const words = text.split(" ");
         const totalWords = words.length;
-        const revealWindow = SCENE_DURATION - 50;
+        const revealWindow = dur - 50;
         const lineHeight = resolvedFontSize * 1.1;
 
         const wordSprings = words.map((_, wi) => {
@@ -391,7 +395,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const visibleProgress = wordSprings.reduce((sum, s) => sum + s, 0);
         // Scene5: linear scroll from bottom to top
         const scene5Scroll = isScene5
-          ? interpolate(frame, [0, SCENE_DURATION], [500, -totalWords * lineHeight * 0.6])
+          ? interpolate(frame, [0, dur], [500, -totalWords * lineHeight * 0.6])
           : 0;
         const shiftUp = isScene2 ? 0 : isScene5 ? -scene5Scroll : Math.max(0, visibleProgress - 1) * lineHeight;
 
@@ -573,6 +577,14 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
   const fontConfig = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
   const introFrames = showIntro ? SCENE_DURATION : 0;
 
+  // Compute cumulative start positions for variable-duration scenes
+  const sceneStarts: number[] = [];
+  let offset = introFrames;
+  for (const scene of scenes) {
+    sceneStarts.push(offset);
+    offset += getSceneFrames(scene);
+  }
+
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {/* Intro title card */}
@@ -587,16 +599,17 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
 
       {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {
-        const sceneStart = introFrames + i * SCENE_DURATION;
+        const sceneStart = sceneStarts[i];
+        const sceneFrames = getSceneFrames(scene);
         const transitionOffset = transition === "flash.json" ? 12 : 18;
         return (
           <React.Fragment key={i}>
             {/* Scene card */}
             <Sequence
               from={sceneStart}
-              durationInFrames={SCENE_DURATION}
+              durationInFrames={sceneFrames}
             >
-              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} />
+              <SceneCard text={scene.text} index={i} layoutIndex={scene.layout ?? i} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
             </Sequence>
             {/* Lottie transition overlay */}
             <Sequence
@@ -611,7 +624,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
 
       {/* Outro title card */}
       {showOutro && (
-        <Sequence from={introFrames + scenes.length * SCENE_DURATION} durationInFrames={SCENE_DURATION}>
+        <Sequence from={offset} durationInFrames={SCENE_DURATION}>
           <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={outroLayout} />
         </Sequence>
       )}

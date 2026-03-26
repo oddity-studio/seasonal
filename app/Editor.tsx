@@ -3,11 +3,10 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
 import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS } from "@/src/HelloWorld";
-import { defaultVideoProps, videoPropsSchema } from "@/src/types";
+import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
-const SCENE_DURATION = 180;
-const FPS = 60;
+const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
@@ -37,9 +36,7 @@ export default function Editor() {
       return;
     }
 
-    const introFrames = props.showIntro !== false ? SCENE_DURATION : 0;
-  const outroFrames = props.showOutro ? SCENE_DURATION : 0;
-  const totalFrames = introFrames + props.scenes.length * SCENE_DURATION + outroFrames;
+    const totalFrames = getTotalFrames(props);
     const durationMs = (totalFrames / FPS) * 1000;
 
     setRendering(true);
@@ -282,9 +279,7 @@ export default function Editor() {
     }));
   };
 
-  const introFrames = props.showIntro !== false ? SCENE_DURATION : 0;
-  const outroFrames = props.showOutro ? SCENE_DURATION : 0;
-  const totalFrames = introFrames + props.scenes.length * SCENE_DURATION + outroFrames;
+  const totalFrames = getTotalFrames(props);
 
   return (
     <div style={styles.container}>
@@ -516,6 +511,17 @@ export default function Editor() {
                       updateScene(i, "fontSize", Number(e.target.value))
                     }
                     title="Font size (px)"
+                  />
+                  <input
+                    style={styles.durationInput}
+                    type="number"
+                    value={scene.duration ?? DEFAULT_SCENE_DURATION}
+                    onChange={(e) =>
+                      updateScene(i, "duration", Number(e.target.value))
+                    }
+                    title="Duration (seconds)"
+                    min={1}
+                    step={1}
                   />
                   {props.scenes.length > 1 && (
                     <button
@@ -799,6 +805,17 @@ const styles: Record<string, React.CSSProperties> = {
   fontSizeInput: {
     width: 56,
     padding: "8px 6px",
+    borderRadius: 8,
+    border: "1px solid #334155",
+    backgroundColor: "#1e293b",
+    color: "#e2e8f0",
+    fontSize: 13,
+    textAlign: "center" as const,
+    outline: "none",
+  },
+  durationInput: {
+    width: 44,
+    padding: "8px 4px",
     borderRadius: 8,
     border: "1px solid #334155",
     backgroundColor: "#1e293b",

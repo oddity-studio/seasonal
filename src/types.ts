@@ -22,6 +22,7 @@ export const sceneSchema = z.object({
   rotateZ: z.number().optional(),
   rotateX: z.number().optional(),
   perspective: z.number().optional(),
+  duration: z.number().optional(),
   backgroundVideo: backgroundVideoSchema.optional(),
 });
 
@@ -41,6 +42,19 @@ export const videoPropsSchema = z.object({
 export type ColorScheme = z.infer<typeof colorSchemeSchema>;
 export type Scene = z.infer<typeof sceneSchema>;
 export type VideoProps = z.infer<typeof videoPropsSchema>;
+
+export const FPS = 60;
+export const DEFAULT_SCENE_DURATION = 3; // seconds
+
+export const getSceneFrames = (scene: Scene): number =>
+  (scene.duration ?? DEFAULT_SCENE_DURATION) * FPS;
+
+export const getTotalFrames = (props: VideoProps): number => {
+  const introFrames = props.showIntro !== false ? (DEFAULT_SCENE_DURATION * FPS) : 0;
+  const outroFrames = props.showOutro ? (DEFAULT_SCENE_DURATION * FPS) : 0;
+  const sceneFrames = props.scenes.reduce((sum, s) => sum + getSceneFrames(s), 0);
+  return introFrames + sceneFrames + outroFrames;
+};
 
 export const defaultVideoProps: VideoProps = {
   seasonNumber: "01",
