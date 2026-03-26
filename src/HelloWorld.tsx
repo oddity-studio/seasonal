@@ -302,7 +302,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
   // Movement keyframes as fraction of scene duration
   // Directions: down-right, pause, up-right, pause, down-left
   const t = frame / sceneDuration;
-  const moveAmt = 120; // pixels of travel per segment
+  const moveAmt = 500; // pixels of travel per segment
 
   // Straight directions: down, pause, right, pause, up, pause, right
   // 0.00-0.18: down
@@ -353,11 +353,11 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
         src={src}
         style={{
           position: "absolute",
-          top: "50%",
-          left: "50%",
+          top: 0,
+          left: 0,
           width: "350%",
           height: "auto",
-          transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`,
+          transform: `translate(${-dx}px, ${-dy}px)`,
           willChange: "transform",
         }}
       />
