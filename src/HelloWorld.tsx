@@ -546,9 +546,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
         const a = isFlat
-          ? { z: 0, x: 0 }
+          ? { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 }
           : { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
-        const perspectiveVal = isFlat ? 0 : (persp ?? td?.perspective ?? 400);
+        const perspectiveVal = (isFlat && !a.z && !a.x) ? 0 : (persp ?? td?.perspective ?? 400);
 
         const words = text.split(" ");
         const totalWords = words.length;
@@ -572,7 +572,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           <div
             style={{
               opacity: isScroll ? 1 : exit,
-              transform: isFlat
+              transform: (isFlat && !a.z && !a.x)
                 ? `translateX(${resolvedX}px) translateY(${resolvedY}px)`
                 : `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
               textAlign: "center",
