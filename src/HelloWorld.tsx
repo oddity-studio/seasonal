@@ -103,7 +103,8 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene5", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
-  ], textDefaults: { y: 200, rotateZ: 14, rotateX: -18 } },
+  ], textDefaults: { y: 200, rotateZ: 14, rotateX: -18 },
+    customStyle: (c) => ({ background: `linear-gradient(135deg, #000000, ${c.dark})`, textColor: "#ffffff" }) },
   { label: "S12 Scene6", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ], textDefaults: { x: 50, y: 600, rotateZ: 18, rotateX: 5 } },
