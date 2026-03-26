@@ -349,7 +349,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
       inset: 0,
       overflow: "hidden",
       opacity: enter,
-      mixBlendMode: "overlay" as const,
+      mixBlendMode: "screen" as const,
     }}>
       <Img
         src={src}
