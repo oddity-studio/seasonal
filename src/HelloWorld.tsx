@@ -92,15 +92,15 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
-  { label: "S12 Scene5", category: "Season 12", characters: [
+  { label: "S12 Scene4", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
   ], textDefaults: { y: 200, rotateZ: -18, rotateX: -14, mode: "scroll" } },
-  { label: "S12 Scene6", category: "Season 12", characters: [
+  { label: "S12 Scene5", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.2, bottomPct: 0, opacity: 0.5, offsetX: -500 },
     { src: CHAR2, side: "left", scale: 0.8, bottomPct: 0 },
   ], textDefaults: { y: 200, rotateZ: 14, rotateX: -18 } },
-  { label: "S12 Scene7", category: "Season 12", characters: [
+  { label: "S12 Scene6", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
   ], textDefaults: { x: 50, y: 600, rotateZ: 18, rotateX: 5 } },
   { label: "S12 Cover", category: "Season 12", characters: [
@@ -108,8 +108,8 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ], textDefaults: { rotateZ: 10, rotateX: -15 } },
-  // Logo Stomp — title card as a scene template
-  { label: "Logo Stomp", category: "General", characters: [
+  // S12 Logo — title card as a scene template
+  { label: "S12 Logo", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
