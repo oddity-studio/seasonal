@@ -313,6 +313,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
   // 0.68-0.75: pause
   // 0.75-0.93: right
   // 0.93-1.00: pause
+  const moveX = 800; // horizontal movement
   let dx = 0;
   let dy = 0;
 
@@ -323,23 +324,23 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
     dy = moveAmt;
   } else if (t < 0.43) {
     const p = (t - 0.25) / 0.18;
-    dx = p * moveAmt;
+    dx = p * moveX;
     dy = moveAmt;
   } else if (t < 0.50) {
-    dx = moveAmt;
+    dx = moveX;
     dy = moveAmt;
   } else if (t < 0.68) {
     const p = (t - 0.50) / 0.18;
-    dx = moveAmt;
+    dx = moveX;
     dy = moveAmt - p * moveAmt;
   } else if (t < 0.75) {
-    dx = moveAmt;
+    dx = moveX;
     dy = 0;
   } else if (t < 0.93) {
     const p = (t - 0.75) / 0.18;
-    dx = moveAmt + p * moveAmt;
+    dx = moveX + p * moveX;
   } else {
-    dx = moveAmt * 2;
+    dx = moveX * 2;
   }
 
   return (
@@ -348,6 +349,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
       inset: 0,
       overflow: "hidden",
       opacity: enter,
+      mixBlendMode: "overlay" as const,
     }}>
       <Img
         src={src}
