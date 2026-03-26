@@ -79,17 +79,17 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene1", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ], textDefaults: { rotateZ: -12, rotateX: 18 } },
+  ], textDefaults: { x: 100, y: -200, rotateZ: -12, rotateX: 18 } },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
-  ], textDefaults: { y: 100, fontSize: 254, mode: "flat" } },
+  ], textDefaults: { y: 100, fontSize: 254, perspective: 400, mode: "flat" } },
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ], textDefaults: { x: -20, y: 500, fontSize: 204, rotateZ: -15, rotateX: 22 } },
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 8, rotateX: -20 } },
+  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 30, rotateX: -20 } },
   { label: "S12 Scene5", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
@@ -100,7 +100,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ], textDefaults: { y: 200, rotateZ: 14, rotateX: -18 } },
   { label: "S12 Scene7", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.25, bottomPct: 0, offsetX: -60 },
-  ], textDefaults: { rotateZ: -10, rotateX: 25 } },
+  ], textDefaults: { x: 100, y: -200, rotateZ: 30, rotateX: 5 } },
   { label: "S12 Cover", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
