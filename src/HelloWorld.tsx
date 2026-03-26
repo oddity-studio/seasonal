@@ -320,7 +320,7 @@ const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src,
   const zoomFrames = 20;
   const progress = Math.min(localFrame / zoomFrames, 1);
   const eased = progress * progress; // ease-in: accelerates into the stop
-  const scale = interpolate(eased, [0, 1], [0.1, 1]);
+  const scale = interpolate(eased, [0, 1], [0.1, 2]);
   const opacity = interpolate(progress, [0, 0.05], [0, 1], { extrapolateRight: "clamp" });
 
   return (
