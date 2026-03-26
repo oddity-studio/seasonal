@@ -456,9 +456,6 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const titleOpacity = spring({ frame, fps, config: { damping: 200 } });
-  const titleY = interpolate(titleOpacity, [0, 1], [30, 0]);
-
   return (
     <AbsoluteFill
       style={{
@@ -545,30 +542,6 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
         );
       })()}
 
-      <div
-        style={{
-          opacity: titleOpacity,
-          transform: `translateY(${titleY}px) perspective(400px) rotateZ(-14deg) rotateX(20deg)`,
-          textAlign: "center",
-          zIndex: 1,
-        }}
-      >
-        <p
-          style={{
-            fontFamily: fontConfig.fontFamily,
-            fontWeight: fontConfig.fontWeight ?? 700,
-            fontStyle: fontConfig.fontStyle ?? "normal",
-            fontSize: 48,
-            color: colorScheme.light,
-            margin: 0,
-            letterSpacing: 10,
-            textTransform: "uppercase",
-            textShadow: "0 2px 10px rgba(0,0,0,0.8)",
-          }}
-        >
-          Season
-        </p>
-      </div>
     </AbsoluteFill>
   );
 };
