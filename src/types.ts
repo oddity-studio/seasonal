@@ -29,10 +29,6 @@ export const sceneSchema = z.object({
 export const videoPropsSchema = z.object({
   seasonNumber: z.string(),
   colorScheme: colorSchemeSchema,
-  showIntro: z.boolean().optional(),
-  introLayout: z.number().optional(),
-  showOutro: z.boolean().optional(),
-  outroLayout: z.number().optional(),
   music: z.string().optional(),
   transition: z.string().optional(),
   font: z.string().optional(),
@@ -49,19 +45,11 @@ export const DEFAULT_SCENE_DURATION = 3; // seconds
 export const getSceneFrames = (scene: Scene): number =>
   (scene.duration ?? DEFAULT_SCENE_DURATION) * FPS;
 
-export const getTotalFrames = (props: VideoProps): number => {
-  const introFrames = props.showIntro !== false ? (DEFAULT_SCENE_DURATION * FPS) : 0;
-  const outroFrames = props.showOutro ? (DEFAULT_SCENE_DURATION * FPS) : 0;
-  const sceneFrames = props.scenes.reduce((sum, s) => sum + getSceneFrames(s), 0);
-  return introFrames + sceneFrames + outroFrames;
-};
+export const getTotalFrames = (props: VideoProps): number =>
+  props.scenes.reduce((sum, s) => sum + getSceneFrames(s), 0);
 
 export const defaultVideoProps: VideoProps = {
   seasonNumber: "01",
-  showIntro: true,
-  introLayout: 7,
-  showOutro: false,
-  outroLayout: 7,
   music: "Tournament.mp3",
   transition: "flash.json",
   font: "Dela Gothic One",
@@ -71,11 +59,13 @@ export const defaultVideoProps: VideoProps = {
     highlight: "#fefdfb",
   },
   scenes: [
+    { text: "", fontSize: 150, layout: 8 },
     { text: "New Season Starts Now", fontSize: 150 },
     { text: "Make Your Mark", fontSize: 150 },
     { text: "And Forge Your Legacy", fontSize: 150 },
     { text: "Using Our New Tools", fontSize: 150 },
     { text: "Sounds Packs Effects Tutorials Apps Plugins And More...", fontSize: 150 },
     { text: "Right Here Right Now", fontSize: 150 },
+    { text: "", fontSize: 150, layout: 8 },
   ],
 };

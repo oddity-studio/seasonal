@@ -568,13 +568,12 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, scenes, showIntro = true, introLayout = 7, showOutro = false, outroLayout = 7, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One" }) => {
+export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One" }) => {
   const fontConfig = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
-  const introFrames = showIntro ? SCENE_DURATION : 0;
 
   // Compute cumulative start positions for variable-duration scenes
   const sceneStarts: number[] = [];
-  let offset = introFrames;
+  let offset = 0;
   for (const scene of scenes) {
     sceneStarts.push(offset);
     offset += getSceneFrames(scene);
@@ -582,13 +581,6 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
-      {/* Intro title card */}
-      {showIntro && (
-        <Sequence durationInFrames={SCENE_DURATION}>
-          <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={introLayout} />
-        </Sequence>
-      )}
-
       {/* Background music */}
       <Audio src={`${BASE}/picker/music/${music}`} volume={1} />
 
@@ -622,13 +614,6 @@ export const HelloWorld: React.FC<VideoProps> = ({ seasonNumber, colorScheme, sc
           </React.Fragment>
         );
       })}
-
-      {/* Outro title card */}
-      {showOutro && (
-        <Sequence from={offset} durationInFrames={SCENE_DURATION}>
-          <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={outroLayout} />
-        </Sequence>
-      )}
     </AbsoluteFill>
   );
 };

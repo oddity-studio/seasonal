@@ -457,38 +457,6 @@ export default function Editor() {
                 <span style={{ width: 22 }}></span>
               </div>
 
-              {/* Intro row */}
-              <div style={styles.sceneRow}>
-                <span style={styles.sceneNumber}>0</span>
-                <select
-                  style={styles.layoutSelect}
-                  value={props.introLayout ?? 7}
-                  onChange={(e) =>
-                    setProps((prev) => ({ ...prev, introLayout: Number(e.target.value) }))
-                  }
-                  disabled={props.showIntro === false}
-                >
-                  {LAYOUT_OPTIONS.map((opt) => (
-                    <option key={opt.index} value={opt.index}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <span style={{
-                  ...styles.sceneFixedName,
-                  opacity: props.showIntro === false ? 0.4 : 1,
-                }}>Intro</span>
-                <input
-                  type="checkbox"
-                  checked={props.showIntro !== false}
-                  onChange={(e) =>
-                    setProps((prev) => ({ ...prev, showIntro: e.target.checked }))
-                  }
-                  style={styles.checkbox}
-                  title="Enable intro"
-                />
-              </div>
-
               {/* Scene rows */}
               {props.scenes.map((scene, i) => (
                 <div key={i} style={styles.sceneRow}>
@@ -544,37 +512,6 @@ export default function Editor() {
                 </div>
               ))}
 
-              {/* Outro row */}
-              <div style={styles.sceneRow}>
-                <span style={styles.sceneNumber}>{props.scenes.length + 1}</span>
-                <select
-                  style={styles.layoutSelect}
-                  value={props.outroLayout ?? 7}
-                  onChange={(e) =>
-                    setProps((prev) => ({ ...prev, outroLayout: Number(e.target.value) }))
-                  }
-                  disabled={!props.showOutro}
-                >
-                  {LAYOUT_OPTIONS.map((opt) => (
-                    <option key={opt.index} value={opt.index}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <span style={{
-                  ...styles.sceneFixedName,
-                  opacity: props.showOutro ? 1 : 0.4,
-                }}>Outro</span>
-                <input
-                  type="checkbox"
-                  checked={props.showOutro === true}
-                  onChange={(e) =>
-                    setProps((prev) => ({ ...prev, showOutro: e.target.checked }))
-                  }
-                  style={styles.checkbox}
-                  title="Enable outro"
-                />
-              </div>
             </div>
           </div>
         )}
