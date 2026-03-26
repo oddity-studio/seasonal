@@ -113,7 +113,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
-  ], titleCard: true },
+  ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // Gradients category — no characters, flat text
   { label: "Sunset", category: "Gradients", characters: [],
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
@@ -474,7 +474,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   );
 };
 
-const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number; fontConfig: FontConfig }> = ({ colorScheme, layoutIndex, fontConfig }) => {
+const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number; fontConfig: FontConfig; text?: string; fontSize?: number }> = ({ colorScheme, layoutIndex, fontConfig, text, fontSize = 100 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -564,6 +564,41 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
         );
       })()}
 
+      {/* Optional text in bottom quarter */}
+      {text && (() => {
+        const textDelay = 15;
+        const textIn = spring({ frame: Math.max(0, frame - textDelay), fps, config: { damping: 14, stiffness: 120 } });
+        const textOpacity = interpolate(textIn, [0, 0.5], [0, 1], { extrapolateRight: "clamp" });
+        const textY = interpolate(textIn, [0, 1], [40, 0]);
+        return (
+          <div style={{
+            position: "absolute",
+            bottom: "8%",
+            left: 0,
+            right: 0,
+            zIndex: 15,
+            display: "flex",
+            justifyContent: "center",
+            opacity: textOpacity,
+            transform: `translateY(${textY}px)`,
+          }}>
+            <div style={{
+              fontFamily: fontConfig.fontFamily,
+              fontWeight: fontConfig.weight,
+              fontSize,
+              color: colorScheme.highlight,
+              textAlign: "center",
+              textTransform: "uppercase",
+              lineHeight: 1.1,
+              textShadow: `0 4px 20px rgba(0,0,0,0.8), 0 0 40px ${colorScheme.dark}`,
+              maxWidth: "80%",
+            }}>
+              {text}
+            </div>
+          </div>
+        );
+      })()}
+
     </AbsoluteFill>
   );
 };
@@ -599,7 +634,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
               durationInFrames={sceneFrames}
             >
               {sceneLayout.titleCard ? (
-                <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} />
+                <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} text={scene.text} fontSize={scene.fontSize} />
               ) : (
                 <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
               )}
