@@ -79,7 +79,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene1", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
     { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
-  ], textDefaults: { x: 100, y: 600, rotateZ: -12, rotateX: 18 } },
+  ], textDefaults: { y: 600, rotateZ: -12, rotateX: 18 } },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
   ], textDefaults: { y: 100, fontSize: 400, perspective: 0, rotateX: 10, mode: "flat" } },
