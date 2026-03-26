@@ -105,7 +105,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Grunge Belt", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     beltStomp: { src: BELT1 },
-    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    textDefaults: { y: 200, fontSize: 120, rotateX: 10, mode: "flat" },
     customStyle: (c) => ({ background: `radial-gradient(circle, ${c.highlight}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "S12 Scene4", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
@@ -317,6 +317,15 @@ const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src,
   const scale = interpolate(eased, [0, 1], [0.1, 2]);
   const opacity = interpolate(progress, [0, 0.05], [0, 1], { extrapolateRight: "clamp" });
 
+  // Shake after stomp lands
+  const afterStomp = frame - zoomFrames;
+  const shakeX = afterStomp > 0 && afterStomp < 15
+    ? Math.sin(afterStomp * 2.5) * 8 * (1 - afterStomp / 15)
+    : 0;
+  const shakeY = afterStomp > 0 && afterStomp < 15
+    ? Math.cos(afterStomp * 3.2) * 6 * (1 - afterStomp / 15)
+    : 0;
+
   return (
     <div style={{
       position: "absolute",
@@ -333,7 +342,7 @@ const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src,
         style={{
           width: "80%",
           height: "auto",
-          transform: `scale(${scale})`,
+          transform: `scale(${scale}) translate(${shakeX}px, ${shakeY}px)`,
           opacity,
           filter: `drop-shadow(0 0 30px rgba(0,0,0,0.5))`,
         }}
