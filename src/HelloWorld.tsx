@@ -73,6 +73,7 @@ type SceneLayout = {
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
+  customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
@@ -106,6 +107,19 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ], textDefaults: { rotateZ: 10, rotateX: -15 } },
+  // Gradients category — no characters, flat text
+  { label: "Sunset", category: "Gradients", characters: [],
+    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    customStyle: (c) => ({ background: `linear-gradient(180deg, ${c.dark}, #ff6b35, ${c.highlight})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Neon", category: "Gradients", characters: [],
+    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    customStyle: (c) => ({ background: `linear-gradient(135deg, #0a0015, #1a0030, ${c.dark})`, textColor: c.light, textGlow: `0 0 20px ${c.light}, 0 0 60px ${c.light}80, 0 0 120px ${c.light}40` }) },
+  { label: "Ocean", category: "Gradients", characters: [],
+    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    customStyle: (c) => ({ background: `linear-gradient(180deg, #0c1445, #1a3a6a, ${c.light})`, textColor: c.highlight, textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Ember", category: "Gradients", characters: [],
+    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }) },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -301,33 +315,39 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const opacity = enter * exit;
   const y = interpolate(enter, [0, 1], [40, 0]) + resolvedY;
 
-  // Scene style variants cycling through the color scheme + black/white
+  // Scene style — use customStyle from layout if available, otherwise cycle variants
+  const custom = resolvedLayout.customStyle?.(colors);
   const variant = layoutIndex % 4;
   let background: string;
   let textColor: string;
-
   let textGlow = "0 4px 20px rgba(0,0,0,0.7)";
 
-  switch (variant) {
-    case 0:
-      background = `linear-gradient(135deg, ${colors.dark}, #000000)`;
-      textColor = colors.highlight;
-      break;
-    case 1:
-      background = `linear-gradient(135deg, ${colors.dark}, ${colors.light}, ${colors.highlight})`;
-      textColor = "#000000";
-      textGlow = `0 0 20px color-mix(in srgb, ${colors.light} 80%, transparent), 0 0 40px color-mix(in srgb, ${colors.light} 50%, transparent), 0 0 80px color-mix(in srgb, ${colors.light} 30%, transparent)`;
-      break;
-    case 2:
-      background = `linear-gradient(135deg, ${colors.light}, #ffffff)`;
-      textColor = colors.dark;
-      textGlow = `0 0 20px color-mix(in srgb, ${colors.light} 80%, transparent), 0 0 40px color-mix(in srgb, ${colors.light} 50%, transparent), 0 0 80px color-mix(in srgb, ${colors.light} 30%, transparent)`;
-      break;
-    case 3:
-    default:
-      background = `linear-gradient(135deg, #000000, ${colors.dark})`;
-      textColor = "#ffffff";
-      break;
+  if (custom) {
+    background = custom.background;
+    textColor = custom.textColor;
+    if (custom.textGlow) textGlow = custom.textGlow;
+  } else {
+    switch (variant) {
+      case 0:
+        background = `linear-gradient(135deg, ${colors.dark}, #000000)`;
+        textColor = colors.highlight;
+        break;
+      case 1:
+        background = `linear-gradient(135deg, ${colors.dark}, ${colors.light}, ${colors.highlight})`;
+        textColor = "#000000";
+        textGlow = `0 0 20px color-mix(in srgb, ${colors.light} 80%, transparent), 0 0 40px color-mix(in srgb, ${colors.light} 50%, transparent), 0 0 80px color-mix(in srgb, ${colors.light} 30%, transparent)`;
+        break;
+      case 2:
+        background = `linear-gradient(135deg, ${colors.light}, #ffffff)`;
+        textColor = colors.dark;
+        textGlow = `0 0 20px color-mix(in srgb, ${colors.light} 80%, transparent), 0 0 40px color-mix(in srgb, ${colors.light} 50%, transparent), 0 0 80px color-mix(in srgb, ${colors.light} 30%, transparent)`;
+        break;
+      case 3:
+      default:
+        background = `linear-gradient(135deg, #000000, ${colors.dark})`;
+        textColor = "#ffffff";
+        break;
+    }
   }
 
   return (
@@ -430,7 +450,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     letterSpacing: 8,
                     textTransform: "uppercase",
                     textShadow: textGlow,
-                    mixBlendMode: variant === 1 || variant === 2 ? "overlay" : "screen",
+                    mixBlendMode: custom ? "normal" : (variant === 1 || variant === 2 ? "overlay" : "screen"),
                     opacity: wordOpacity,
                     transform: isFlat ? "none" : `translateY(${wordY}px)`,
                   }}
