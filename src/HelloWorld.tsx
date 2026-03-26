@@ -568,7 +568,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 : `perspective(${perspectiveVal}px) rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${y}px)`,
               textAlign: "center",
               padding: "0 80px",
-              zIndex: 1,
+              zIndex: 12,
             }}
           >
             <div
