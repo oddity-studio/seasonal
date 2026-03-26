@@ -52,6 +52,7 @@ const CHAR2 = `${BASE}/char2.png`;
 const CHAR3 = `${BASE}/char3.png`;
 const LOGO = `${BASE}/logo.webp`;
 const BRACKETS = `${BASE}/brackets.webp`;
+const BELT1 = `${BASE}/Belt1.webp`;
 
 // Character positioning presets for fight-game style layouts
 type CharPlacement = {
@@ -77,6 +78,7 @@ type SceneLayout = {
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;
+  beltStomp?: { src: string };
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
@@ -100,6 +102,11 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Grunge Belt", category: "General", characters: [],
+    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
+    beltStomp: { src: BELT1 },
+    textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    customStyle: (c) => ({ background: `radial-gradient(circle, ${c.highlight}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "S12 Scene4", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
@@ -299,6 +306,45 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
   );
 };
 
+const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Belt appears at 50% of the scene
+  const startFrame = Math.floor(sceneDuration * 0.5);
+  const localFrame = Math.max(0, frame - startFrame);
+
+  if (frame < startFrame) return null;
+
+  // Stomp spring: starts tiny (0.1x) and slams to full size
+  const stomp = spring({ frame: localFrame, fps, config: { damping: 12, stiffness: 200, mass: 1.2 } });
+  const scale = interpolate(stomp, [0, 1], [0.1, 1]);
+  const opacity = interpolate(stomp, [0, 0.15], [0, 1], { extrapolateRight: "clamp" });
+
+  return (
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 8,
+      pointerEvents: "none" as const,
+    }}>
+      <Img
+        src={src}
+        style={{
+          width: "80%",
+          height: "auto",
+          transform: `scale(${scale})`,
+          opacity,
+          filter: `drop-shadow(0 0 30px rgba(0,0,0,0.5))`,
+        }}
+      />
+    </div>
+  );
+};
+
 const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, sceneDuration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -475,6 +521,11 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       {/* Background image layer (e.g. brackets) */}
       {resolvedLayout.backgroundImageSrc && (
         <BracketsLayer src={resolvedLayout.backgroundImageSrc} sceneDuration={dur} />
+      )}
+
+      {/* Belt stomp layer */}
+      {resolvedLayout.beltStomp && (
+        <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} />
       )}
 
       {/* Character layer */}
