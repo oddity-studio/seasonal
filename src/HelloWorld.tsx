@@ -51,6 +51,7 @@ const CHAR1 = `${BASE}/char1.png`;
 const CHAR2 = `${BASE}/char2.png`;
 const CHAR3 = `${BASE}/char3.png`;
 const LOGO = `${BASE}/logo.webp`;
+const BRACKETS = `${BASE}/brackets.webp`;
 
 // Character positioning presets for fight-game style layouts
 type CharPlacement = {
@@ -72,6 +73,7 @@ type SceneLayout = {
   category: string;
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
+  backgroundImageSrc?: string;
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;
@@ -92,6 +94,8 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
+  { label: "Brackets", category: "General", characters: [],
+    backgroundImageSrc: BRACKETS, textDefaults: { y: 200, rotateZ: -18, rotateX: -14, mode: "scroll" } },
   { label: "S12 Scene4", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
     { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
@@ -290,6 +294,81 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
   );
 };
 
+const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const enter = spring({ frame, fps, config: { damping: 14, mass: 0.8 } });
+
+  // Movement keyframes as fraction of scene duration
+  // Directions: down-right, pause, up-right, pause, down-left
+  const t = frame / sceneDuration;
+  const moveAmt = 120; // pixels of travel per segment
+
+  // Piecewise linear movement with pauses
+  // 0.00-0.18: down-right
+  // 0.18-0.25: pause
+  // 0.25-0.43: up-right
+  // 0.43-0.50: pause
+  // 0.50-0.68: down-left
+  // 0.68-0.75: pause
+  // 0.75-0.93: up-left (back toward start)
+  // 0.93-1.00: pause
+  let dx = 0;
+  let dy = 0;
+
+  if (t < 0.18) {
+    const p = t / 0.18;
+    dx = p * moveAmt;
+    dy = p * moveAmt;
+  } else if (t < 0.25) {
+    dx = moveAmt;
+    dy = moveAmt;
+  } else if (t < 0.43) {
+    const p = (t - 0.25) / 0.18;
+    dx = moveAmt + p * moveAmt;
+    dy = moveAmt - p * moveAmt;
+  } else if (t < 0.50) {
+    dx = moveAmt * 2;
+    dy = 0;
+  } else if (t < 0.68) {
+    const p = (t - 0.50) / 0.18;
+    dx = moveAmt * 2 - p * moveAmt;
+    dy = p * moveAmt;
+  } else if (t < 0.75) {
+    dx = moveAmt;
+    dy = moveAmt;
+  } else if (t < 0.93) {
+    const p = (t - 0.75) / 0.18;
+    dx = moveAmt - p * moveAmt;
+    dy = moveAmt - p * moveAmt;
+  } else {
+    dx = 0;
+    dy = 0;
+  }
+
+  return (
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden",
+      opacity: enter,
+    }}>
+      <Img
+        src={src}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "160%",
+          height: "auto",
+          transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`,
+          willChange: "transform",
+        }}
+      />
+    </div>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
   text,
   index,
@@ -389,6 +468,11 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Sound waveform for scroll-mode scenes — behind characters */}
       {td?.mode === "scroll" && <SoundWaveform color={colors.light} />}
+
+      {/* Background image layer (e.g. brackets) */}
+      {resolvedLayout.backgroundImageSrc && (
+        <BracketsLayer src={resolvedLayout.backgroundImageSrc} sceneDuration={dur} />
+      )}
 
       {/* Character layer */}
       <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} />
