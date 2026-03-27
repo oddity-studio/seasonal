@@ -484,26 +484,43 @@ export default function Editor() {
                   />
                   {getLayoutControls(scene.layout ?? i).map((ctrl, ci) => {
                     if (ctrl.type === "videoUpload") {
+                      const isMuted = scene.backgroundVideo?.muted !== false;
                       return (
-                        <label key={ci} style={styles.videoUploadButton} title={ctrl.label ?? "Upload video"}>
-                          <input
-                            type="file"
-                            accept="video/*"
-                            style={{ display: "none" }}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const url = URL.createObjectURL(file);
-                              updateScene(i, "backgroundVideo", {
-                                src: url,
-                                scale: 1.5,
-                                blendMode: "screen",
-                                startFrom: 0,
-                              });
+                        <span key={ci} style={{ display: "contents" }}>
+                          <label style={styles.videoUploadButton} title={ctrl.label ?? "Upload video"}>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              style={{ display: "none" }}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const url = URL.createObjectURL(file);
+                                updateScene(i, "backgroundVideo", {
+                                  src: url,
+                                  scale: 1.5,
+                                  blendMode: "screen",
+                                  startFrom: 0,
+                                });
+                              }}
+                            />
+                            {scene.backgroundVideo ? "🎬" : "+🎬"}
+                          </label>
+                          <button
+                            type="button"
+                            style={{
+                              ...styles.videoUploadButton,
+                              opacity: isMuted ? 0.5 : 1,
                             }}
-                          />
-                          {scene.backgroundVideo ? "🎬" : "+🎬"}
-                        </label>
+                            title={isMuted ? "Unmute video" : "Mute video"}
+                            onClick={() => {
+                              const current = scene.backgroundVideo ?? { src: "", scale: 1.5, blendMode: "screen", startFrom: 0 };
+                              updateScene(i, "backgroundVideo", { ...current, muted: !isMuted });
+                            }}
+                          >
+                            {isMuted ? "🔇" : "🔊"}
+                          </button>
+                        </span>
                       );
                     }
                     return null;

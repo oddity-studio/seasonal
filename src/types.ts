@@ -11,6 +11,7 @@ export const backgroundVideoSchema = z.object({
   scale: z.number().optional(),
   blendMode: z.string().optional(),
   startFrom: z.number().optional(),
+  muted: z.boolean().optional(),
 });
 
 export const sceneSchema = z.object({

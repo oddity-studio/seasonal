@@ -521,7 +521,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         >
           <Video
             src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
-            muted
+            muted={backgroundVideo.muted !== false}
             startFrom={backgroundVideo.startFrom ?? 0}
             style={{
               width: "100%",
