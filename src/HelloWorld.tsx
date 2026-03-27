@@ -76,7 +76,7 @@ type SceneLayout = {
   label: string;
   category: string;
   characters: CharPlacement[];
-  backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number };
+  backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number; muted?: boolean };
   backgroundImageSrc?: string;
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
