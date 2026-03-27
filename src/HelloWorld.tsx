@@ -530,6 +530,17 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               transform: `scale(${backgroundVideo.scale ?? 1})`,
             }}
           />
+          {backgroundVideo.blendMode === "normal" && (
+            <div style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "50%",
+              background: `linear-gradient(to top, ${colors.dark}, transparent)`,
+              pointerEvents: "none" as const,
+            }} />
+          )}
         </AbsoluteFill>
       )}
 

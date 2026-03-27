@@ -499,7 +499,7 @@ export default function Editor() {
                                 updateScene(i, "backgroundVideo", {
                                   src: url,
                                   scale: 1.5,
-                                  blendMode: "screen",
+                                  blendMode: "normal",
                                   startFrom: 0,
                                 });
                               }}
