@@ -93,7 +93,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ], textDefaults: { x: -20, y: 500, fontSize: 204, rotateZ: -15, rotateX: 22 } },
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ], backgroundVideo: { src: "/video.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
+  ], backgroundVideo: { src: "/Cube.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
   { label: "Brackets", category: "General", characters: [],
     backgroundImageSrc: BRACKETS, textDefaults: { y: -60, fontSize: 200, mode: "flat" } },
   { label: "Grunge", category: "General", characters: [],
