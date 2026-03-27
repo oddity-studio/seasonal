@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -248,7 +248,7 @@ export default function Editor() {
   const updateScene = (
     index: number,
     field: keyof Scene,
-    value: string | number,
+    value: string | number | Scene["backgroundVideo"],
   ) => {
     setProps((prev) => ({
       ...prev,
@@ -482,6 +482,32 @@ export default function Editor() {
                     onChange={(e) => updateScene(i, "text", e.target.value)}
                     placeholder={`Scene ${i + 1} text...`}
                   />
+                  {getLayoutControls(scene.layout ?? i).map((ctrl, ci) => {
+                    if (ctrl.type === "videoUpload") {
+                      return (
+                        <label key={ci} style={styles.videoUploadButton} title={ctrl.label ?? "Upload video"}>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            style={{ display: "none" }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const url = URL.createObjectURL(file);
+                              updateScene(i, "backgroundVideo", {
+                                src: url,
+                                scale: 1.5,
+                                blendMode: "screen",
+                                startFrom: 0,
+                              });
+                            }}
+                          />
+                          {scene.backgroundVideo ? "🎬" : "+🎬"}
+                        </label>
+                      );
+                    }
+                    return null;
+                  })}
                   <input
                     style={styles.fontSizeInput}
                     type="number"
@@ -757,6 +783,20 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     minWidth: 0,
   },
+  videoUploadButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    border: "1px solid #334155",
+    backgroundColor: "#1e293b",
+    color: "#94a3b8",
+    fontSize: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    flexShrink: 0,
+  } as React.CSSProperties,
   fontSizeInput: {
     width: 56,
     padding: "8px 6px",

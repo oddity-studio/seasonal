@@ -69,6 +69,9 @@ type CharPlacement = {
 
 type TextMode = "normal" | "flat" | "scroll";
 
+type CustomControl =
+  | { type: "videoUpload"; field: "backgroundVideo"; label?: string };
+
 type SceneLayout = {
   label: string;
   category: string;
@@ -79,6 +82,7 @@ type SceneLayout = {
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;
   beltStomp?: { src: string };
+  customControls?: CustomControl[];
 };
 
 const SCENE_LAYOUTS: SceneLayout[] = [
@@ -94,6 +98,10 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
   ], backgroundVideo: { src: "/Cube.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
+  { label: "My Video", category: "General", characters: [
+    { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
+  ], backgroundVideo: { src: "/Cube.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 },
+    customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
   { label: "Brackets", category: "General", characters: [],
     backgroundImageSrc: BRACKETS, textDefaults: { y: -60, fontSize: 200, mode: "flat" } },
   { label: "Grunge", category: "General", characters: [],
@@ -143,6 +151,8 @@ const SCENE_LAYOUTS: SceneLayout[] = [
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
+export const getLayoutControls = (index: number): CustomControl[] =>
+  SCENE_LAYOUTS[index]?.customControls ?? [];
 
 const FighterChar: React.FC<{
   placement: CharPlacement;
@@ -508,7 +518,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           }}
         >
           <Video
-            src={`${BASE}${backgroundVideo.src}`}
+            src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
             muted
             startFrom={backgroundVideo.startFrom ?? 0}
             style={{
