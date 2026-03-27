@@ -84,14 +84,12 @@ type SceneLayout = {
 const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "S12 Scene1", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.2, bottomPct: 0 },
-    { src: CHAR2, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ], textDefaults: { y: 500, rotateZ: -12, rotateX: 18 } },
   { label: "S12 Scene2", category: "Season 12", characters: [
     { src: CHAR3, side: "left", scale: 1.25, bottomPct: 0, offsetX: -700 },
   ], textDefaults: { y: 100, fontSize: 400, perspective: 0, rotateX: 10, mode: "flat" } },
   { label: "S12 Scene3", category: "Season 12", characters: [
     { src: CHAR2, side: "left", scale: 1.1, bottomPct: 0 },
-    { src: CHAR3, side: "right", scale: 1.1, bottomPct: 0, flip: true },
   ], textDefaults: { x: -20, y: 500, fontSize: 204, rotateZ: -15, rotateX: 22 } },
   { label: "Video Cube", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
@@ -109,7 +107,6 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     customStyle: (c) => ({ background: `radial-gradient(circle, ${c.highlight}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "S12 Scene4", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1.15, bottomPct: 0 },
-    { src: CHAR3, side: "right", scale: 1.15, bottomPct: 0, flip: true },
   ], textDefaults: { y: 200, rotateZ: -18, rotateX: -14, mode: "scroll" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, #000000, ${c.dark})`, textColor: "#ffffff" }) },
   { label: "S12 Scene5", category: "Season 12", characters: [
