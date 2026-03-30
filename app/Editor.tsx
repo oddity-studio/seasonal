@@ -88,7 +88,7 @@ export default function Editor() {
         width: 1080,
         height: 1920,
         bitrate: 10_000_000,
-        framerate: FPS,
+        framerate: 30,
       });
 
       // Audio encoder (AAC)
@@ -105,7 +105,7 @@ export default function Editor() {
 
       // Capture the current tab
       displayStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: { ideal: FPS } },
+        video: { frameRate: { ideal: 30 } },
         // @ts-expect-error preferCurrentTab is a newer Chrome API
         preferCurrentTab: true,
       });
