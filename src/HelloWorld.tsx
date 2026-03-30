@@ -813,13 +813,15 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
                 <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
               )}
             </Sequence>
-            {/* Lottie transition overlay */}
-            <Sequence
-              from={sceneStart - transitionOffset}
-              durationInFrames={TRANSITION_DURATION}
-            >
-              <LottieTransition src={`${BASE}/picker/transitions/${transition}`} />
-            </Sequence>
+            {/* Transition overlay */}
+            {transition !== "none" && (
+              <Sequence
+                from={sceneStart - transitionOffset}
+                durationInFrames={TRANSITION_DURATION}
+              >
+                <LottieTransition src={`${BASE}/picker/transitions/${transition}`} />
+              </Sequence>
+            )}
           </React.Fragment>
         );
       })}
