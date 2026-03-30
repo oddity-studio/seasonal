@@ -174,12 +174,11 @@ const FighterChar: React.FC<{
   // Subtle horizontal sway
   const sway = Math.sin(frame * 0.04 + charIndex * 3) * 4;
 
-  // Exit: scale up and fade out
-  const exitStart = sceneDuration - 30;
+  // Exit: quick fade via GPU-accelerated filter (avoids expensive opacity compositing on large images)
+  const exitStart = sceneDuration - 15;
   const exitProgress = frame > exitStart
     ? interpolate(frame, [exitStart, sceneDuration], [0, 1], { extrapolateRight: "clamp" })
     : 0;
-  const exitScale = 1 + exitProgress * 0.3;
   const baseOpacity = placement.opacity ?? 1;
   const exitOpacity = baseOpacity * (1 - exitProgress);
 
@@ -211,7 +210,7 @@ const FighterChar: React.FC<{
             position: "absolute",
             bottom: 0,
             left: "50%",
-            transform: `translateX(calc(-50% + ${slideX + sway}px)) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
+            transform: `translateX(calc(-50% + ${slideX + sway}px)) translateY(${bob}px) scale(${placement.scale}) scaleX(${flipX})`,
             transformOrigin: "bottom center",
             willChange: "transform",
           }}
@@ -229,7 +228,7 @@ const FighterChar: React.FC<{
         right: isLeft ? undefined : "-5%",
         height: "100%",
         opacity: exitOpacity,
-        transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale * exitScale}) scaleX(${flipX})`,
+        transform: `translateX(${slideX + sway}px) translateY(${bob}px) scale(${placement.scale}) scaleX(${flipX})`,
         transformOrigin: isLeft ? "bottom left" : "bottom right",
         pointerEvents: "none" as const,
         willChange: "transform, opacity",
