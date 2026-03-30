@@ -488,12 +488,12 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       case 1:
         background = `linear-gradient(135deg, ${colors.dark}, ${colors.light}, ${colors.highlight})`;
         textColor = "#000000";
-        textGlow = `0 0 20px color-mix(in srgb, ${colors.light} 80%, transparent), 0 0 40px color-mix(in srgb, ${colors.light} 50%, transparent), 0 0 80px color-mix(in srgb, ${colors.light} 30%, transparent)`;
+        textGlow = `0 0 30px color-mix(in srgb, ${colors.light} 60%, transparent)`;
         break;
       case 2:
         background = `linear-gradient(135deg, ${colors.light}, #ffffff)`;
         textColor = colors.dark;
-        textGlow = `0 0 20px color-mix(in srgb, ${colors.light} 80%, transparent), 0 0 40px color-mix(in srgb, ${colors.light} 50%, transparent), 0 0 80px color-mix(in srgb, ${colors.light} 30%, transparent)`;
+        textGlow = `0 0 30px color-mix(in srgb, ${colors.light} 60%, transparent)`;
         break;
       case 3:
       default:
@@ -573,9 +573,19 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const revealWindow = dur - 50;
         const lineHeight = resolvedFontSize * 1.1;
 
+        // Batch springs: compute a fixed number of keyframe springs and lerp per word
+        const SPRING_KEYS = Math.min(totalWords, 6);
+        const keySprings = Array.from({ length: SPRING_KEYS }, (_, ki) => {
+          const keyDelay = SPRING_KEYS > 1 ? (ki / (SPRING_KEYS - 1)) * revealWindow * 0.6 : 0;
+          return spring({ frame, fps, config: { damping: 14, mass: 0.6 }, delay: keyDelay });
+        });
         const wordSprings = words.map((_, wi) => {
-          const wordDelay = totalWords > 1 ? (wi / (totalWords - 1)) * revealWindow * 0.6 : 0;
-          return spring({ frame, fps, config: { damping: 14, mass: 0.6 }, delay: wordDelay });
+          if (totalWords <= 1) return keySprings[0];
+          const t = (wi / (totalWords - 1)) * (SPRING_KEYS - 1);
+          const lo = Math.floor(t);
+          const hi = Math.min(lo + 1, SPRING_KEYS - 1);
+          const frac = t - lo;
+          return keySprings[lo] * (1 - frac) + keySprings[hi] * frac;
         });
 
         // Shift container up so the newest word stays at screen center
