@@ -782,7 +782,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {/* Background music */}
-      <Audio src={`${BASE}/picker/music/${music}`} volume={1} />
+      {music !== "none" && <Audio src={`${BASE}/picker/music/${music}`} volume={1} />}
 
       {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {

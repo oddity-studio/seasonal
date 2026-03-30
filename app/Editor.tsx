@@ -401,6 +401,7 @@ export default function Editor() {
                       setProps((prev) => ({ ...prev, music: e.target.value }))
                     }
                   >
+                    <option value="none">None</option>
                     <option value="Tournament.mp3">Tournament</option>
                     <option value="Main Lobby.mp3">Main Lobby</option>
                     <option value="Sydosys.mp3">Sydosys</option>
