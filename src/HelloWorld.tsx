@@ -781,7 +781,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = "Tournament.mp3", transition = "flash.webm", font = "Dela Gothic One" }) => {
+export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One" }) => {
   const fontConfig = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
 
   // Compute cumulative start positions for variable-duration scenes

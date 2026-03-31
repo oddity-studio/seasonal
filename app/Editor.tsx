@@ -411,13 +411,13 @@ export default function Editor() {
                   Transition
                   <select
                     style={styles.layoutSelect}
-                    value={props.transition || "flash.webm"}
+                    value={props.transition || "flash.json"}
                     onChange={(e) =>
                       setProps((prev) => ({ ...prev, transition: e.target.value }))
                     }
                   >
                     <option value="none">None</option>
-                    <option value="flash.webm">Flash</option>
+                    <option value="flash.json">Flash</option>
                     <option value="Arrow.webm">Arrow</option>
                     <option value="Box1.webm">Box1</option>
                     <option value="Box2.webm">Box2</option>
