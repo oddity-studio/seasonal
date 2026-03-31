@@ -83,6 +83,7 @@ type SceneLayout = {
   titleCard?: boolean;
   beltStomp?: { src: string };
   battleOverlay?: boolean;
+  defaultDuration?: number;
   customControls?: CustomControl[];
 };
 
@@ -108,7 +109,8 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "BotWeek1", category: "General", characters: [],
     backgroundVideo: { src: "/Cube.mp4", scale: 1, blendMode: "normal", startFrom: 0 },
     battleOverlay: true,
-    textDefaults: { y: -60, fontSize: 200, mode: "flat" },
+    defaultDuration: 30,
+    textDefaults: { y: -60, fontSize: 80, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
     customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
   { label: "Brackets", category: "General", characters: [],
@@ -164,6 +166,8 @@ export const getLayoutControls = (index: number): CustomControl[] =>
   SCENE_LAYOUTS[index]?.customControls ?? [];
 export const isBattleLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.battleOverlay === true;
+export const getLayoutDefaultDuration = (index: number): number | undefined =>
+  SCENE_LAYOUTS[index]?.defaultDuration;
 
 const FighterChar: React.FC<{
   placement: CharPlacement;

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -469,9 +469,12 @@ export default function Editor() {
                   <select
                     style={styles.layoutSelect}
                     value={scene.layout ?? i}
-                    onChange={(e) =>
-                      updateScene(i, "layout", Number(e.target.value))
-                    }
+                    onChange={(e) => {
+                      const layoutIdx = Number(e.target.value);
+                      updateScene(i, "layout", layoutIdx);
+                      const dur = getLayoutDefaultDuration(layoutIdx);
+                      if (dur != null) updateScene(i, "duration", dur);
+                    }}
                     title="Scene template"
                   >
                     {LAYOUT_OPTIONS.map((opt) => (
