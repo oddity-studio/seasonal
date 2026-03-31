@@ -163,11 +163,15 @@ const FighterChar: React.FC<{
   charIndex: number;
   sceneDuration?: number;
 }> = ({ placement, frame, fps, charIndex, sceneDuration = SCENE_DURATION }) => {
-  // Slide in from the side
-  const slideIn = spring({ frame, fps, config: { damping: 14, mass: 0.8 }, delay: charIndex * 10 });
+  // Slide in from the side — simple interpolation instead of spring physics
+  const slideFrames = 20;
+  const delayFrames = charIndex * 10;
+  const slideProgress = Math.min(Math.max((frame - delayFrames) / slideFrames, 0), 1);
+  // Ease-out: decelerates into rest position
+  const eased = 1 - (1 - slideProgress) * (1 - slideProgress);
   const offscreen = placement.side === "left" ? -600 : 600;
   const restX = placement.offsetX ?? 0;
-  const slideX = interpolate(slideIn, [0, 1], [offscreen, restX]);
+  const slideX = offscreen + (restX - offscreen) * eased;
 
   // Idle bob — fighting stance sway
   const bob = Math.sin(frame * 0.06 + charIndex * 2) * 6;
