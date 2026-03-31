@@ -36,6 +36,21 @@ export default function Editor() {
       return;
     }
 
+    // Capture the current tab immediately while user gesture is still active
+    let displayStream: MediaStream | null = null;
+    try {
+      displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: FPS } },
+        // @ts-expect-error preferCurrentTab is a newer Chrome API
+        preferCurrentTab: true,
+      });
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === "NotAllowedError") {
+        return; // User cancelled — no alert needed
+      }
+      throw err;
+    }
+
     const totalFrames = getTotalFrames(props);
     const durationMs = (totalFrames / FPS) * 1000;
 
@@ -45,8 +60,6 @@ export default function Editor() {
 
     // Wait for recording overlay to render
     await new Promise((r) => setTimeout(r, 600));
-
-    let displayStream: MediaStream | null = null;
 
     try {
       const playerWrap = document.querySelector(
@@ -101,13 +114,6 @@ export default function Editor() {
         sampleRate: audioBuf.sampleRate,
         numberOfChannels: audioBuf.numberOfChannels,
         bitrate: 128_000,
-      });
-
-      // Capture the current tab
-      displayStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: { ideal: FPS } },
-        // @ts-expect-error preferCurrentTab is a newer Chrome API
-        preferCurrentTab: true,
       });
 
       // Crop to the player element if CropTarget is available (Chrome 104+)
@@ -231,12 +237,8 @@ export default function Editor() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err: unknown) {
-      if (err instanceof DOMException && err.name === "NotAllowedError") {
-        // User cancelled the share dialog — no alert needed
-      } else {
-        console.error(err);
-        alert("Recording failed. Check the console for details.");
-      }
+      console.error(err);
+      alert("Recording failed. Check the console for details.");
     } finally {
       displayStream?.getTracks().forEach((t) => t.stop());
       setRendering(false);
