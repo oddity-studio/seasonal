@@ -47,9 +47,9 @@ export const FONT_OPTIONS = Object.keys(FONT_MAP);
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS; // default scene duration in frames
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
-const CHAR1 = `${BASE}/char1.png`;
-const CHAR2 = `${BASE}/char2.png`;
-const CHAR3 = `${BASE}/char3.png`;
+const CHAR1 = `${BASE}/char1.webp`;
+const CHAR2 = `${BASE}/char2.webp`;
+const CHAR3 = `${BASE}/char3.webp`;
 const LOGO = `${BASE}/logo.webp`;
 const BRACKETS = `${BASE}/brackets.webp`;
 const BELT1 = `${BASE}/Belt1.webp`;

@@ -6,9 +6,9 @@ const Editor = lazy(() => import("./Editor"));
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const PRELOAD_IMAGES = [
-  `${BASE}/char1.png`,
-  `${BASE}/char2.png`,
-  `${BASE}/char3.png`,
+  `${BASE}/char1.webp`,
+  `${BASE}/char2.webp`,
+  `${BASE}/char3.webp`,
   `${BASE}/logo.webp`,
 ];
 
