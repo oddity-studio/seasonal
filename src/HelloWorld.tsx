@@ -406,7 +406,6 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
       <AbsoluteFill style={{ zIndex: 20 }}>
         <Video
           src={BOTW_OVERLAY}
-          muted
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
           onError={() => {}}
         />
@@ -689,6 +688,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           <Video
             src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
             muted={backgroundVideo.muted !== false}
+            volume={resolvedLayout.battleOverlay
+              ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
+              : 1}
             startFrom={backgroundVideo.startFrom ?? 0}
             style={{
               width: "100%",
