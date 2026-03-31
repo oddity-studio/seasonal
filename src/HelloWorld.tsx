@@ -372,6 +372,8 @@ const BattleWaveform: React.FC<{ centerY: number; color: string; glowColor: stri
 };
 
 // Battle of the Week overlay — vignette, waveform, VS, two usernames
+const BOTW_OVERLAY = `${BASE}/botw.webm`;
+
 const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -388,24 +390,40 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
   const exo2 = FONT_MAP["Exo 2"];
   const anton = FONT_MAP["Anton"];
 
+  // Layout: VS at center (960), User A + waveform above, User B below
+  const vsY = 960;
+  const userAY = vsY - 320;  // 640
+  const waveY = vsY - 300;   // 660 (waveform behind user A)
+  const userBY = vsY + 220;  // 1180
+
   return (
     <AbsoluteFill style={{ opacity, pointerEvents: "none" }}>
+      {/* Overlay intro video */}
+      <AbsoluteFill style={{ zIndex: 20 }}>
+        <Video
+          src={BOTW_OVERLAY}
+          muted
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          onError={() => {}}
+        />
+      </AbsoluteFill>
+
       {/* Vignette */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, transparent 45%, transparent 55%, rgba(0,0,0,0.78) 100%)",
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.78) 100%)",
         zIndex: 10,
       }} />
 
-      {/* Waveform — blue, upper half */}
+      {/* Waveform — blue, behind user A */}
       <div style={{ zIndex: 11 }}>
-        <BattleWaveform centerY={365} color="#24bdff" glowColor="rgba(36,189,255,0.6)" />
+        <BattleWaveform centerY={waveY} color="#24bdff" glowColor="rgba(36,189,255,0.6)" />
       </div>
 
-      {/* User A — large, cyan glow, at y=365 */}
+      {/* User A — large, cyan glow */}
       {userA && (
         <div style={{
-          position: "absolute", top: 365 - 50, left: 0, width: "100%",
+          position: "absolute", top: userAY - 50, left: 0, width: "100%",
           textAlign: "center", zIndex: 12,
         }}>
           <p style={{
@@ -421,10 +439,26 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
         </div>
       )}
 
-      {/* User B — smaller, white, 50% opacity, at y=985 */}
+      {/* VS — Anton, white with yellow glow, centered */}
+      <div style={{
+        position: "absolute", top: vsY - 160, left: 0, width: "100%",
+        textAlign: "center", zIndex: 12,
+      }}>
+        <p style={{
+          fontFamily: anton.fontFamily,
+          fontSize: 320,
+          letterSpacing: -12,
+          color: "#FFFFFF",
+          textShadow: "0 0 40px rgba(255,240,160,0.9), 0 0 20px rgba(255,240,160,0.9)",
+          margin: 0,
+          lineHeight: 1,
+        }}>VS</p>
+      </div>
+
+      {/* User B — smaller, white, 50% opacity */}
       {userB && (
         <div style={{
-          position: "absolute", top: 985 - 35, left: 0, width: "100%",
+          position: "absolute", top: userBY - 35, left: 0, width: "100%",
           textAlign: "center", zIndex: 12,
         }}>
           <p style={{
@@ -440,22 +474,6 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
           }}>{userB}</p>
         </div>
       )}
-
-      {/* VS — Anton 320px, white with yellow glow, centered */}
-      <div style={{
-        position: "absolute", top: 710 - 160, left: 0, width: "100%",
-        textAlign: "center", zIndex: 12,
-      }}>
-        <p style={{
-          fontFamily: anton.fontFamily,
-          fontSize: 320,
-          letterSpacing: -12,
-          color: "#FFFFFF",
-          textShadow: "0 0 40px rgba(255,240,160,0.9), 0 0 20px rgba(255,240,160,0.9)",
-          margin: 0,
-          lineHeight: 1,
-        }}>VS</p>
-      </div>
     </AbsoluteFill>
   );
 };
