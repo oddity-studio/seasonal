@@ -27,8 +27,13 @@ function preloadTransition(url: string): Promise<LottieAnimationData> {
   return p;
 }
 
-// Animation is 1920x1080 (landscape), video is 1080x1920 (portrait)
-const scaleRatio = (1920 / 1080) * (1920 / 1080); // ~3.16x width relative to container
+// Animation is 1920x1080 (landscape), video is 1080x1920 (portrait).
+// Rotate 90° so the landscape animation fills the portrait frame exactly.
+const rotatedStyle: React.CSSProperties = {
+  width: 1920,
+  height: 1080,
+  transform: "rotate(90deg)",
+};
 
 const Transition: React.FC<{ src?: string }> = ({ src }) => {
   const frame = useCurrentFrame();
@@ -53,7 +58,7 @@ const Transition: React.FC<{ src?: string }> = ({ src }) => {
   if (isVideo) {
     return (
       <AbsoluteFill style={{ overflow: "hidden", justifyContent: "center", alignItems: "center", mixBlendMode: "screen" }}>
-        <Video src={filePath} muted style={{ width: `${scaleRatio * 100}%`, height: "100%" }} />
+        <Video src={filePath} muted style={rotatedStyle} />
       </AbsoluteFill>
     );
   }
@@ -69,7 +74,7 @@ const Transition: React.FC<{ src?: string }> = ({ src }) => {
 
   return (
     <AbsoluteFill style={{ overflow: "hidden", justifyContent: "center", alignItems: "center", mixBlendMode: "screen" }}>
-      <Lottie animationData={animationData} playbackRate={1} style={{ width: `${scaleRatio * 100}%`, height: "100%" }} />
+      <Lottie animationData={animationData} playbackRate={1} style={rotatedStyle} />
     </AbsoluteFill>
   );
 };
