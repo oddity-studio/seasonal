@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -480,12 +480,37 @@ export default function Editor() {
                       </option>
                     ))}
                   </select>
-                  <input
-                    style={styles.sceneInput}
-                    value={scene.text}
-                    onChange={(e) => updateScene(i, "text", e.target.value)}
-                    placeholder={`Scene ${i + 1} text...`}
-                  />
+                  {isBattleLayout(scene.layout ?? i) ? (
+                    <span style={{ display: "flex", flex: 1, gap: 4 }}>
+                      <input
+                        style={{ ...styles.sceneInput, flex: 1 }}
+                        value={(scene.text || "").split("|")[0]?.trim() || ""}
+                        onChange={(e) => {
+                          const parts = (scene.text || "").split("|");
+                          const b = parts[1]?.trim() || "";
+                          updateScene(i, "text", `${e.target.value}|${b}`);
+                        }}
+                        placeholder="User A"
+                      />
+                      <input
+                        style={{ ...styles.sceneInput, flex: 1 }}
+                        value={(scene.text || "").split("|")[1]?.trim() || ""}
+                        onChange={(e) => {
+                          const parts = (scene.text || "").split("|");
+                          const a = parts[0]?.trim() || "";
+                          updateScene(i, "text", `${a}|${e.target.value}`);
+                        }}
+                        placeholder="User B"
+                      />
+                    </span>
+                  ) : (
+                    <input
+                      style={styles.sceneInput}
+                      value={scene.text}
+                      onChange={(e) => updateScene(i, "text", e.target.value)}
+                      placeholder={`Scene ${i + 1} text...`}
+                    />
+                  )}
                   {getLayoutControls(scene.layout ?? i).map((ctrl, ci) => {
                     if (ctrl.type === "videoUpload") {
                       const isMuted = scene.backgroundVideo?.muted !== false;

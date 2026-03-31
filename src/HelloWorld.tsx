@@ -162,6 +162,8 @@ const SCENE_LAYOUTS: SceneLayout[] = [
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
 export const getLayoutControls = (index: number): CustomControl[] =>
   SCENE_LAYOUTS[index]?.customControls ?? [];
+export const isBattleLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.battleOverlay === true;
 
 const FighterChar: React.FC<{
   placement: CharPlacement;
