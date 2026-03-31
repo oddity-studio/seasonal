@@ -82,6 +82,7 @@ type SceneLayout = {
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;
   beltStomp?: { src: string };
+  battleOverlay?: boolean;
   customControls?: CustomControl[];
 };
 
@@ -104,11 +105,11 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: -60, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }),
     customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
-  { label: "BotWeek1", category: "General", characters: [
-    { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ], backgroundVideo: { src: "/Cube.mp4", scale: 1, blendMode: "screen", startFrom: 300 },
+  { label: "BotWeek1", category: "General", characters: [],
+    backgroundVideo: { src: "/Cube.mp4", scale: 1, blendMode: "normal", startFrom: 0 },
+    battleOverlay: true,
     textDefaults: { y: -60, fontSize: 200, mode: "flat" },
-    customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }),
+    customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
     customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
   { label: "Brackets", category: "General", characters: [],
     backgroundImageSrc: BRACKETS, textDefaults: { y: -60, fontSize: 200, mode: "flat" } },
@@ -321,6 +322,139 @@ const SoundWaveform: React.FC<{ color: string }> = ({ color }) => {
         );
       })}
     </div>
+  );
+};
+
+// Battle of the Week waveform — animated rounded bars
+const BattleWaveform: React.FC<{ centerY: number; color: string; glowColor: string }> = ({ centerY, color, glowColor }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = frame / fps;
+  const BAR_W = 7;
+  const GAP = 8;
+  const NUM_BARS = Math.floor((1080 + GAP) / (BAR_W + GAP));
+  const MAX_H = 200;
+  const MIN_H = 10;
+
+  return (
+    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1920, pointerEvents: "none" as const }}>
+      {Array.from({ length: NUM_BARS }, (_, i) => {
+        const phase = (i / NUM_BARS) * Math.PI * 6;
+        const norm = 0.5
+          + 0.40 * Math.sin(phase + t * 2.3)
+          + 0.18 * Math.sin(phase * 1.9 + t * 3.7)
+          + 0.09 * Math.sin(phase * 4.1 + t * 1.5)
+          + 0.05 * Math.sin(phase * 2.7 + t * 5.1);
+        const h = MIN_H + (MAX_H - MIN_H) * Math.max(0, Math.min(1, norm));
+        const x = i * (BAR_W + GAP);
+        const y = centerY - h / 2;
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: x,
+              top: y,
+              width: BAR_W,
+              height: h,
+              borderRadius: BAR_W / 2,
+              backgroundColor: color,
+              opacity: 0.55,
+              boxShadow: `0 0 18px ${glowColor}`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+// Battle of the Week overlay — vignette, waveform, VS, two usernames
+const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const enter = spring({ frame, fps, config: { damping: 200 } });
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+  const opacity = enter * exit;
+
+  // Split text on "|" for two usernames
+  const parts = text.split("|").map((s) => s.trim());
+  const userA = parts[0] || "";
+  const userB = parts[1] || "";
+
+  const exo2 = FONT_MAP["Exo 2"];
+  const anton = FONT_MAP["Anton"];
+
+  return (
+    <AbsoluteFill style={{ opacity, pointerEvents: "none" }}>
+      {/* Vignette */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, transparent 45%, transparent 55%, rgba(0,0,0,0.78) 100%)",
+        zIndex: 10,
+      }} />
+
+      {/* Waveform — blue, upper half */}
+      <div style={{ zIndex: 11 }}>
+        <BattleWaveform centerY={365} color="#24bdff" glowColor="rgba(36,189,255,0.6)" />
+      </div>
+
+      {/* User A — large, cyan glow, at y=365 */}
+      {userA && (
+        <div style={{
+          position: "absolute", top: 365 - 50, left: 0, width: "100%",
+          textAlign: "center", zIndex: 12,
+        }}>
+          <p style={{
+            fontFamily: exo2.fontFamily,
+            fontWeight: 800,
+            fontStyle: "italic",
+            fontSize: 95,
+            color: "#38fff8",
+            textShadow: "0 0 30px rgba(56,255,248,0.85), 0 0 15px rgba(56,255,248,0.85)",
+            margin: 0,
+            textTransform: "uppercase",
+          }}>{userA}</p>
+        </div>
+      )}
+
+      {/* User B — smaller, white, 50% opacity, at y=985 */}
+      {userB && (
+        <div style={{
+          position: "absolute", top: 985 - 35, left: 0, width: "100%",
+          textAlign: "center", zIndex: 12,
+        }}>
+          <p style={{
+            fontFamily: exo2.fontFamily,
+            fontWeight: 700,
+            fontStyle: "italic",
+            fontSize: 70,
+            color: "#FFFFFF",
+            opacity: 0.5,
+            letterSpacing: 20,
+            margin: 0,
+            textTransform: "uppercase",
+          }}>{userB}</p>
+        </div>
+      )}
+
+      {/* VS — Anton 320px, white with yellow glow, centered */}
+      <div style={{
+        position: "absolute", top: 710 - 160, left: 0, width: "100%",
+        textAlign: "center", zIndex: 12,
+      }}>
+        <p style={{
+          fontFamily: anton.fontFamily,
+          fontSize: 320,
+          letterSpacing: -12,
+          color: "#FFFFFF",
+          textShadow: "0 0 40px rgba(255,240,160,0.9), 0 0 20px rgba(255,240,160,0.9)",
+          margin: 0,
+          lineHeight: 1,
+        }}>VS</p>
+      </div>
+    </AbsoluteFill>
   );
 };
 
@@ -569,8 +703,13 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       {/* Character layer */}
       <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} />
 
-      {/* Text overlay */}
-      {(() => {
+      {/* Battle of the Week overlay */}
+      {resolvedLayout.battleOverlay && (
+        <BattleOverlay text={text} sceneDuration={dur} />
+      )}
+
+      {/* Text overlay (skip for battle overlay scenes) */}
+      {!resolvedLayout.battleOverlay && (() => {
         const textMode: TextMode = td?.mode ?? "normal";
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
