@@ -15,12 +15,55 @@ export default function Editor() {
   const [recordingMode, setRecordingMode] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const playerRef = useRef<PlayerRef>(null);
+  const loadInputRef = useRef<HTMLInputElement>(null);
 
   // Group layouts by category
   const categories = LAYOUT_OPTIONS.reduce<Record<string, typeof LAYOUT_OPTIONS>>((acc, opt) => {
     (acc[opt.category] ??= []).push(opt);
     return acc;
   }, {});
+
+  const handleSave = useCallback(() => {
+    // Strip blob: URLs from backgroundVideo since they're session-only
+    const cleaned = {
+      ...props,
+      scenes: props.scenes.map((s) => {
+        if (s.backgroundVideo?.src?.startsWith("blob:")) {
+          const { backgroundVideo: _, ...rest } = s;
+          return rest;
+        }
+        return s;
+      }),
+    };
+    const json = JSON.stringify(cleaned, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "seasonal-preset.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [props]);
+
+  const handleLoad = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = videoPropsSchema.safeParse(JSON.parse(reader.result as string));
+        if (parsed.success) {
+          setProps(parsed.data);
+        } else {
+          alert("Invalid preset file.");
+        }
+      } catch {
+        alert("Could not read preset file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }, []);
 
   const handleDownload = useCallback(async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -363,6 +406,19 @@ export default function Editor() {
           <div style={styles.controls}>
             <div style={styles.customizeHeader}>
               <h2 style={styles.controlsHeading}>Customize</h2>
+              <input
+                ref={loadInputRef}
+                type="file"
+                accept=".json"
+                style={{ display: "none" }}
+                onChange={handleLoad}
+              />
+              <button style={styles.galleryButton} onClick={handleSave}>
+                Save
+              </button>
+              <button style={styles.galleryButton} onClick={() => loadInputRef.current?.click()}>
+                Load
+              </button>
               <button
                 style={styles.galleryButton}
                 onClick={() => setShowGallery(true)}
