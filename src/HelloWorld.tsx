@@ -438,7 +438,7 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number; slide?: num
       {/* Vignette */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.78) 100%)",
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.78) 100%)",
         zIndex: 10,
       }} />
 
