@@ -83,6 +83,7 @@ type SceneLayout = {
   titleCard?: boolean;
   beltStomp?: { src: string };
   battleOverlay?: boolean;
+  battleSlide?: number;
   defaultDuration?: number;
   customControls?: CustomControl[];
 };
@@ -108,7 +109,14 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
   { label: "BotWeek1", category: "General", characters: [],
     backgroundVideo: { src: "/Cube.mp4", scale: 1, blendMode: "normal", startFrom: 0 },
-    battleOverlay: true,
+    battleOverlay: true, battleSlide: 0,
+    defaultDuration: 30,
+    textDefaults: { y: -60, fontSize: 80, mode: "flat" },
+    customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
+    customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
+  { label: "BotWeek2", category: "General", characters: [],
+    backgroundVideo: { src: "/Cube.mp4", scale: 1, blendMode: "normal", startFrom: 0 },
+    battleOverlay: true, battleSlide: 1,
     defaultDuration: 30,
     textDefaults: { y: -60, fontSize: 80, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
@@ -396,7 +404,7 @@ const BotwVideo: React.FC = () => {
   );
 };
 
-const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
+const BattleOverlay: React.FC<{ text: string; sceneDuration: number; slide?: number }> = ({ text, sceneDuration, slide = 0 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const enter = spring({ frame, fps, config: { damping: 200 } });
@@ -412,16 +420,20 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
   const exo2 = FONT_MAP["Exo 2"];
   const anton = FONT_MAP["Anton"];
 
-  // Layout: VS at center (960), User A + waveform above, User B below
+  // Layout: VS at center (960), User A + waveform above, User B + waveform below
   const vsY = 960;
   const userAY = vsY - 320;  // 640
-  const waveY = vsY - 300;   // 660 (waveform behind user A)
   const userBY = vsY + 220;  // 1180
+
+  // Beat1: blue waveform behind A (active), Beat2: purple waveform behind B (active)
+  const waveColor = slide === 0 ? "#24bdff" : "#ff38db";
+  const waveGlow = slide === 0 ? "rgba(36,189,255,0.6)" : "rgba(255,56,219,0.6)";
+  const waveCenterY = slide === 0 ? userAY : userBY;
 
   return (
     <AbsoluteFill style={{ opacity, pointerEvents: "none" }}>
-      {/* Overlay intro video */}
-      <BotwVideo />
+      {/* Overlay intro video — Beat1 only */}
+      {slide === 0 && <BotwVideo />}
 
       {/* Vignette */}
       <div style={{
@@ -430,27 +442,31 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
         zIndex: 10,
       }} />
 
-      {/* Waveform — blue, behind user A */}
+      {/* Waveform */}
       <div style={{ zIndex: 11 }}>
-        <BattleWaveform centerY={waveY} color="#24bdff" glowColor="rgba(36,189,255,0.6)" />
+        <BattleWaveform centerY={waveCenterY} color={waveColor} glowColor={waveGlow} />
       </div>
 
-      {/* User A — large, cyan glow */}
+      {/* User A */}
       {userA && (
         <div style={{
           position: "absolute", top: userAY - 50, left: 0, width: "100%",
           textAlign: "center", zIndex: 12,
         }}>
-          <p style={{
-            fontFamily: exo2.fontFamily,
-            fontWeight: 800,
-            fontStyle: "italic",
-            fontSize: 95,
-            color: "#38fff8",
-            textShadow: "0 0 30px rgba(56,255,248,0.85), 0 0 15px rgba(56,255,248,0.85)",
-            margin: 0,
-            textTransform: "uppercase",
-          }}>{userA}</p>
+          {slide === 0 ? (
+            <p style={{
+              fontFamily: exo2.fontFamily, fontWeight: 800, fontStyle: "italic",
+              fontSize: 95, color: "#38fff8",
+              textShadow: "0 0 30px rgba(56,255,248,0.85), 0 0 15px rgba(56,255,248,0.85)",
+              margin: 0, textTransform: "uppercase",
+            }}>{userA}</p>
+          ) : (
+            <p style={{
+              fontFamily: exo2.fontFamily, fontWeight: 700, fontStyle: "italic",
+              fontSize: 70, color: "#FFFFFF", opacity: 0.5, letterSpacing: 20,
+              margin: 0, textTransform: "uppercase",
+            }}>{userA}</p>
+          )}
         </div>
       )}
 
@@ -460,33 +476,33 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
         textAlign: "center", zIndex: 12,
       }}>
         <p style={{
-          fontFamily: anton.fontFamily,
-          fontSize: 320,
-          letterSpacing: -12,
+          fontFamily: anton.fontFamily, fontSize: 320, letterSpacing: -12,
           color: "#FFFFFF",
           textShadow: "0 0 40px rgba(255,240,160,0.9), 0 0 20px rgba(255,240,160,0.9)",
-          margin: 0,
-          lineHeight: 1,
+          margin: 0, lineHeight: 1,
         }}>VS</p>
       </div>
 
-      {/* User B — smaller, white, 50% opacity */}
+      {/* User B */}
       {userB && (
         <div style={{
           position: "absolute", top: userBY - 35, left: 0, width: "100%",
           textAlign: "center", zIndex: 12,
         }}>
-          <p style={{
-            fontFamily: exo2.fontFamily,
-            fontWeight: 700,
-            fontStyle: "italic",
-            fontSize: 70,
-            color: "#FFFFFF",
-            opacity: 0.5,
-            letterSpacing: 20,
-            margin: 0,
-            textTransform: "uppercase",
-          }}>{userB}</p>
+          {slide === 1 ? (
+            <p style={{
+              fontFamily: exo2.fontFamily, fontWeight: 800, fontStyle: "italic",
+              fontSize: 95, color: "#fc9990",
+              textShadow: "0 0 30px rgba(252,153,144,0.85), 0 0 15px rgba(252,153,144,0.85)",
+              margin: 0, textTransform: "uppercase",
+            }}>{userB}</p>
+          ) : (
+            <p style={{
+              fontFamily: exo2.fontFamily, fontWeight: 700, fontStyle: "italic",
+              fontSize: 70, color: "#FFFFFF", opacity: 0.5, letterSpacing: 20,
+              margin: 0, textTransform: "uppercase",
+            }}>{userB}</p>
+          )}
         </div>
       )}
     </AbsoluteFill>
@@ -743,7 +759,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Battle of the Week overlay */}
       {resolvedLayout.battleOverlay && (
-        <BattleOverlay text={text} sceneDuration={dur} />
+        <BattleOverlay text={text} sceneDuration={dur} slide={resolvedLayout.battleSlide ?? 0} />
       )}
 
       {/* Text overlay (skip for battle overlay scenes) */}
