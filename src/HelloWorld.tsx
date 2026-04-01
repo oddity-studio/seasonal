@@ -378,6 +378,24 @@ const BattleWaveform: React.FC<{ centerY: number; color: string; glowColor: stri
 // Battle of the Week overlay — vignette, waveform, VS, two usernames
 const BOTW_OVERLAY = `${BASE}/botw.webm`;
 
+const BotwVideo: React.FC = () => {
+  const [exists, setExists] = React.useState<boolean | null>(null);
+  React.useEffect(() => {
+    fetch(BOTW_OVERLAY, { method: "HEAD" })
+      .then((r) => setExists(r.ok))
+      .catch(() => setExists(false));
+  }, []);
+  if (!exists) return null;
+  return (
+    <AbsoluteFill style={{ zIndex: 20 }}>
+      <Video
+        src={BOTW_OVERLAY}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </AbsoluteFill>
+  );
+};
+
 const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -403,13 +421,7 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text
   return (
     <AbsoluteFill style={{ opacity, pointerEvents: "none" }}>
       {/* Overlay intro video */}
-      <AbsoluteFill style={{ zIndex: 20 }}>
-        <Video
-          src={BOTW_OVERLAY}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          onError={() => {}}
-        />
-      </AbsoluteFill>
+      <BotwVideo />
 
       {/* Vignette */}
       <div style={{
