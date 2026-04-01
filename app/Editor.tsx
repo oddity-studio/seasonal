@@ -672,7 +672,18 @@ export default function Editor() {
                   <h3 style={styles.categoryHeading}>{category}</h3>
                   <div style={styles.galleryGrid}>
                     {layouts.map((opt) => (
-                      <div key={opt.index} style={styles.galleryCard}>
+                      <div
+                        key={opt.index}
+                        style={{ ...styles.galleryCard, cursor: "pointer" }}
+                        onClick={() => {
+                          const dur = getLayoutDefaultDuration(opt.index);
+                          setProps((prev) => ({
+                            ...prev,
+                            scenes: [...prev.scenes, { text: "", fontSize: 150, layout: opt.index, ...(dur != null ? { duration: dur } : {}) }],
+                          }));
+                          setShowGallery(false);
+                        }}
+                      >
                         <div style={styles.galleryPreview}>
                           <Thumbnail
                             component={HelloWorld}
