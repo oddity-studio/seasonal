@@ -6,6 +6,10 @@ import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLa
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
+const PRESETS: { label: string; props: VideoProps }[] = [
+  { label: "Demo", props: defaultVideoProps },
+];
+
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
 export default function Editor() {
@@ -423,12 +427,29 @@ export default function Editor() {
           <div style={styles.controls}>
             <div style={styles.customizeHeader}>
               <h2 style={styles.controlsHeading}>Customize</h2>
-              <button
-                style={styles.galleryButton}
-                onClick={() => setShowGallery(true)}
-              >
-                Scene Gallery
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <select
+                  style={styles.layoutSelect}
+                  value=""
+                  onChange={(e) => {
+                    const idx = Number(e.target.value);
+                    if (!isNaN(idx) && PRESETS[idx]) {
+                      setProps(PRESETS[idx].props);
+                    }
+                  }}
+                >
+                  <option value="" disabled>Presets</option>
+                  {PRESETS.map((p, i) => (
+                    <option key={i} value={i}>{p.label}</option>
+                  ))}
+                </select>
+                <button
+                  style={styles.galleryButton}
+                  onClick={() => setShowGallery(true)}
+                >
+                  Scene Gallery
+                </button>
+              </div>
             </div>
 
             <div>
