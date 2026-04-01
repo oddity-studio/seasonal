@@ -328,7 +328,24 @@ export default function Editor() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.heading}>Seasonal Video Creator</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+        <h1 style={{ ...styles.heading, marginBottom: 0 }}>Seasonal Video Creator</h1>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            ref={loadInputRef}
+            type="file"
+            accept=".json"
+            style={{ display: "none" }}
+            onChange={handleLoad}
+          />
+          <button style={styles.galleryButton} onClick={handleSave}>
+            Save
+          </button>
+          <button style={styles.galleryButton} onClick={() => loadInputRef.current?.click()}>
+            Load
+          </button>
+        </div>
+      </div>
 
       <div style={styles.main}>
         <div
@@ -406,19 +423,6 @@ export default function Editor() {
           <div style={styles.controls}>
             <div style={styles.customizeHeader}>
               <h2 style={styles.controlsHeading}>Customize</h2>
-              <input
-                ref={loadInputRef}
-                type="file"
-                accept=".json"
-                style={{ display: "none" }}
-                onChange={handleLoad}
-              />
-              <button style={styles.galleryButton} onClick={handleSave}>
-                Save
-              </button>
-              <button style={styles.galleryButton} onClick={() => loadInputRef.current?.click()}>
-                Load
-              </button>
               <button
                 style={styles.galleryButton}
                 onClick={() => setShowGallery(true)}
