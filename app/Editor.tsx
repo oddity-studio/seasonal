@@ -17,6 +17,8 @@ export default function Editor() {
   const playerRef = useRef<PlayerRef>(null);
   const loadInputRef = useRef<HTMLInputElement>(null);
   const [presetNames, setPresetNames] = useState<string[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -344,6 +346,16 @@ export default function Editor() {
     }));
   };
 
+  const reorderScene = (from: number, to: number) => {
+    if (from === to) return;
+    setProps((prev) => {
+      const scenes = [...prev.scenes];
+      const [moved] = scenes.splice(from, 1);
+      scenes.splice(to, 0, moved);
+      return { ...prev, scenes };
+    });
+  };
+
   const totalFrames = getTotalFrames(props);
 
   return (
@@ -558,7 +570,25 @@ export default function Editor() {
 
               {/* Scene rows */}
               {props.scenes.map((scene, i) => (
-                <div key={i} style={styles.sceneRow}>
+                <div
+                  key={i}
+                  draggable
+                  onDragStart={() => setDragIndex(i)}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverIndex(i); }}
+                  onDragLeave={() => { if (dragOverIndex === i) setDragOverIndex(null); }}
+                  onDrop={() => {
+                    if (dragIndex !== null) reorderScene(dragIndex, i);
+                    setDragIndex(null);
+                    setDragOverIndex(null);
+                  }}
+                  onDragEnd={() => { setDragIndex(null); setDragOverIndex(null); }}
+                  style={{
+                    ...styles.sceneRow,
+                    opacity: dragIndex === i ? 0.4 : 1,
+                    borderTop: dragOverIndex === i && dragIndex !== null && dragIndex !== i ? "2px solid #94a3b8" : "2px solid transparent",
+                    cursor: "grab",
+                  }}
+                >
                   <span style={styles.sceneNumber}>{i + 1}</span>
                   <select
                     style={styles.layoutSelect}
