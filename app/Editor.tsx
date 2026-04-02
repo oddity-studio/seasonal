@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
 import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
-
-const PRESETS: { label: string; props: VideoProps }[] = [
-  { label: "Demo", props: defaultVideoProps },
-];
 
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
@@ -20,6 +16,26 @@ export default function Editor() {
   const [showGallery, setShowGallery] = useState(false);
   const playerRef = useRef<PlayerRef>(null);
   const loadInputRef = useRef<HTMLInputElement>(null);
+  const [presetNames, setPresetNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    fetch(`${BASE}/picker/presets/index.json`)
+      .then((r) => r.json())
+      .then((names: string[]) => setPresetNames(names))
+      .catch(() => {});
+  }, []);
+
+  const loadPreset = useCallback((name: string) => {
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    fetch(`${BASE}/picker/presets/${name}.json`)
+      .then((r) => r.json())
+      .then((data) => {
+        const parsed = videoPropsSchema.safeParse(data);
+        if (parsed.success) setProps(parsed.data);
+      })
+      .catch(() => {});
+  }, []);
 
   // Group layouts by category
   const categories = LAYOUT_OPTIONS.reduce<Record<string, typeof LAYOUT_OPTIONS>>((acc, opt) => {
@@ -432,15 +448,12 @@ export default function Editor() {
                   style={styles.layoutSelect}
                   value=""
                   onChange={(e) => {
-                    const idx = Number(e.target.value);
-                    if (!isNaN(idx) && PRESETS[idx]) {
-                      setProps(PRESETS[idx].props);
-                    }
+                    if (e.target.value) loadPreset(e.target.value);
                   }}
                 >
                   <option value="" disabled>Presets</option>
-                  {PRESETS.map((p, i) => (
-                    <option key={i} value={i}>{p.label}</option>
+                  {presetNames.map((name) => (
+                    <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
                 <button

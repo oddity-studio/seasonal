@@ -103,7 +103,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ], backgroundVideo: { src: "/Cube.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 }, textDefaults: { y: 200, rotateZ: 25, rotateX: -20 } },
   { label: "My Video", category: "General", characters: [
     { src: CHAR1, side: "right", scale: 1.3, bottomPct: 0, flip: true, offsetX: 80 },
-  ], backgroundVideo: { src: "/Cube.mp4", scale: 1.5, blendMode: "screen", startFrom: 300 },
+  ], backgroundVideo: { src: "/Cube.mp4", scale: 1, blendMode: "screen", startFrom: 300 },
     textDefaults: { y: -60, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }),
     customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
@@ -404,7 +404,7 @@ const BotwVideo: React.FC = () => {
   );
 };
 
-const BattleOverlay: React.FC<{ text: string; sceneDuration: number; slide?: number }> = ({ text, sceneDuration, slide = 0 }) => {
+const BattleOverlay: React.FC<{ text: string; sceneDuration: number; slide?: number; colors: ColorScheme }> = ({ text, sceneDuration, slide = 0, colors }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const enter = spring({ frame, fps, config: { damping: 200 } });
@@ -438,7 +438,9 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number; slide?: num
       {/* Vignette */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.78) 100%)",
+        background: slide === 1
+          ? `linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 40%, transparent 60%, ${colors.light} 100%)`
+          : "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.78) 100%)",
         zIndex: 10,
       }} />
 
@@ -759,7 +761,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Battle of the Week overlay */}
       {resolvedLayout.battleOverlay && (
-        <BattleOverlay text={text} sceneDuration={dur} slide={resolvedLayout.battleSlide ?? 0} />
+        <BattleOverlay text={text} sceneDuration={dur} slide={resolvedLayout.battleSlide ?? 0} colors={colors} />
       )}
 
       {/* Text overlay (skip for battle overlay scenes) */}
