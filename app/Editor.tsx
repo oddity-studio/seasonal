@@ -572,8 +572,6 @@ export default function Editor() {
               {props.scenes.map((scene, i) => (
                 <div
                   key={i}
-                  draggable
-                  onDragStart={() => setDragIndex(i)}
                   onDragOver={(e) => { e.preventDefault(); setDragOverIndex(i); }}
                   onDragLeave={() => { if (dragOverIndex === i) setDragOverIndex(null); }}
                   onDrop={() => {
@@ -586,10 +584,16 @@ export default function Editor() {
                     ...styles.sceneRow,
                     opacity: dragIndex === i ? 0.4 : 1,
                     borderTop: dragOverIndex === i && dragIndex !== null && dragIndex !== i ? "2px solid #94a3b8" : "2px solid transparent",
-                    cursor: "grab",
                   }}
                 >
-                  <span style={styles.sceneNumber}>{i + 1}</span>
+                  <span
+                    draggable
+                    onDragStart={() => setDragIndex(i)}
+                    style={{ ...styles.sceneNumber, cursor: "grab", display: "flex", alignItems: "center", gap: 2 }}
+                  >
+                    <span style={{ color: "#475569", fontSize: 10, lineHeight: 1 }}>&#x2630;</span>
+                    {i + 1}
+                  </span>
                   <select
                     style={styles.layoutSelect}
                     value={scene.layout ?? i}
