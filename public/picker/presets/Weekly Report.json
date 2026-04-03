@@ -1,0 +1,12 @@
+{
+  "seasonNumber": "01",
+  "font": "Exo 2",
+  "colorScheme": {
+    "dark": "#1a1a2e",
+    "light": "#e0e0e0",
+    "highlight": "#ffffff"
+  },
+  "scenes": [
+    { "text": "", "fontSize": 72, "layout": 19, "duration": 5 }
+  ]
+}

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -603,6 +603,16 @@ export default function Editor() {
                       updateScene(i, "layout", layoutIdx);
                       const dur = getLayoutDefaultDuration(layoutIdx);
                       if (dur != null) updateScene(i, "duration", dur);
+                      if (isWeeklyTitleLayout(layoutIdx) && !scene.text) {
+                        const now = new Date();
+                        const sun = new Date(now);
+                        sun.setDate(now.getDate() - now.getDay());
+                        const nextSun = new Date(sun);
+                        nextSun.setDate(sun.getDate() + 7);
+                        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                        const ord = (n: number) => n + (n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th");
+                        updateScene(i, "text", `${months[sun.getMonth()]} ${ord(sun.getDate())} \u2013 ${months[nextSun.getMonth()]} ${ord(nextSun.getDate())}`);
+                      }
                     }}
                     title="Scene template"
                   >
@@ -635,6 +645,44 @@ export default function Editor() {
                         placeholder="User B"
                       />
                     </span>
+                  ) : isWeeklyTitleLayout(scene.layout ?? i) ? (
+                    <input
+                      type="week"
+                      style={styles.sceneInput}
+                      value={(() => {
+                        // Convert stored "Mon DD – Mon DD" back to week input value
+                        // or use the raw ISO week string if stored that way
+                        const t = scene.text || "";
+                        if (/^\d{4}-W\d{2}$/.test(t)) return t;
+                        // Default to current week
+                        const now = new Date();
+                        const jan1 = new Date(now.getFullYear(), 0, 1);
+                        const days = Math.floor((now.getTime() - jan1.getTime()) / 86400000);
+                        const week = Math.ceil((days + jan1.getDay() + 1) / 7);
+                        return `${now.getFullYear()}-W${String(week).padStart(2, "0")}`;
+                      })()}
+                      onChange={(e) => {
+                        const val = e.target.value; // "2026-W14"
+                        if (!val) return;
+                        // Parse ISO week to Sun–next Sun range
+                        const [yearStr, weekStr] = val.split("-W");
+                        const year = parseInt(yearStr, 10);
+                        const week = parseInt(weekStr, 10);
+                        // ISO week 1 contains Jan 4; compute Monday of that week
+                        const jan4 = new Date(year, 0, 4);
+                        const mon = new Date(jan4);
+                        mon.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7) + (week - 1) * 7);
+                        // Go back to Sunday (start of week)
+                        const sun = new Date(mon);
+                        sun.setDate(mon.getDate() - 1);
+                        const nextSun = new Date(sun);
+                        nextSun.setDate(sun.getDate() + 7);
+                        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                        const ord = (n: number) => n + (n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th");
+                        const rangeText = `${months[sun.getMonth()]} ${ord(sun.getDate())} – ${months[nextSun.getMonth()]} ${ord(nextSun.getDate())}`;
+                        updateScene(i, "text", rangeText);
+                      }}
+                    />
                   ) : (
                     <input
                       style={styles.sceneInput}

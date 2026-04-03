@@ -70,7 +70,8 @@ type CharPlacement = {
 type TextMode = "normal" | "flat" | "scroll";
 
 type CustomControl =
-  | { type: "videoUpload"; field: "backgroundVideo"; label?: string };
+  | { type: "videoUpload"; field: "backgroundVideo"; label?: string }
+  | { type: "weekPicker" };
 
 type SceneLayout = {
   label: string;
@@ -84,6 +85,7 @@ type SceneLayout = {
   beltStomp?: { src: string };
   battleOverlay?: boolean;
   battleSlide?: number;
+  weeklyTitle?: boolean;
   defaultDuration?: number;
   customControls?: CustomControl[];
 };
@@ -167,6 +169,14 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Ember", category: "Gradients", characters: [],
     textDefaults: { y: -60, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }) },
+  // Weekly Report — Title slide (video background with date range overlay)
+  { label: "Weekly Title", category: "Weekly Report", characters: [],
+    backgroundVideo: { src: "/title.mp4", scale: 1, blendMode: "normal", startFrom: 0 },
+    weeklyTitle: true,
+    defaultDuration: 5,
+    textDefaults: { y: 0, fontSize: 72, mode: "flat" },
+    customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
+    customControls: [{ type: "weekPicker" }] },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -174,6 +184,8 @@ export const getLayoutControls = (index: number): CustomControl[] =>
   SCENE_LAYOUTS[index]?.customControls ?? [];
 export const isBattleLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.battleOverlay === true;
+export const isWeeklyTitleLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.weeklyTitle === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -629,6 +641,44 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
   );
 };
 
+// Weekly Title overlay — date range text near bottom, fades in like Videobox title slide
+const WeeklyTitleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = frame / fps;
+  const FADE_START = 2.0;
+  const FADE_DUR = 0.5;
+  const localT = t - FADE_START;
+  const alpha = localT >= 0 ? Math.min(localT / FADE_DUR, 1.0) : 0;
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+  const exo2 = FONT_MAP["Exo 2"];
+
+  if (!text) return null;
+
+  return (
+    <div style={{
+      position: "absolute",
+      bottom: "6%",
+      left: 0,
+      width: "100%",
+      textAlign: "center",
+      zIndex: 12,
+      opacity: alpha * exit,
+    }}>
+      <p style={{
+        fontFamily: exo2.fontFamily,
+        fontWeight: 800,
+        fontStyle: "italic",
+        fontSize: 72,
+        color: "#ffffff",
+        margin: 0,
+        textTransform: "uppercase",
+      }}>{text}</p>
+    </div>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
   text,
   index,
@@ -764,8 +814,13 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         <BattleOverlay text={text} sceneDuration={dur} slide={resolvedLayout.battleSlide ?? 0} colors={colors} />
       )}
 
-      {/* Text overlay (skip for battle overlay scenes) */}
-      {!resolvedLayout.battleOverlay && (() => {
+      {/* Weekly Title overlay — date range text */}
+      {resolvedLayout.weeklyTitle && (
+        <WeeklyTitleOverlay text={text} sceneDuration={dur} />
+      )}
+
+      {/* Text overlay (skip for battle overlay and weekly title scenes) */}
+      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && (() => {
         const textMode: TextMode = td?.mode ?? "normal";
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
