@@ -86,6 +86,7 @@ type SceneLayout = {
   battleOverlay?: boolean;
   battleSlide?: number;
   weeklyTitle?: boolean;
+  videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
 };
@@ -173,6 +174,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Weekly Title", category: "Weekly Report", characters: [],
     backgroundVideo: { src: "/title.mp4", scale: 1, blendMode: "normal", startFrom: 0 },
     weeklyTitle: true,
+    videoFit: "contain",
     defaultDuration: 5,
     textDefaults: { y: 0, fontSize: 72, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
@@ -659,7 +661,7 @@ const WeeklyTitleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({
   return (
     <div style={{
       position: "absolute",
-      bottom: "6%",
+      bottom: 150,
       left: 0,
       width: "100%",
       textAlign: "center",
@@ -775,7 +777,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: resolvedLayout.videoFit ?? "cover",
               transform: `scale(${backgroundVideo.scale ?? 1})`,
             }}
           />
