@@ -46,13 +46,14 @@ export default function Editor() {
   }, {});
 
   const handleSave = useCallback(() => {
-    // Strip blob: URLs from backgroundVideo since they're session-only
+    // Strip blob: URLs from backgroundVideo since they're session-only, but keep muted state
     const cleaned = {
       ...props,
       scenes: props.scenes.map((s) => {
         if (s.backgroundVideo?.src?.startsWith("blob:")) {
-          const { backgroundVideo: _, ...rest } = s;
-          return rest;
+          const { backgroundVideo, ...rest } = s;
+          const muted = backgroundVideo?.muted;
+          return muted !== undefined ? { ...rest, backgroundVideo: { src: "", muted } } : rest;
         }
         return s;
       }),

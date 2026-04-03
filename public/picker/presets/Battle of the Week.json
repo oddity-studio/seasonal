@@ -13,13 +13,15 @@
       "text": "Player1|Player2",
       "fontSize": 80,
       "layout": 5,
-      "duration": 30
+      "duration": 30,
+      "backgroundVideo": { "src": "", "muted": false }
     },
     {
       "text": "Player1|Player2",
       "fontSize": 150,
       "layout": 6,
-      "duration": 30
+      "duration": 30,
+      "backgroundVideo": { "src": "", "muted": false }
     }
   ]
 }
