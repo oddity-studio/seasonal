@@ -30,7 +30,7 @@ export default function Editor() {
 
   const loadPreset = useCallback((name: string) => {
     const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    fetch(`${BASE}/picker/presets/${name}.json`)
+    fetch(`${BASE}/picker/presets/${encodeURIComponent(name)}.json`)
       .then((r) => r.json())
       .then((data) => {
         const parsed = videoPropsSchema.safeParse(data);
