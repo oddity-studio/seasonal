@@ -630,21 +630,21 @@ export default function Editor() {
                   </select>
                   {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
                     (() => {
-                      const [rawA = "", rawB = ""] = (scene.text || "").split("||");
+                      const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
                       const layer1 = rawA.split("|");
                       const layer2 = rawB.split("|");
                       while (layer1.length < 3) layer1.push("");
                       while (layer2.length < 3) layer2.push("");
                       const save = (l1: string[], l2: string[]) => {
-                        updateScene(i, "text", `${l1.slice(0, 3).join("|")}||${l2.slice(0, 3).join("|")}`);
+                        updateScene(i, "text", `${l1.slice(0, 3).join("|")}\n${l2.slice(0, 3).join("|")}`);
                       };
                       return (
-                        <span style={{ display: "flex", flex: 1, gap: 4 }}>
+                        <span style={{ display: "flex", gap: 4 }}>
                           {[0, 1, 2].map((li) => (
-                            <span key={li} style={{ display: "flex", flex: 1, gap: 2 }}>
+                            <span key={li} style={{ display: "flex", gap: 2 }}>
                               <input
-                                style={{ ...styles.sceneInput, flex: 1 }}
-                                value={layer1[li]?.trim() || ""}
+                                style={{ ...styles.sceneInput, width: 90, flex: "0 0 90px" }}
+                                value={layer1[li] || ""}
                                 onChange={(e) => {
                                   const next = [...layer1];
                                   next[li] = e.target.value;
@@ -653,9 +653,9 @@ export default function Editor() {
                                 placeholder={`Line ${li + 1}`}
                               />
                               <input
-                                style={{ ...styles.sceneInput, flex: "0 0 56px" }}
+                                style={{ ...styles.sceneInput, width: 44, flex: "0 0 44px" }}
                                 maxLength={4}
-                                value={layer2[li]?.trim() || ""}
+                                value={layer2[li] || ""}
                                 onChange={(e) => {
                                   const next = [...layer2];
                                   next[li] = e.target.value;

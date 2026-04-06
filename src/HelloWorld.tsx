@@ -878,8 +878,8 @@ const SlideLinesOverlay: React.FC<{
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
-  // Two layers: "layer1|a|b|c||x|y|z" → [["a","b","c"], ["x","y","z"]]
-  const [layer1Raw, layer2Raw = ""] = (text || "").split("||");
+  // Two layers separated by "\n": "a|b|c\nx|y|z"
+  const [layer1Raw, layer2Raw = ""] = (text || "").split("\n");
   const lines = layer1Raw.split("|").map((s) => s.trim()).slice(0, 3);
   const lines2 = layer2Raw.split("|").map((s) => s.trim()).slice(0, 3);
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
