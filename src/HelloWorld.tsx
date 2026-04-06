@@ -90,6 +90,7 @@ type SceneLayout = {
   killstreakOverlay?: boolean;
   kingOverlay?: boolean;
   slideLinesOverlay?: boolean;
+  slideLinesLabels?: [string, string, string];
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -134,9 +135,16 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
-  { label: "Grunge 3D", category: "General", characters: [],
+  { label: "Weekly Stats 1", category: "Weekly Report", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
+    slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
+    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -32, perspective: 800 },
+    customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Weekly Stats 2", category: "Weekly Report", characters: [],
+    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
+    slideLinesOverlay: true,
+    slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -32, perspective: 800 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
@@ -872,7 +880,8 @@ const SlideLinesOverlay: React.FC<{
   y: number;
   textColor: string;
   textGlow: string;
-}> = ({ text, sceneDuration, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow }) => {
+  labels?: [string, string, string];
+}> = ({ text, sceneDuration, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exitStart = sceneDuration - 30;
@@ -958,7 +967,7 @@ const SlideLinesOverlay: React.FC<{
           padding: "0 80px",
           textAlign: "left",
         }}>
-        {["Most Battles", "Most Wins", "Most Played Beats"].map((label, li) => (
+        {(labels ?? ["Most Battles", "Most Wins", "Most Played Beats"]).map((label, li) => (
           <p
             key={li}
             style={{
@@ -1209,6 +1218,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           y={resolvedY}
           textColor={textColor}
           textGlow={textGlow}
+          labels={resolvedLayout.slideLinesLabels}
         />
       )}
 
