@@ -934,7 +934,7 @@ const SlideLinesOverlay: React.FC<{
                 fontStyle: fontConfig.fontStyle ?? "normal",
                 color: textColor,
                 margin: 0,
-                lineHeight: (fontConfig.lineHeight ?? 1.0) * 2,
+                lineHeight: (fontConfig.lineHeight ?? 1.0) * 2.8,
                 letterSpacing: 8,
                 textTransform: "uppercase",
                 textShadow: textGlow,
@@ -957,6 +957,7 @@ const SlideLinesOverlay: React.FC<{
           right: 0,
           padding: "0 80px",
           textAlign: "right",
+          transform: "translateX(50px)",
         }}>
         {lines2.map((line, li) => {
           const lineSpring = spring({
