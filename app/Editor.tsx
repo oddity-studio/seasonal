@@ -136,10 +136,14 @@ export default function Editor() {
       // Pre-load and decode audio
       const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
       const audioCtx = new AudioContext();
-      const audioResp = await fetch(`${BASE}/picker/music/${props.music || "Tournament.mp3"}`);
-      const audioBuf = await audioCtx.decodeAudioData(
-        await audioResp.arrayBuffer(),
-      );
+      let audioBuf: AudioBuffer;
+      if (!props.music || props.music === "none") {
+        // Silent 1s stereo buffer; will be encoded as silence
+        audioBuf = audioCtx.createBuffer(2, audioCtx.sampleRate, audioCtx.sampleRate);
+      } else {
+        const audioResp = await fetch(`${BASE}/picker/music/${props.music}`);
+        audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
+      }
       await audioCtx.close();
 
       // Set up MP4 muxer
