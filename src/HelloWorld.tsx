@@ -712,7 +712,7 @@ const WeeklyTitleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({
   return (
     <div style={{
       position: "absolute",
-      bottom: 150,
+      bottom: 300,
       left: 0,
       width: "100%",
       textAlign: "center",
