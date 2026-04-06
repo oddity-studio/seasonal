@@ -905,10 +905,12 @@ const SlideLinesOverlay: React.FC<{
         style={{
           // Static 3D plane rotation (matches Video Cube angle)
           transform: `perspective(${perspective}px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${y}px)`,
-          textAlign: "left",
+          position: "relative",
           padding: "0 80px",
         }}
       >
+        {/* Layer 1: left-justified, slides in from the left */}
+        <div style={{ textAlign: "left" }}>
         {lines.map((line, li) => {
           const lineSpring = spring({
             frame,
@@ -942,6 +944,47 @@ const SlideLinesOverlay: React.FC<{
             </p>
           );
         })}
+        </div>
+
+        {/* Layer 2: right-justified, black letters, fades in with the same stagger */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          padding: "0 80px",
+          textAlign: "right",
+        }}>
+        {lines.map((line, li) => {
+          const lineSpring = spring({
+            frame,
+            fps,
+            config: { damping: 14, mass: 0.8 },
+            delay: li * LINE_STAGGER,
+          });
+          const opacity = interpolate(lineSpring, [0, 0.4], [0, 1], { extrapolateRight: "clamp" });
+          return (
+            <p
+              key={li}
+              style={{
+                fontSize,
+                fontFamily: fontConfig.fontFamily,
+                fontWeight: fontConfig.fontWeight ?? 700,
+                fontStyle: fontConfig.fontStyle ?? "normal",
+                color: "#000000",
+                margin: 0,
+                lineHeight: (fontConfig.lineHeight ?? 1.0) * 2,
+                letterSpacing: 8,
+                textTransform: "uppercase",
+                opacity,
+                willChange: "opacity",
+              }}
+            >
+              {line}
+            </p>
+          );
+        })}
+        </div>
       </div>
       </div>
     </div>
