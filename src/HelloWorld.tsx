@@ -923,7 +923,7 @@ const SlideLinesOverlay: React.FC<{
                 fontStyle: fontConfig.fontStyle ?? "normal",
                 color: textColor,
                 margin: 0,
-                lineHeight: fontConfig.lineHeight ?? 1.0,
+                lineHeight: (fontConfig.lineHeight ?? 1.0) * 2,
                 letterSpacing: 8,
                 textTransform: "uppercase",
                 textShadow: textGlow,
