@@ -148,7 +148,7 @@ export default function Editor() {
       const muxer = new Muxer({
         target,
         firstTimestampBehavior: "offset",
-        video: { codec: "avc", width: 1080, height: 1920 },
+        video: { codec: "avc", width: 607, height: 1080 },
         audio: {
           codec: "aac",
           sampleRate: audioBuf.sampleRate,
@@ -164,8 +164,8 @@ export default function Editor() {
       });
       videoEncoder.configure({
         codec: "avc1.640034",
-        width: 1080,
-        height: 1920,
+        width: 607,
+        height: 1080,
         bitrate: 10_000_000,
         framerate: FPS,
       });
@@ -206,7 +206,7 @@ export default function Editor() {
       const sh = Math.round(rect.height * dpr);
 
       // Offscreen canvas for frame resizing
-      const offscreen = new OffscreenCanvas(1080, 1920);
+      const offscreen = new OffscreenCanvas(607, 1080);
       const offCtx = offscreen.getContext("2d")!;
 
       // Start playback
@@ -232,9 +232,9 @@ export default function Editor() {
 
         // Draw frame to offscreen canvas (crop if needed, always resize to 1080x1920)
         if (cropSuccess) {
-          offCtx.drawImage(frame, 0, 0, 1080, 1920);
+          offCtx.drawImage(frame, 0, 0, 607, 1080);
         } else {
-          offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, 1080, 1920);
+          offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, 607, 1080);
         }
 
         const outputFrame = new VideoFrame(offscreen, {
