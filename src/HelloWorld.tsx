@@ -71,6 +71,7 @@ type TextMode = "normal" | "flat" | "scroll";
 
 type CustomControl =
   | { type: "videoUpload"; field: "backgroundVideo"; label?: string }
+  | { type: "videoMute" }
   | { type: "weekPicker" };
 
 type SceneLayout = {
@@ -178,7 +179,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     defaultDuration: 5,
     textDefaults: { y: 0, fontSize: 72, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
-    customControls: [{ type: "weekPicker" }] },
+    customControls: [{ type: "weekPicker" }, { type: "videoMute" }] },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));

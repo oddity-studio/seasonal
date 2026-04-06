@@ -732,6 +732,26 @@ export default function Editor() {
                         </span>
                       );
                     }
+                    if (ctrl.type === "videoMute") {
+                      const isMuted = scene.backgroundVideo?.muted !== false;
+                      return (
+                        <button
+                          key={ci}
+                          type="button"
+                          style={{
+                            ...styles.videoUploadButton,
+                            opacity: isMuted ? 0.5 : 1,
+                          }}
+                          title={isMuted ? "Unmute video" : "Mute video"}
+                          onClick={() => {
+                            const current = scene.backgroundVideo ?? { src: "", scale: 1.5, blendMode: "normal", startFrom: 0 };
+                            updateScene(i, "backgroundVideo", { ...current, muted: !isMuted });
+                          }}
+                        >
+                          {isMuted ? "🔇" : "🔊"}
+                        </button>
+                      );
+                    }
                     return null;
                   })}
                   <input
