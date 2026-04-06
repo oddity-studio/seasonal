@@ -372,7 +372,7 @@ export default function Editor() {
   return (
     <div style={styles.container}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
-        <h1 style={{ ...styles.heading, marginBottom: 0 }}>Seasonal Video Creator</h1>
+        <h1 style={{ ...styles.heading, marginBottom: 0 }}>VIDEOBOX 2.0</h1>
         <div style={{ display: "flex", gap: 8 }}>
           <input
             ref={loadInputRef}

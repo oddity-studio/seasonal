@@ -58,11 +58,22 @@ export default function Home() {
 
   return (
     <div style={landingStyles.container}>
-      <h1 style={landingStyles.title}>Seasonal</h1>
-      <p style={landingStyles.subtitle}>Programmatic video creator</p>
+      <h1 style={landingStyles.title}>VIDEOBOX 2.0</h1>
+      <p style={landingStyles.subtitle}>Advanced video editor</p>
 
       {loaded ? (
-        <button onClick={handleReady} style={landingStyles.button}>
+        <button
+          onClick={handleReady}
+          style={landingStyles.button}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.02)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 12px 32px rgba(124, 58, 237, 0.55), 0 0 0 1px rgba(255,255,255,0.15) inset";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(1)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 24px rgba(124, 58, 237, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset";
+          }}
+        >
           Open Editor
         </button>
       ) : (
@@ -85,26 +96,36 @@ const landingStyles: Record<string, React.CSSProperties> = {
     fontFamily: "system-ui, sans-serif",
   },
   title: {
-    fontSize: 48,
-    fontWeight: 700,
+    fontSize: 64,
+    fontWeight: 800,
     margin: 0,
     color: "#fff",
+    letterSpacing: "0.08em",
+    background: "linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #7c3aed 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#94a3b8",
     margin: 0,
+    letterSpacing: "0.04em",
   },
   button: {
     marginTop: 24,
-    padding: "14px 40px",
+    padding: "16px 48px",
     fontSize: 16,
-    fontWeight: 600,
-    borderRadius: 8,
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    borderRadius: 12,
     border: "none",
-    backgroundColor: "#e2e8f0",
-    color: "#0a0a0a",
+    background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)",
+    color: "#ffffff",
     cursor: "pointer",
+    boxShadow: "0 8px 24px rgba(124, 58, 237, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset",
+    transition: "transform 150ms ease, box-shadow 150ms ease",
   },
   loading: {
     fontSize: 14,
