@@ -172,7 +172,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     customStyle: (c) => ({ background: `radial-gradient(ellipse at 50% 80%, ${c.highlight}, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 20px ${c.highlight}80, 0 4px 30px rgba(0,0,0,0.7)` }) },
   // Weekly Report — Title slide (video background with date range overlay)
   { label: "Weekly Title", category: "Weekly Report", characters: [],
-    backgroundVideo: { src: "/botw.webm", scale: 1, blendMode: "normal", startFrom: 0 },
+    backgroundVideo: { src: "/title.webm", scale: 1, blendMode: "normal", startFrom: 0 },
     weeklyTitle: true,
     videoFit: "contain",
     defaultDuration: 5,
