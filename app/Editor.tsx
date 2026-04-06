@@ -744,8 +744,10 @@ export default function Editor() {
                           }}
                           title={isMuted ? "Unmute video" : "Mute video"}
                           onClick={() => {
-                            const current = scene.backgroundVideo ?? { src: "", scale: 1.5, blendMode: "normal", startFrom: 0 };
-                            updateScene(i, "backgroundVideo", { ...current, muted: !isMuted });
+                            // Only set `muted` (and keep src if already set) so layout
+                            // defaults for scale/blendMode/startFrom are preserved via merge.
+                            const current = scene.backgroundVideo ?? { src: "" };
+                            updateScene(i, "backgroundVideo", { src: current.src, muted: !isMuted });
                           }}
                         >
                           {isMuted ? "🔇" : "🔊"}
