@@ -25,24 +25,29 @@ export default function Editor() {
   const bakeContainerRef = useRef<HTMLDivElement>(null);
 
   const handleBakeAllThumbs = useCallback(async () => {
-    const { toPng } = await import("html-to-image");
+    const html2canvas = (await import("html2canvas")).default;
     const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
     for (let i = 0; i < LAYOUT_OPTIONS.length; i++) {
       setBakingIdx(i);
       // wait for DOM + videos/images to settle
-      await new Promise((r) => setTimeout(r, 900));
+      await new Promise((r) => setTimeout(r, 1500));
       const node = bakeContainerRef.current;
       if (!node) continue;
       try {
-        const dataUrl = await toPng(node, {
-          cacheBust: true,
-          pixelRatio: 1,
+        const canvas = await html2canvas(node, {
           width: 1080,
           height: 1920,
+          windowWidth: 1080,
+          windowHeight: 1920,
+          backgroundColor: null,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          scale: 1,
         });
-        const base64 = dataUrl.split(",")[1];
-        zip.file(`${i}.png`, base64, { base64: true });
+        const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
+        if (blob) zip.file(`${i}.png`, blob);
       } catch (e) {
         console.error("bake failed for", i, e);
       }
@@ -957,7 +962,7 @@ export default function Editor() {
       {bakingIdx !== null && (
         <div
           ref={bakeContainerRef}
-          style={{ position: "fixed", left: -99999, top: 0, width: 1080, height: 1920, pointerEvents: "none" }}
+          style={{ position: "fixed", left: 0, top: 0, width: 1080, height: 1920, pointerEvents: "none", opacity: 0, zIndex: -1 }}
         >
           <Thumbnail
             component={HelloWorld}
