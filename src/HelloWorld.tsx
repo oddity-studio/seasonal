@@ -774,6 +774,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           style={{
             overflow: "hidden",
             mixBlendMode: (backgroundVideo.blendMode as React.CSSProperties["mixBlendMode"]) ?? "normal",
+            display: resolvedLayout.videoFit === "contain" ? "flex" : undefined,
+            justifyContent: resolvedLayout.videoFit === "contain" ? "center" : undefined,
+            alignItems: resolvedLayout.videoFit === "contain" ? "center" : undefined,
           }}
         >
           <Video
@@ -783,12 +786,20 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
               : 1}
             startFrom={backgroundVideo.startFrom ?? 0}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: resolvedLayout.videoFit ?? "cover",
-              transform: `scale(${backgroundVideo.scale ?? 1})`,
-            }}
+            style={
+              resolvedLayout.videoFit === "contain"
+                ? {
+                    height: "100%",
+                    width: "auto",
+                    transform: `scale(${backgroundVideo.scale ?? 1})`,
+                  }
+                : {
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    transform: `scale(${backgroundVideo.scale ?? 1})`,
+                  }
+            }
           />
           {backgroundVideo.blendMode === "normal" && (
             <div style={{
