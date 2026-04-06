@@ -603,6 +603,9 @@ export default function Editor() {
                       updateScene(i, "layout", layoutIdx);
                       const dur = getLayoutDefaultDuration(layoutIdx);
                       if (dur != null) updateScene(i, "duration", dur);
+                      if (isKillstreakOverlayLayout(layoutIdx) && !scene.text) {
+                        updateScene(i, "text", "99|Player One");
+                      }
                       if (isWeeklyTitleLayout(layoutIdx) && !scene.text) {
                         const now = new Date();
                         const sun = new Date(now);
