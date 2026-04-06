@@ -1,12 +1,62 @@
 {
   "seasonNumber": "01",
-  "font": "Exo 2",
   "colorScheme": {
-    "dark": "#1a1a2e",
-    "light": "#e0e0e0",
-    "highlight": "#ffffff"
+    "dark": "#890659",
+    "light": "#7229fa",
+    "highlight": "#ffe014"
   },
+  "font": "Exo 2",
   "scenes": [
-    { "text": "", "fontSize": 72, "layout": 19, "duration": 5 }
-  ]
+    {
+      "text": "Apr 5th \u2013 Apr 12th",
+      "layout": 21,
+      "fontSize": 72,
+      "duration": 5,
+      "backgroundVideo": {
+        "src": "",
+        "muted": false
+      }
+    },
+    {
+      "text": "Player1|Player1|Player1\n786|454|121",
+      "fontSize": 122,
+      "layout": 9
+    },
+    {
+      "text": "156|Player1",
+      "fontSize": 150,
+      "layout": 22,
+      "duration": 8,
+      "backgroundVideo": {
+        "src": "",
+        "muted": false
+      }
+    },
+    {
+      "text": "Player1|Player1|Player1\n215|655|45",
+      "fontSize": 120,
+      "layout": 10
+    },
+    {
+      "text": "5|Player1",
+      "fontSize": 150,
+      "layout": 23,
+      "duration": 8,
+      "backgroundVideo": {
+        "src": "",
+        "muted": false
+      }
+    },
+    {
+      "text": "",
+      "fontSize": 150,
+      "layout": 24,
+      "duration": 10,
+      "backgroundVideo": {
+        "src": "",
+        "muted": false
+      }
+    }
+  ],
+  "music": "none"
 }
