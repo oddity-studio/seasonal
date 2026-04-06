@@ -20,6 +20,7 @@ export default function Editor() {
   const [presetNames, setPresetNames] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [automateText, setAutomateText] = useState("");
+  const [thumbMissing, setThumbMissing] = useState<Record<number, boolean>>({});
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -942,21 +943,31 @@ export default function Editor() {
                         }}
                       >
                         <div style={styles.galleryPreview}>
-                          <Thumbnail
-                            component={HelloWorld}
-                            inputProps={{
-                              ...props,
-                              showIntro: false,
-                              showOutro: false,
-                              scenes: [{ text: category, fontSize: 100, layout: opt.index }],
-                            }}
-                            durationInFrames={SCENE_DURATION}
-                            fps={FPS}
-                            compositionWidth={1080}
-                            compositionHeight={1920}
-                            frameToDisplay={60}
-                            style={{ width: "100%", height: "100%", borderRadius: 8 }}
-                          />
+                          {thumbMissing[opt.index] ? (
+                            <Thumbnail
+                              component={HelloWorld}
+                              inputProps={{
+                                ...props,
+                                showIntro: false,
+                                showOutro: false,
+                                scenes: [{ text: category, fontSize: 100, layout: opt.index }],
+                              }}
+                              durationInFrames={SCENE_DURATION}
+                              fps={FPS}
+                              compositionWidth={1080}
+                              compositionHeight={1920}
+                              frameToDisplay={60}
+                              style={{ width: "100%", height: "100%", borderRadius: 8 }}
+                            />
+                          ) : (
+                            <img
+                              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/picker/thumbs/${opt.index}.png`}
+                              alt={opt.label}
+                              loading="lazy"
+                              onError={() => setThumbMissing((prev) => ({ ...prev, [opt.index]: true }))}
+                              style={{ width: "100%", height: "100%", borderRadius: 8, objectFit: "cover" }}
+                            />
+                          )}
                         </div>
                         <span style={styles.galleryLabel}>{opt.label}</span>
                       </div>

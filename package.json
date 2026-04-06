@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts HelloWorld out/video.mp4"
+    "render": "remotion render src/index.ts HelloWorld out/video.mp4",
+    "bake-thumbs": "node scripts/bakeThumbs.mjs"
   },
   "repository": {
     "type": "git",
