@@ -978,7 +978,7 @@ const SlideLinesOverlay: React.FC<{
                 color: "#000000",
                 margin: 0,
                 // Match layer 1 row height so the small numbers sit on the same rows as the big lines
-                lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2)}px`,
+                lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
                 letterSpacing: 4,
                 textTransform: "uppercase",
                 opacity,
