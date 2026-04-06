@@ -609,6 +609,9 @@ export default function Editor() {
                       if (isKingOverlayLayout(layoutIdx) && !scene.text) {
                         updateScene(i, "text", "3|Player One");
                       }
+                      if (isSlideLinesOverlayLayout(layoutIdx) && !scene.text) {
+                        updateScene(i, "text", "Player1|Player2|Player3\n126|89|257");
+                      }
                       if (isWeeklyTitleLayout(layoutIdx) && !scene.text) {
                         const now = new Date();
                         const sun = new Date(now);
