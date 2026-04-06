@@ -897,8 +897,8 @@ const SlideLinesOverlay: React.FC<{
     >
       <div
         style={{
-          // Shift the whole block 20% (216px) to the left of center
-          transform: `translateX(-216px)`,
+          // Shift the whole block 136px to the left of center
+          transform: `translateX(-136px)`,
         }}
       >
       <div
