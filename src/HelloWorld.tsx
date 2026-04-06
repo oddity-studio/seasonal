@@ -89,6 +89,7 @@ type SceneLayout = {
   weeklyTitle?: boolean;
   killstreakOverlay?: boolean;
   kingOverlay?: boolean;
+  slideLinesOverlay?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -132,6 +133,11 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Grunge", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
+    customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Grunge 3D", category: "General", characters: [],
+    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
+    slideLinesOverlay: true,
+    textDefaults: { y: 0, fontSize: 180, rotateZ: 25, rotateX: -20, perspective: 800 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -221,6 +227,8 @@ export const isKillstreakOverlayLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.killstreakOverlay === true;
 export const isKingOverlayLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.kingOverlay === true;
+export const isSlideLinesOverlayLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.slideLinesOverlay === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -851,6 +859,88 @@ const KingOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, 
   );
 };
 
+// Slide-lines overlay — static 3D-rotated plane with lines sliding in from the left
+const SlideLinesOverlay: React.FC<{
+  text: string;
+  sceneDuration: number;
+  colors: ColorScheme;
+  fontConfig: FontConfig;
+  fontSize: number;
+  rotateZ: number;
+  rotateX: number;
+  perspective: number;
+  y: number;
+  textColor: string;
+  textGlow: string;
+}> = ({ text, sceneDuration, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+
+  // Split on "|" for up to 3 lines
+  const lines = (text || "").split("|").map((s) => s.trim()).slice(0, 3);
+  const LINE_STAGGER = 10; // frames between successive line entrances
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 12,
+        opacity: exit,
+        pointerEvents: "none" as const,
+      }}
+    >
+      <div
+        style={{
+          // Static 3D plane rotation (matches Video Cube angle)
+          transform: `perspective(${perspective}px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${y}px)`,
+          textAlign: "center",
+          padding: "0 80px",
+        }}
+      >
+        {lines.map((line, li) => {
+          const lineSpring = spring({
+            frame,
+            fps,
+            config: { damping: 14, mass: 0.8 },
+            delay: li * LINE_STAGGER,
+          });
+          // Slide in from the left: -1200px → 0
+          const slideX = interpolate(lineSpring, [0, 1], [-1200, 0]);
+          const opacity = interpolate(lineSpring, [0, 0.4], [0, 1], { extrapolateRight: "clamp" });
+          return (
+            <p
+              key={li}
+              style={{
+                fontSize,
+                fontFamily: fontConfig.fontFamily,
+                fontWeight: fontConfig.fontWeight ?? 700,
+                fontStyle: fontConfig.fontStyle ?? "normal",
+                color: textColor,
+                margin: 0,
+                lineHeight: fontConfig.lineHeight ?? 1.0,
+                letterSpacing: 8,
+                textTransform: "uppercase",
+                textShadow: textGlow,
+                opacity,
+                transform: `translateX(${slideX}px)`,
+                willChange: "transform, opacity",
+              }}
+            >
+              {line}
+            </p>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
   text,
   index,
@@ -1020,8 +1110,25 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         <KingOverlay text={text} sceneDuration={dur} />
       )}
 
+      {/* Slide-lines overlay — static 3D plane with lines sliding in from left */}
+      {resolvedLayout.slideLinesOverlay && (
+        <SlideLinesOverlay
+          text={text}
+          sceneDuration={dur}
+          colors={colors}
+          fontConfig={fontConfig}
+          fontSize={resolvedFontSize}
+          rotateZ={rZ ?? td?.rotateZ ?? 0}
+          rotateX={rX ?? td?.rotateX ?? 0}
+          perspective={persp ?? td?.perspective ?? 800}
+          y={resolvedY}
+          textColor={textColor}
+          textGlow={textGlow}
+        />
+      )}
+
       {/* Text overlay (skip for overlay scenes) */}
-      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && !resolvedLayout.kingOverlay && (() => {
+      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && !resolvedLayout.kingOverlay && !resolvedLayout.slideLinesOverlay && (() => {
         const textMode: TextMode = td?.mode ?? "normal";
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
