@@ -137,7 +137,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Grunge 3D", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
-    textDefaults: { y: 0, fontSize: 180, rotateZ: 35, rotateX: -32, perspective: 600 },
+    textDefaults: { y: 0, fontSize: 180, rotateZ: 25, rotateX: -32, perspective: 600 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -899,7 +899,7 @@ const SlideLinesOverlay: React.FC<{
         style={{
           // Static 3D plane rotation (matches Video Cube angle)
           transform: `perspective(${perspective}px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${y}px)`,
-          textAlign: "center",
+          textAlign: "left",
           padding: "0 80px",
         }}
       >
