@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -622,7 +622,31 @@ export default function Editor() {
                       </option>
                     ))}
                   </select>
-                  {isBattleLayout(scene.layout ?? i) ? (
+                  {isKillstreakOverlayLayout(scene.layout ?? i) ? (
+                    <span style={{ display: "flex", flex: 1, gap: 4 }}>
+                      <input
+                        style={{ ...styles.sceneInput, flex: "0 0 80px" }}
+                        value={(scene.text || "").split("|")[0]?.trim() || ""}
+                        onChange={(e) => {
+                          const parts = (scene.text || "").split("|");
+                          const u = parts[1]?.trim() || "";
+                          updateScene(i, "text", `${e.target.value}|${u}`);
+                        }}
+                        placeholder="#"
+                      />
+                      <input
+                        style={{ ...styles.sceneInput, flex: 1 }}
+                        maxLength={20}
+                        value={(scene.text || "").split("|")[1]?.trim() || ""}
+                        onChange={(e) => {
+                          const parts = (scene.text || "").split("|");
+                          const n = parts[0]?.trim() || "";
+                          updateScene(i, "text", `${n}|${e.target.value}`);
+                        }}
+                        placeholder="Username"
+                      />
+                    </span>
+                  ) : isBattleLayout(scene.layout ?? i) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
                         style={{ ...styles.sceneInput, flex: 1 }}

@@ -87,6 +87,7 @@ type SceneLayout = {
   battleOverlay?: boolean;
   battleSlide?: number;
   weeklyTitle?: boolean;
+  killstreakOverlay?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -180,6 +181,15 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 72, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
     customControls: [{ type: "weekPicker" }, { type: "videoMute" }] },
+  // Weekly Report — Killstreak slide (video background with number + username overlay)
+  { label: "Killstreak", category: "Weekly Report", characters: [],
+    backgroundVideo: { src: "/killstreak.webm", scale: 1, blendMode: "normal", startFrom: 0 },
+    killstreakOverlay: true,
+    videoFit: "contain",
+    defaultDuration: 5,
+    textDefaults: { y: 0, fontSize: 150, mode: "flat" },
+    customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
+    customControls: [{ type: "videoMute" }] },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -189,6 +199,8 @@ export const isBattleLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.battleOverlay === true;
 export const isWeeklyTitleLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.weeklyTitle === true;
+export const isKillstreakOverlayLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.killstreakOverlay === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -682,6 +694,72 @@ const WeeklyTitleOverlay: React.FC<{ text: string; sceneDuration: number }> = ({
   );
 };
 
+// Killstreak overlay — number + username fading in near the bottom, matches Videobox killstreak slide
+const KillstreakOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = frame / fps;
+  const FADE_START = 2.5;
+  const FADE_DUR = 0.5;
+  const localT = t - FADE_START;
+  const alpha = localT >= 0 ? Math.min(localT / FADE_DUR, 1.0) : 0;
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+  const exo2 = FONT_MAP["Exo 2"];
+  const anton = FONT_MAP["Anton"];
+
+  // Text stored as "number|username"
+  const parts = (text || "").split("|");
+  const number = (parts[0] || "").trim();
+  const username = (parts[1] || "").trim().slice(0, 20);
+
+  if (!number && !username) return null;
+
+  return (
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 12,
+      opacity: alpha * exit,
+      pointerEvents: "none" as const,
+    }}>
+      {/* Number — Exo 2 Extra Bold, #F2AD41, 150px, drop shadow */}
+      {number && (
+        <p style={{
+          position: "absolute",
+          left: 0,
+          width: "100%",
+          bottom: 450,
+          margin: 0,
+          textAlign: "center",
+          fontFamily: exo2.fontFamily,
+          fontWeight: 800,
+          fontStyle: "italic",
+          fontSize: 150,
+          color: "#F2AD41",
+          textShadow: "4px 4px 18px rgba(0,0,0,0.85)",
+        }}>{number}</p>
+      )}
+      {/* Username — Anton, white, 70px */}
+      {username && (
+        <p style={{
+          position: "absolute",
+          left: 0,
+          width: "100%",
+          bottom: 250,
+          margin: 0,
+          textAlign: "center",
+          fontFamily: anton.fontFamily,
+          fontWeight: 400,
+          fontSize: 70,
+          color: "#ffffff",
+          textTransform: "uppercase",
+        }}>{username}</p>
+      )}
+    </div>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
   text,
   index,
@@ -841,8 +919,13 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         <WeeklyTitleOverlay text={text} sceneDuration={dur} />
       )}
 
-      {/* Text overlay (skip for battle overlay and weekly title scenes) */}
-      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && (() => {
+      {/* Killstreak overlay — number + username */}
+      {resolvedLayout.killstreakOverlay && (
+        <KillstreakOverlay text={text} sceneDuration={dur} />
+      )}
+
+      {/* Text overlay (skip for overlay scenes) */}
+      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && (() => {
         const textMode: TextMode = td?.mode ?? "normal";
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
