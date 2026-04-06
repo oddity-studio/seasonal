@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -628,7 +628,24 @@ export default function Editor() {
                       </option>
                     ))}
                   </select>
-                  {isKillstreakOverlayLayout(scene.layout ?? i) || isKingOverlayLayout(scene.layout ?? i) ? (
+                  {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
+                    <span style={{ display: "flex", flex: 1, gap: 4 }}>
+                      {[0, 1, 2].map((li) => (
+                        <input
+                          key={li}
+                          style={{ ...styles.sceneInput, flex: 1 }}
+                          value={(scene.text || "").split("|")[li]?.trim() || ""}
+                          onChange={(e) => {
+                            const parts = (scene.text || "").split("|");
+                            while (parts.length < 3) parts.push("");
+                            parts[li] = e.target.value;
+                            updateScene(i, "text", parts.slice(0, 3).join("|"));
+                          }}
+                          placeholder={`Line ${li + 1}`}
+                        />
+                      ))}
+                    </span>
+                  ) : isKillstreakOverlayLayout(scene.layout ?? i) || isKingOverlayLayout(scene.layout ?? i) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
                         style={{ ...styles.sceneInput, flex: "0 0 80px" }}
