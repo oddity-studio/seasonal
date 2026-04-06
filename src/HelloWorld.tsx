@@ -91,6 +91,7 @@ type SceneLayout = {
   kingOverlay?: boolean;
   slideLinesOverlay?: boolean;
   slideLinesLabels?: [string, string, string];
+  slideLinesOffsetX?: number;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -145,6 +146,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
+    slideLinesOffsetX: -36,
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -32, perspective: 800 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
@@ -881,7 +883,8 @@ const SlideLinesOverlay: React.FC<{
   textColor: string;
   textGlow: string;
   labels?: [string, string, string];
-}> = ({ text, sceneDuration, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels }) => {
+  offsetX?: number;
+}> = ({ text, sceneDuration, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exitStart = sceneDuration - 30;
@@ -909,7 +912,7 @@ const SlideLinesOverlay: React.FC<{
       <div
         style={{
           // Shift the whole block 136px to the left of center
-          transform: `translateX(-136px)`,
+          transform: `translateX(${offsetX ?? -136}px)`,
         }}
       >
       <div
@@ -1219,6 +1222,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           textColor={textColor}
           textGlow={textGlow}
           labels={resolvedLayout.slideLinesLabels}
+          offsetX={resolvedLayout.slideLinesOffsetX}
         />
       )}
 
