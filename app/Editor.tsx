@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 
@@ -606,6 +606,9 @@ export default function Editor() {
                       if (isKillstreakOverlayLayout(layoutIdx) && !scene.text) {
                         updateScene(i, "text", "99|Player One");
                       }
+                      if (isKingOverlayLayout(layoutIdx) && !scene.text) {
+                        updateScene(i, "text", "3|Player One");
+                      }
                       if (isWeeklyTitleLayout(layoutIdx) && !scene.text) {
                         const now = new Date();
                         const sun = new Date(now);
@@ -625,7 +628,7 @@ export default function Editor() {
                       </option>
                     ))}
                   </select>
-                  {isKillstreakOverlayLayout(scene.layout ?? i) ? (
+                  {isKillstreakOverlayLayout(scene.layout ?? i) || isKingOverlayLayout(scene.layout ?? i) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
                         style={{ ...styles.sceneInput, flex: "0 0 80px" }}

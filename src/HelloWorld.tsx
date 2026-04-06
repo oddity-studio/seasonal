@@ -88,6 +88,7 @@ type SceneLayout = {
   battleSlide?: number;
   weeklyTitle?: boolean;
   killstreakOverlay?: boolean;
+  kingOverlay?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -190,6 +191,15 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 150, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
     customControls: [{ type: "videoMute" }] },
+  // Weekly Report — King slide (video background with username + "King of N Genres" overlay)
+  { label: "King", category: "Weekly Report", characters: [],
+    backgroundVideo: { src: "/king.webm", scale: 1, blendMode: "normal", startFrom: 0, muted: false },
+    kingOverlay: true,
+    videoFit: "contain",
+    defaultDuration: 8,
+    textDefaults: { y: 0, fontSize: 110, mode: "flat" },
+    customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
+    customControls: [{ type: "videoMute" }] },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -201,6 +211,8 @@ export const isWeeklyTitleLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.weeklyTitle === true;
 export const isKillstreakOverlayLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.killstreakOverlay === true;
+export const isKingOverlayLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.kingOverlay === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -760,6 +772,77 @@ const KillstreakOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ 
   );
 };
 
+// King overlay — username (top, gold) + "King of N Genres" (below, white), staggered fade-ins
+const KingOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = frame / fps;
+  const USER_FADE_START = 1.5;
+  const NUM_FADE_START = 2.5;
+  const FADE_DUR = 0.5;
+  const userAlpha = Math.min(Math.max(t - USER_FADE_START, 0) / FADE_DUR, 1.0);
+  const numAlpha = Math.min(Math.max(t - NUM_FADE_START, 0) / FADE_DUR, 1.0);
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+  const exo2 = FONT_MAP["Exo 2"];
+  const anton = FONT_MAP["Anton"];
+
+  // Text stored as "number|username"
+  const parts = (text || "").split("|");
+  const number = (parts[0] || "").trim();
+  const username = (parts[1] || "").trim().slice(0, 20);
+  const genreWord = number === "1" ? "Genre" : "Genres";
+  const numberText = number ? `King of ${number} ${genreWord}` : "";
+
+  if (!number && !username) return null;
+
+  return (
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 12,
+      opacity: exit,
+      pointerEvents: "none" as const,
+    }}>
+      {/* Username — Anton, gold (#F2AD41), 70px (on top) */}
+      {username && (
+        <p style={{
+          position: "absolute",
+          left: 0,
+          width: "100%",
+          bottom: 700,
+          margin: 0,
+          textAlign: "center",
+          fontFamily: anton.fontFamily,
+          fontWeight: 400,
+          fontSize: 70,
+          color: "#F2AD41",
+          textTransform: "uppercase",
+          opacity: userAlpha,
+        }}>{username}</p>
+      )}
+      {/* "King of N Genres" — Exo 2 italic 800, white, 110px, drop shadow (below) */}
+      {numberText && (
+        <p style={{
+          position: "absolute",
+          left: 0,
+          width: "100%",
+          bottom: 500,
+          margin: 0,
+          textAlign: "center",
+          fontFamily: exo2.fontFamily,
+          fontWeight: 800,
+          fontStyle: "italic",
+          fontSize: 110,
+          color: "#ffffff",
+          textShadow: "4px 4px 18px rgba(0,0,0,0.85)",
+          opacity: numAlpha,
+        }}>{numberText}</p>
+      )}
+    </div>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
   text,
   index,
@@ -924,8 +1007,13 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         <KillstreakOverlay text={text} sceneDuration={dur} />
       )}
 
+      {/* King overlay — username + "King of N Genres" */}
+      {resolvedLayout.kingOverlay && (
+        <KingOverlay text={text} sceneDuration={dur} />
+      )}
+
       {/* Text overlay (skip for overlay scenes) */}
-      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && (() => {
+      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && !resolvedLayout.kingOverlay && (() => {
         const textMode: TextMode = td?.mode ?? "normal";
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
