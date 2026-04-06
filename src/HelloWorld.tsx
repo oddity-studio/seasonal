@@ -949,6 +949,36 @@ const SlideLinesOverlay: React.FC<{
         })}
         </div>
 
+        {/* Layer 3: static labels, half font size, sits 50px above layer 1 rows */}
+        <div style={{
+          position: "absolute",
+          top: -50,
+          left: 0,
+          right: 0,
+          padding: "0 80px",
+          textAlign: "left",
+        }}>
+        {["Most Battles", "Most Wins", "Most Played Beats"].map((label, li) => (
+          <p
+            key={li}
+            style={{
+              fontSize: Math.round(fontSize * 0.5),
+              fontFamily: fontConfig.fontFamily,
+              fontWeight: fontConfig.fontWeight ?? 700,
+              fontStyle: fontConfig.fontStyle ?? "normal",
+              color: textColor,
+              margin: 0,
+              lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
+              letterSpacing: 4,
+              textTransform: "uppercase",
+              textShadow: textGlow,
+            }}
+          >
+            {label}
+          </p>
+        ))}
+        </div>
+
         {/* Layer 2: right-justified, small black numbers, fades in interleaved with layer 1 */}
         <div style={{
           position: "absolute",
