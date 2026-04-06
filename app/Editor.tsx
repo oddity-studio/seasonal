@@ -488,6 +488,7 @@ export default function Editor() {
             />
           </div>
           {!recordingMode && (
+            <>
             <button
               style={{
                 ...styles.downloadButton,
@@ -523,6 +524,7 @@ export default function Editor() {
             >
               Render Hardware
             </button>
+            </>
           )}
         </div>
 
