@@ -703,7 +703,15 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   // Use scene-level values if provided, otherwise fall back to layout defaults
   const resolvedLayout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
   const td = resolvedLayout.textDefaults;
-  const backgroundVideo = backgroundVideoProp ?? resolvedLayout.backgroundVideo;
+  // Merge scene-level backgroundVideo over layout default so partial overrides
+  // (e.g. toggling `muted` only) don't wipe out the layout's `src`.
+  const backgroundVideo = resolvedLayout.backgroundVideo || backgroundVideoProp
+    ? { ...(resolvedLayout.backgroundVideo ?? {}), ...(backgroundVideoProp ?? {}) } as Scene["backgroundVideo"]
+    : undefined;
+  // If the scene-level override has an empty src, fall back to the layout default src
+  if (backgroundVideo && !backgroundVideo.src && resolvedLayout.backgroundVideo?.src) {
+    backgroundVideo.src = resolvedLayout.backgroundVideo.src;
+  }
   const resolvedFontSize = fontSize ?? td?.fontSize ?? 150;
   const resolvedX = xOffset || td?.x || 0;
   const resolvedY = yOffset || td?.y || 0;
