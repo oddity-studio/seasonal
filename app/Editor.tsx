@@ -135,7 +135,7 @@ export default function Editor() {
     e.target.value = "";
   }, []);
 
-  const handleDownload = useCallback(async () => {
+  const handleDownload = useCallback(async (hwPref: HardwareAcceleration = "no-preference") => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
       alert(
         'Screen capture not supported. Use Chrome or run "npm run render" for offline export.',
@@ -219,6 +219,7 @@ export default function Editor() {
         height: 1280,
         bitrate: 10_000_000,
         framerate: FPS,
+        hardwareAcceleration: hwPref,
       });
 
       // Audio encoder (AAC)
@@ -493,12 +494,34 @@ export default function Editor() {
                 opacity: rendering ? 0.6 : 1,
                 cursor: rendering ? "not-allowed" : "pointer",
               }}
-              onClick={handleDownload}
+              onClick={() => handleDownload("no-preference")}
               disabled={rendering}
             >
               {rendering
                 ? `Recording\u2026 ${renderProgress}%`
                 : "Download MP4"}
+            </button>
+            <button
+              style={{
+                ...styles.downloadButton,
+                opacity: rendering ? 0.6 : 1,
+                cursor: rendering ? "not-allowed" : "pointer",
+              }}
+              onClick={() => handleDownload("prefer-software")}
+              disabled={rendering}
+            >
+              Render Software
+            </button>
+            <button
+              style={{
+                ...styles.downloadButton,
+                opacity: rendering ? 0.6 : 1,
+                cursor: rendering ? "not-allowed" : "pointer",
+              }}
+              onClick={() => handleDownload("prefer-hardware")}
+              disabled={rendering}
+            >
+              Render Hardware
             </button>
           )}
         </div>
