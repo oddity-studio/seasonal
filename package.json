@@ -27,6 +27,8 @@
     "@remotion/renderer": "4.0.438",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "html-to-image": "^1.11.13",
+    "jszip": "^3.10.1",
     "lottie-web": "^5.13.0",
     "mp4-muxer": "^5.2.2",
     "next": "16.2.1",
