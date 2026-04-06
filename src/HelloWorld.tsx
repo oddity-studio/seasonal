@@ -200,6 +200,14 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 110, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
     customControls: [{ type: "videoMute" }] },
+  // Weekly Report — Outro slide (logo video with flat white text like S12 Logo)
+  { label: "Outro", category: "Weekly Report", characters: [],
+    backgroundVideo: { src: "/logo.webm", scale: 1, blendMode: "normal", startFrom: 0, muted: false },
+    videoFit: "contain",
+    defaultDuration: 5,
+    textDefaults: { y: 0, fontSize: 100, mode: "flat" },
+    customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
+    customControls: [{ type: "videoMute" }] },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
