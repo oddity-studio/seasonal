@@ -5,6 +5,7 @@ import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
 import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
+import { AUTOMATE_PARSERS } from "./automateParsers";
 
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
@@ -17,6 +18,8 @@ export default function Editor() {
   const playerRef = useRef<PlayerRef>(null);
   const loadInputRef = useRef<HTMLInputElement>(null);
   const [presetNames, setPresetNames] = useState<string[]>([]);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [automateText, setAutomateText] = useState("");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -34,7 +37,10 @@ export default function Editor() {
       .then((r) => r.json())
       .then((data) => {
         const parsed = videoPropsSchema.safeParse(data);
-        if (parsed.success) setProps(parsed.data);
+        if (parsed.success) {
+          setProps(parsed.data);
+          setSelectedPreset(name);
+        }
       })
       .catch(() => {});
   }, []);
@@ -554,6 +560,34 @@ export default function Editor() {
                 </label>
               </div>
             </div>
+
+            {selectedPreset && AUTOMATE_PARSERS[selectedPreset] && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={styles.scenesHeader}>
+                  <span style={styles.label}>{AUTOMATE_PARSERS[selectedPreset].label}</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
+                  <textarea
+                    value={automateText}
+                    onChange={(e) => setAutomateText(e.target.value)}
+                    placeholder="Paste weekly report text here..."
+                    rows={6}
+                    style={{ flex: 1, padding: 8, fontFamily: "monospace", fontSize: 12, resize: "vertical" }}
+                  />
+                  <button
+                    style={styles.addButton}
+                    onClick={() => {
+                      const entry = AUTOMATE_PARSERS[selectedPreset];
+                      if (!entry) return;
+                      const next = entry.parser(automateText, props.scenes);
+                      setProps((prev) => ({ ...prev, scenes: next }));
+                    }}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div style={styles.scenesHeader}>
               <span style={styles.label}>Scenes</span>
