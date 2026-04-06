@@ -112,8 +112,6 @@ export const parseWeeklyReport: AutomateParser = (text, currentScenes) => {
   const stats1Text = buildStatsText(stats1);
   const stats2Text = buildStatsText(stats2);
 
-  const logoText = LOGO_SHUFFLE_LINES[Math.floor(Math.random() * LOGO_SHUFFLE_LINES.length)];
-
   // Scene index → new text (only overwrite when parser produced a value).
   // Order matches the Weekly Report preset:
   //   0: Weekly Title, 1: Weekly Stats 1, 2: Killstreak,
@@ -124,7 +122,6 @@ export const parseWeeklyReport: AutomateParser = (text, currentScenes) => {
     2: ks ? `${ks.number}|${ks.username}` : null,
     3: stats2Text,
     4: king ? `${king.number}|${king.username}` : null,
-    5: logoText,
   };
 
   return currentScenes.map((scene, i) => {

@@ -562,20 +562,27 @@ export default function Editor() {
             </div>
 
             {selectedPreset && AUTOMATE_PARSERS[selectedPreset] && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 8 }}>
                 <div style={styles.scenesHeader}>
-                  <span style={styles.label}>{AUTOMATE_PARSERS[selectedPreset].label}</span>
+                  <span style={{ ...styles.label, flexDirection: "row" }}>{AUTOMATE_PARSERS[selectedPreset].label}</span>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
                   <textarea
                     value={automateText}
                     onChange={(e) => setAutomateText(e.target.value)}
-                    placeholder="Paste weekly report text here..."
+                    placeholder="Paste weekly report text here…"
                     rows={6}
-                    style={{ flex: 1, padding: 8, fontFamily: "monospace", fontSize: 12, resize: "vertical" }}
+                    style={{
+                      ...styles.input,
+                      flex: 1,
+                      fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                      fontSize: 12,
+                      lineHeight: 1.4,
+                      resize: "vertical",
+                    }}
                   />
                   <button
-                    style={styles.addButton}
+                    style={{ ...styles.addButton, alignSelf: "stretch", padding: "0 16px" }}
                     onClick={() => {
                       const entry = AUTOMATE_PARSERS[selectedPreset];
                       if (!entry) return;
