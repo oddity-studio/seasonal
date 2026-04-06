@@ -629,22 +629,45 @@ export default function Editor() {
                     ))}
                   </select>
                   {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
-                    <span style={{ display: "flex", flex: 1, gap: 4 }}>
-                      {[0, 1, 2].map((li) => (
-                        <input
-                          key={li}
-                          style={{ ...styles.sceneInput, flex: 1 }}
-                          value={(scene.text || "").split("|")[li]?.trim() || ""}
-                          onChange={(e) => {
-                            const parts = (scene.text || "").split("|");
-                            while (parts.length < 3) parts.push("");
-                            parts[li] = e.target.value;
-                            updateScene(i, "text", parts.slice(0, 3).join("|"));
-                          }}
-                          placeholder={`Line ${li + 1}`}
-                        />
-                      ))}
-                    </span>
+                    (() => {
+                      const [rawA = "", rawB = ""] = (scene.text || "").split("||");
+                      const layer1 = rawA.split("|");
+                      const layer2 = rawB.split("|");
+                      while (layer1.length < 3) layer1.push("");
+                      while (layer2.length < 3) layer2.push("");
+                      const save = (l1: string[], l2: string[]) => {
+                        updateScene(i, "text", `${l1.slice(0, 3).join("|")}||${l2.slice(0, 3).join("|")}`);
+                      };
+                      return (
+                        <span style={{ display: "flex", flex: 1, gap: 4 }}>
+                          {[0, 1, 2].map((li) => (
+                            <span key={li} style={{ display: "flex", flex: 1, gap: 2 }}>
+                              <input
+                                style={{ ...styles.sceneInput, flex: 1 }}
+                                value={layer1[li]?.trim() || ""}
+                                onChange={(e) => {
+                                  const next = [...layer1];
+                                  next[li] = e.target.value;
+                                  save(next, layer2);
+                                }}
+                                placeholder={`Line ${li + 1}`}
+                              />
+                              <input
+                                style={{ ...styles.sceneInput, flex: "0 0 56px" }}
+                                maxLength={4}
+                                value={layer2[li]?.trim() || ""}
+                                onChange={(e) => {
+                                  const next = [...layer2];
+                                  next[li] = e.target.value;
+                                  save(layer1, next);
+                                }}
+                                placeholder="#"
+                              />
+                            </span>
+                          ))}
+                        </span>
+                      );
+                    })()
                   ) : isKillstreakOverlayLayout(scene.layout ?? i) || isKingOverlayLayout(scene.layout ?? i) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input

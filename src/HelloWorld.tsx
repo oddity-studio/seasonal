@@ -878,9 +878,11 @@ const SlideLinesOverlay: React.FC<{
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
-  // Split on "|" for up to 3 lines
-  const lines = (text || "").split("|").map((s) => s.trim()).slice(0, 3);
-  const LINE_STAGGER = 10; // frames between successive line entrances
+  // Two layers: "layer1|a|b|c||x|y|z" → [["a","b","c"], ["x","y","z"]]
+  const [layer1Raw, layer2Raw = ""] = (text || "").split("||");
+  const lines = layer1Raw.split("|").map((s) => s.trim()).slice(0, 3);
+  const lines2 = layer2Raw.split("|").map((s) => s.trim()).slice(0, 3);
+  const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
 
   return (
     <div
@@ -912,11 +914,12 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 1: left-justified, slides in from the left */}
         <div style={{ textAlign: "left" }}>
         {lines.map((line, li) => {
+          // Interleave with layer 2: L1.i uses slot (i*2), L2.i uses slot (i*2 + 1)
           const lineSpring = spring({
             frame,
             fps,
             config: { damping: 14, mass: 0.8 },
-            delay: li * LINE_STAGGER,
+            delay: (li * 2) * LINE_STAGGER,
           });
           // Slide in from the left: -1200px → 0
           const slideX = interpolate(lineSpring, [0, 1], [-1200, 0]);
@@ -946,7 +949,7 @@ const SlideLinesOverlay: React.FC<{
         })}
         </div>
 
-        {/* Layer 2: right-justified, black letters, fades in with the same stagger */}
+        {/* Layer 2: right-justified, small black numbers, fades in interleaved with layer 1 */}
         <div style={{
           position: "absolute",
           top: 0,
@@ -955,26 +958,27 @@ const SlideLinesOverlay: React.FC<{
           padding: "0 80px",
           textAlign: "right",
         }}>
-        {lines.map((line, li) => {
+        {lines2.map((line, li) => {
           const lineSpring = spring({
             frame,
             fps,
             config: { damping: 14, mass: 0.8 },
-            delay: li * LINE_STAGGER,
+            delay: (li * 2 + 1) * LINE_STAGGER,
           });
           const opacity = interpolate(lineSpring, [0, 0.4], [0, 1], { extrapolateRight: "clamp" });
           return (
             <p
               key={li}
               style={{
-                fontSize,
+                fontSize: Math.round(fontSize * 0.45),
                 fontFamily: fontConfig.fontFamily,
                 fontWeight: fontConfig.fontWeight ?? 700,
                 fontStyle: fontConfig.fontStyle ?? "normal",
                 color: "#000000",
                 margin: 0,
-                lineHeight: (fontConfig.lineHeight ?? 1.0) * 2,
-                letterSpacing: 8,
+                // Match layer 1 row height so the small numbers sit on the same rows as the big lines
+                lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2)}px`,
+                letterSpacing: 4,
                 textTransform: "uppercase",
                 opacity,
                 willChange: "opacity",
