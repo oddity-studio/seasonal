@@ -140,14 +140,14 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
-    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 800 },
+    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Weekly Stats 2", category: "Weekly Report", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
     slideLinesOffsetX: -36,
-    textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 800 },
+    textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -884,7 +884,7 @@ const SlideLinesOverlay: React.FC<{
   textGlow: string;
   labels?: [string, string, string];
   offsetX?: number;
-}> = ({ text, sceneDuration, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX }) => {
+}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exitStart = sceneDuration - 30;
@@ -978,7 +978,7 @@ const SlideLinesOverlay: React.FC<{
               fontFamily: fontConfig.fontFamily,
               fontWeight: fontConfig.fontWeight ?? 700,
               fontStyle: fontConfig.fontStyle ?? "normal",
-              color: textColor,
+              color: colors.highlight,
               margin: 0,
               lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
               letterSpacing: 4,
