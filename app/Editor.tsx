@@ -571,7 +571,7 @@ export default function Editor() {
                     value={automateText}
                     onChange={(e) => setAutomateText(e.target.value)}
                     placeholder="Paste weekly report text here…"
-                    rows={6}
+                    rows={1}
                     style={{
                       ...styles.input,
                       flex: 1,
