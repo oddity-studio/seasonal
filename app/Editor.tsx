@@ -22,37 +22,57 @@ export default function Editor() {
   const [automateText, setAutomateText] = useState("");
   const [thumbMissing, setThumbMissing] = useState<Record<number, boolean>>({});
   const [bakingIdx, setBakingIdx] = useState<number | null>(null);
+  const [showDevTools, setShowDevTools] = useState(false);
   const bakeContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "`" && !["INPUT","TEXTAREA","SELECT"].includes((e.target as HTMLElement)?.tagName)) {
+        setShowDevTools((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const handleBakeAllThumbs = useCallback(async () => {
     const html2canvas = (await import("html2canvas")).default;
     const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
-    for (let i = 0; i < LAYOUT_OPTIONS.length; i++) {
-      setBakingIdx(i);
-      // wait for DOM + videos/images to settle
-      await new Promise((r) => setTimeout(r, 1500));
-      const node = bakeContainerRef.current;
-      if (!node) continue;
-      try {
-        const canvas = await html2canvas(node, {
-          width: 1080,
-          height: 1920,
-          windowWidth: 1080,
-          windowHeight: 1920,
-          backgroundColor: null,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          scale: 1,
-        });
-        const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
-        if (blob) zip.file(`${i}.png`, blob);
-      } catch (e) {
-        console.error("bake failed for", i, e);
-      }
+    const savedProps = props;
+    const playerWrap = document.querySelector(".player-wrap") as HTMLElement | null;
+    if (!playerWrap) {
+      alert("Player not found");
+      return;
     }
-    setBakingIdx(null);
+    try {
+      for (let i = 0; i < LAYOUT_OPTIONS.length; i++) {
+        setBakingIdx(i);
+        // Set the visible player to a single scene of this layout
+        setProps((prev) => ({
+          ...prev,
+          scenes: [{ text: LAYOUT_OPTIONS[i].category, fontSize: 100, layout: i }],
+        }));
+        // Wait for the player to render + videos to seek
+        await new Promise((r) => setTimeout(r, 1500));
+        try {
+          const canvas = await html2canvas(playerWrap, {
+            backgroundColor: null,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            scale: 1,
+          });
+          const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
+          if (blob) zip.file(`${i}.png`, blob);
+        } catch (e) {
+          console.error("bake failed for", i, e);
+        }
+      }
+    } finally {
+      setProps(savedProps);
+      setBakingIdx(null);
+    }
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -60,7 +80,7 @@ export default function Editor() {
     a.download = "thumbs.zip";
     a.click();
     URL.revokeObjectURL(url);
-  }, []);
+  }, [props]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -502,28 +522,32 @@ export default function Editor() {
                 ? `Recording\u2026 ${renderProgress}%`
                 : "Download MP4"}
             </button>
-            <button
-              style={{
-                ...styles.downloadButton,
-                opacity: rendering ? 0.6 : 1,
-                cursor: rendering ? "not-allowed" : "pointer",
-              }}
-              onClick={() => handleDownload("prefer-software")}
-              disabled={rendering}
-            >
-              Render Software
-            </button>
-            <button
-              style={{
-                ...styles.downloadButton,
-                opacity: rendering ? 0.6 : 1,
-                cursor: rendering ? "not-allowed" : "pointer",
-              }}
-              onClick={() => handleDownload("prefer-hardware")}
-              disabled={rendering}
-            >
-              Render Hardware
-            </button>
+            {showDevTools && (
+              <>
+                <button
+                  style={{
+                    ...styles.downloadButton,
+                    opacity: rendering ? 0.6 : 1,
+                    cursor: rendering ? "not-allowed" : "pointer",
+                  }}
+                  onClick={() => handleDownload("prefer-software")}
+                  disabled={rendering}
+                >
+                  Render Software
+                </button>
+                <button
+                  style={{
+                    ...styles.downloadButton,
+                    opacity: rendering ? 0.6 : 1,
+                    cursor: rendering ? "not-allowed" : "pointer",
+                  }}
+                  onClick={() => handleDownload("prefer-hardware")}
+                  disabled={rendering}
+                >
+                  Render Hardware
+                </button>
+              </>
+            )}
             </>
           )}
         </div>
@@ -551,13 +575,15 @@ export default function Editor() {
                 >
                   Scene Gallery
                 </button>
-                <button
-                  style={styles.galleryButton}
-                  onClick={handleBakeAllThumbs}
-                  disabled={bakingIdx !== null}
-                >
-                  {bakingIdx !== null ? `Baking ${bakingIdx + 1}/${LAYOUT_OPTIONS.length}…` : "Bake Thumbs"}
-                </button>
+                {showDevTools && (
+                  <button
+                    style={styles.galleryButton}
+                    onClick={handleBakeAllThumbs}
+                    disabled={bakingIdx !== null}
+                  >
+                    {bakingIdx !== null ? `Baking ${bakingIdx + 1}/${LAYOUT_OPTIONS.length}…` : "Bake Thumbs"}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -982,32 +1008,6 @@ export default function Editor() {
           </div>
         )}
       </div>
-
-      {/* Offscreen bake target — fixed 1080x1920, kept out of viewport */}
-      {bakingIdx !== null && (
-        <div
-          ref={bakeContainerRef}
-          style={{ position: "fixed", left: 0, top: 0, width: 1080, height: 1920, pointerEvents: "none", opacity: 0, zIndex: -1 }}
-        >
-          <Thumbnail
-            component={HelloWorld}
-            inputProps={{
-              ...props,
-              scenes: [{
-                text: LAYOUT_OPTIONS[bakingIdx]?.category ?? "",
-                fontSize: 100,
-                layout: bakingIdx,
-              }],
-            }}
-            durationInFrames={SCENE_DURATION}
-            fps={FPS}
-            compositionWidth={1080}
-            compositionHeight={1920}
-            frameToDisplay={60}
-            style={{ width: 1080, height: 1920 }}
-          />
-        </div>
-      )}
 
       {/* Gallery Modal */}
       {showGallery && (
