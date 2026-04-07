@@ -236,6 +236,209 @@ export default function Editor() {
     e.target.value = "";
   }, []);
 
+  const renderClipBlob = useCallback(async (
+    clipProps: VideoProps,
+    displayStream: MediaStream,
+    hwPref: HardwareAcceleration,
+    onProgress: (pct: number) => void,
+  ): Promise<Blob> => {
+    const playerWrap = document.querySelector(".player-wrap") as HTMLElement;
+    if (!playerWrap) throw new Error("Player element not found");
+
+    const totalFramesLocal = getTotalFrames(clipProps);
+    const durationMs = (totalFramesLocal / FPS) * 1000;
+
+    // Pre-load and decode audio
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const audioCtx = new AudioContext();
+    let audioBuf: AudioBuffer;
+    if (!clipProps.music || clipProps.music === "none") {
+      audioBuf = audioCtx.createBuffer(2, audioCtx.sampleRate, audioCtx.sampleRate);
+    } else {
+      const audioResp = await fetch(`${BASE}/picker/music/${clipProps.music}`);
+      audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
+    }
+    await audioCtx.close();
+
+    const { Muxer, ArrayBufferTarget } = await import("mp4-muxer");
+    const target = new ArrayBufferTarget();
+    const muxer = new Muxer({
+      target,
+      firstTimestampBehavior: "offset",
+      video: { codec: "avc", width: 720, height: 1280 },
+      audio: {
+        codec: "aac",
+        sampleRate: audioBuf.sampleRate,
+        numberOfChannels: audioBuf.numberOfChannels,
+      },
+      fastStart: "in-memory",
+    });
+
+    const videoEncoder = new VideoEncoder({
+      output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+      error: (e) => console.error("VideoEncoder:", e),
+    });
+    videoEncoder.configure({
+      codec: "avc1.640034",
+      width: 720,
+      height: 1280,
+      bitrate: 10_000_000,
+      framerate: FPS,
+      hardwareAcceleration: hwPref,
+    });
+
+    const audioEncoder = new AudioEncoder({
+      output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+      error: (e) => console.error("AudioEncoder:", e),
+    });
+    audioEncoder.configure({
+      codec: "mp4a.40.2",
+      sampleRate: audioBuf.sampleRate,
+      numberOfChannels: audioBuf.numberOfChannels,
+      bitrate: 128_000,
+    });
+
+    let cropSuccess = false;
+    // @ts-expect-error CropTarget
+    if (typeof CropTarget !== "undefined") {
+      try {
+        // @ts-expect-error
+        const ct = await CropTarget.fromElement(playerWrap);
+        // @ts-expect-error
+        await displayStream.getVideoTracks()[0].cropTo(ct);
+        cropSuccess = true;
+      } catch {}
+    }
+
+    const rect = playerWrap.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const sx = Math.round(rect.left * dpr);
+    const sy = Math.round(rect.top * dpr);
+    const sw = Math.round(rect.width * dpr);
+    const sh = Math.round(rect.height * dpr);
+
+    const offscreen = new OffscreenCanvas(720, 1280);
+    const offCtx = offscreen.getContext("2d")!;
+
+    playerRef.current?.seekTo(0);
+    playerRef.current?.play();
+    const startTime = performance.now();
+    let frameCount = 0;
+
+    const videoTrack = displayStream.getVideoTracks()[0];
+    const processor = new MediaStreamTrackProcessor({ track: videoTrack });
+    const reader = processor.readable.getReader();
+
+    while (true) {
+      const { value: frame, done } = await reader.read();
+      if (done || !frame) break;
+      const elapsed = performance.now() - startTime;
+      if (elapsed >= durationMs) {
+        frame.close();
+        break;
+      }
+      if (cropSuccess) offCtx.drawImage(frame, 0, 0, 720, 1280);
+      else offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, 720, 1280);
+      const outputFrame = new VideoFrame(offscreen, { timestamp: frame.timestamp });
+      videoEncoder.encode(outputFrame, { keyFrame: frameCount % 120 === 0 });
+      outputFrame.close();
+      frame.close();
+      frameCount++;
+      onProgress(Math.min(95, Math.round((elapsed / durationMs) * 100)));
+    }
+
+    playerRef.current?.pause();
+    reader.cancel();
+
+    const CHUNK_SIZE = 1024;
+    const maxSamples = Math.min(audioBuf.length, Math.ceil((audioBuf.sampleRate * durationMs) / 1000));
+    for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
+      const len = Math.min(CHUNK_SIZE, maxSamples - i);
+      const data = new Float32Array(len * audioBuf.numberOfChannels);
+      for (let c = 0; c < audioBuf.numberOfChannels; c++) {
+        data.set(audioBuf.getChannelData(c).subarray(i, i + len), c * len);
+      }
+      const ad = new AudioData({
+        format: "f32-planar",
+        sampleRate: audioBuf.sampleRate,
+        numberOfFrames: len,
+        numberOfChannels: audioBuf.numberOfChannels,
+        timestamp: Math.round((i / audioBuf.sampleRate) * 1_000_000),
+        data,
+      });
+      audioEncoder.encode(ad);
+      ad.close();
+    }
+
+    await videoEncoder.flush();
+    await audioEncoder.flush();
+    videoEncoder.close();
+    audioEncoder.close();
+    muxer.finalize();
+
+    onProgress(100);
+    return new Blob([target.buffer], { type: "video/mp4" });
+  }, []);
+
+  const handleDownloadPerScene = useCallback(async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia || typeof VideoEncoder === "undefined") {
+      alert("Screen capture or video encoding not supported.");
+      return;
+    }
+    let displayStream: MediaStream | null = null;
+    try {
+      displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: FPS } },
+        // @ts-expect-error preferCurrentTab
+        preferCurrentTab: true,
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "NotAllowedError") return;
+      throw err;
+    }
+
+    const savedProps = props;
+    const scenes = props.scenes;
+    setRendering(true);
+    setRecordingMode(true);
+    setRenderProgress(0);
+    await new Promise((r) => setTimeout(r, 600));
+
+    const JSZip = (await import("jszip")).default;
+    const zip = new JSZip();
+
+    try {
+      for (let i = 0; i < scenes.length; i++) {
+        const sceneProps: VideoProps = { ...savedProps, music: "none", scenes: [scenes[i]] };
+        setProps(sceneProps);
+        await new Promise((r) => setTimeout(r, 800));
+        const blob = await renderClipBlob(
+          sceneProps,
+          displayStream,
+          "no-preference",
+          (pct) => setRenderProgress(Math.round(((i + pct / 100) / scenes.length) * 100)),
+        );
+        zip.file(`scene-${String(i + 1).padStart(2, "0")}.mp4`, blob);
+      }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "scenes.zip";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Per-scene render failed. See console.");
+    } finally {
+      displayStream?.getTracks().forEach((t) => t.stop());
+      setProps(savedProps);
+      setRendering(false);
+      setRecordingMode(false);
+      setRenderProgress(0);
+    }
+  }, [props, renderClipBlob]);
+
   const handleDownload = useCallback(async (hwPref: HardwareAcceleration = "no-preference") => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
       alert(
@@ -602,6 +805,17 @@ export default function Editor() {
               {rendering
                 ? `Recording\u2026 ${renderProgress}%`
                 : "Download MP4"}
+            </button>
+            <button
+              style={{
+                ...styles.downloadButton,
+                opacity: rendering ? 0.6 : 1,
+                cursor: rendering ? "not-allowed" : "pointer",
+              }}
+              onClick={handleDownloadPerScene}
+              disabled={rendering}
+            >
+              Download Scenes ZIP
             </button>
             {showDevTools && (
               <>
