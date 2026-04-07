@@ -40,28 +40,34 @@ export default function Editor() {
     const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
     const savedProps = props;
-    const playerWrap = document.querySelector(".player-wrap") as HTMLElement | null;
-    if (!playerWrap) {
+    const node = playerRef.current?.getContainerNode() ?? (document.querySelector(".player-wrap") as HTMLElement | null);
+    if (!node) {
       alert("Player not found");
       return;
     }
     try {
       for (let i = 0; i < LAYOUT_OPTIONS.length; i++) {
         setBakingIdx(i);
-        // Set the visible player to a single scene of this layout
         setProps((prev) => ({
           ...prev,
           scenes: [{ text: LAYOUT_OPTIONS[i].category, fontSize: 100, layout: i }],
         }));
-        // Wait for the player to render + videos to seek
+        // Wait for React to commit, then seek the player to a stable frame, then settle.
+        await new Promise((r) => setTimeout(r, 200));
+        try { playerRef.current?.seekTo(60); } catch {}
         await new Promise((r) => setTimeout(r, 1500));
         try {
-          const canvas = await html2canvas(playerWrap, {
-            backgroundColor: null,
+          const rect = node.getBoundingClientRect();
+          const canvas = await html2canvas(node, {
+            backgroundColor: "#000000",
             useCORS: true,
             allowTaint: true,
             logging: false,
             scale: 1,
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: document.documentElement.clientHeight,
           });
           const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
           if (blob) zip.file(`${i}.png`, blob);
