@@ -35,6 +35,81 @@ export default function Editor() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const handleBakeFrame = useCallback(async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      alert("Screen capture not supported.");
+      return;
+    }
+    let displayStream: MediaStream | null = null;
+    try {
+      displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: 30 } },
+        // @ts-expect-error preferCurrentTab is a newer Chrome API
+        preferCurrentTab: true,
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "NotAllowedError") return;
+      throw err;
+    }
+    setRecordingMode(true);
+    await new Promise((r) => setTimeout(r, 600));
+    try {
+      const playerWrap = document.querySelector(".player-wrap") as HTMLElement;
+      if (!playerWrap) throw new Error("Player not found");
+
+      // Try CropTarget for an exact crop
+      let cropSuccess = false;
+      // @ts-expect-error CropTarget newer Chrome API
+      if (typeof CropTarget !== "undefined") {
+        try {
+          // @ts-expect-error
+          const ct = await CropTarget.fromElement(playerWrap);
+          // @ts-expect-error
+          await displayStream.getVideoTracks()[0].cropTo(ct);
+          cropSuccess = true;
+        } catch {}
+      }
+      const rect = playerWrap.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const sx = Math.round(rect.left * dpr);
+      const sy = Math.round(rect.top * dpr);
+      const sw = Math.round(rect.width * dpr);
+      const sh = Math.round(rect.height * dpr);
+
+      // Read one frame from the track
+      const track = displayStream.getVideoTracks()[0];
+      const processor = new MediaStreamTrackProcessor({ track });
+      const reader = processor.readable.getReader();
+      // Skip a couple of frames to let cropTo settle
+      for (let i = 0; i < 3; i++) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (i < 2) value?.close();
+        else if (value) {
+          const out = new OffscreenCanvas(1080, 1920);
+          const ctx = out.getContext("2d")!;
+          if (cropSuccess) ctx.drawImage(value, 0, 0, 1080, 1920);
+          else ctx.drawImage(value, sx, sy, sw, sh, 0, 0, 1080, 1920);
+          value.close();
+          const blob = await out.convertToBlob({ type: "image/png" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          // Name by current first scene's layout index if any
+          const layoutIdx = props.scenes[0]?.layout ?? 0;
+          a.href = url;
+          a.download = `${layoutIdx}.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+          break;
+        }
+      }
+      reader.cancel();
+    } finally {
+      displayStream?.getTracks().forEach((t) => t.stop());
+      setRecordingMode(false);
+    }
+  }, [props.scenes]);
+
   const handleBakeAllThumbs = useCallback(async () => {
     const html2canvas = (await import("html2canvas")).default;
     const JSZip = (await import("jszip")).default;
@@ -582,13 +657,21 @@ export default function Editor() {
                   Scene Gallery
                 </button>
                 {showDevTools && (
-                  <button
-                    style={styles.galleryButton}
-                    onClick={handleBakeAllThumbs}
-                    disabled={bakingIdx !== null}
-                  >
-                    {bakingIdx !== null ? `Baking ${bakingIdx + 1}/${LAYOUT_OPTIONS.length}…` : "Bake Thumbs"}
-                  </button>
+                  <>
+                    <button
+                      style={styles.galleryButton}
+                      onClick={handleBakeFrame}
+                    >
+                      Bake Frame
+                    </button>
+                    <button
+                      style={styles.galleryButton}
+                      onClick={handleBakeAllThumbs}
+                      disabled={bakingIdx !== null}
+                    >
+                      {bakingIdx !== null ? `Baking ${bakingIdx + 1}/${LAYOUT_OPTIONS.length}…` : "Bake Thumbs"}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
