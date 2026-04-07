@@ -1148,7 +1148,7 @@ export default function Editor() {
                             />
                           ) : (
                             <img
-                              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/picker/thumbs/${opt.index}.png`}
+                              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/picker/thumbs/${opt.index}.webp`}
                               alt={opt.label}
                               loading="lazy"
                               onError={() => setThumbMissing((prev) => ({ ...prev, [opt.index]: true }))}
