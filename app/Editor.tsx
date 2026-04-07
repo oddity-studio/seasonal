@@ -325,7 +325,7 @@ export default function Editor() {
     const startTime = performance.now();
     let frameCount = 0;
 
-    const videoTrack = displayStream.getVideoTracks()[0];
+    const videoTrack = displayStream.getVideoTracks()[0].clone();
     const processor = new MediaStreamTrackProcessor({ track: videoTrack });
     const reader = processor.readable.getReader();
 
@@ -348,7 +348,9 @@ export default function Editor() {
     }
 
     playerRef.current?.pause();
-    reader.cancel();
+    try { await reader.cancel(); } catch {}
+    try { reader.releaseLock(); } catch {}
+    try { videoTrack.stop(); } catch {}
 
     const CHUNK_SIZE = 1024;
     const maxSamples = Math.min(audioBuf.length, Math.ceil((audioBuf.sampleRate * durationMs) / 1000));
