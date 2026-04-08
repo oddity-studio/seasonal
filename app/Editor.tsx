@@ -1662,7 +1662,7 @@ const styles: Record<string, React.CSSProperties> = {
     top: 0,
     right: 0,
     bottom: 0,
-    width: 520,
+    width: 390,
     maxWidth: "90vw",
     backgroundColor: "#111118",
     borderLeft: "1px solid #1e293b",
