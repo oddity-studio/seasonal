@@ -690,13 +690,6 @@ export default function Editor() {
     }));
   };
 
-  const addScene = () => {
-    setProps((prev) => ({
-      ...prev,
-      scenes: [...prev.scenes, { text: "", fontSize: 150 }],
-    }));
-  };
-
   const updateColor = (key: keyof ColorScheme, value: string) => {
     setProps((prev) => ({
       ...prev,
@@ -872,12 +865,6 @@ export default function Editor() {
                     <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
-                <button
-                  style={styles.galleryButton}
-                  onClick={() => setShowGallery(true)}
-                >
-                  Scene Gallery
-                </button>
                 {showDevTools && (
                   <>
                     <button
@@ -1008,7 +995,7 @@ export default function Editor() {
 
             <div style={styles.scenesHeader}>
               <span style={styles.label}>Scenes</span>
-              <button style={styles.addButton} onClick={addScene}>
+              <button style={styles.addButton} onClick={() => setShowGallery(true)}>
                 + Add Scene
               </button>
             </div>
