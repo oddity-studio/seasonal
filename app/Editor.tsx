@@ -1409,7 +1409,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   main: {
     display: "grid",
-    gridTemplateColumns: "320px 1fr",
+    gridTemplateColumns: "1fr 320px",
     gap: 32,
     alignItems: "start",
   },
@@ -1417,6 +1417,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     overflow: "hidden",
     border: "1px solid #1e293b",
+    order: 2,
   },
   recordingOverlay: {
     position: "fixed" as const,
@@ -1439,6 +1440,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     border: "1px solid #1e293b",
     backgroundColor: "#111118",
+    order: 1,
   },
   controlsHeading: {
     fontSize: 20,
