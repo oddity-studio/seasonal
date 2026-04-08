@@ -812,7 +812,7 @@ export default function Editor() {
             >
               {rendering
                 ? `Recording\u2026 ${renderProgress}%`
-                : "Download MP4"}
+                : "Download Integral"}
             </button>
             <button
               style={{
@@ -823,7 +823,7 @@ export default function Editor() {
               onClick={handleDownloadPerScene}
               disabled={rendering}
             >
-              Download Scenes ZIP
+              Download Scenes
             </button>
             {showDevTools && (
               <>
