@@ -1333,7 +1333,7 @@ export default function Editor() {
                 x
               </button>
             </div>
-            <div style={styles.dockBody}>
+            <div className="dock-body-no-scrollbar" style={styles.dockBody}>
               {Object.entries(categories).map(([category, layouts]) => (
                 <div key={category}>
                   <h3 style={styles.categoryHeading}>{category}</h3>
@@ -1702,7 +1702,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   galleryGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gap: 12,
     marginBottom: 24,
   },

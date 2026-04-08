@@ -6,3 +6,11 @@ body {
   color: #e2e8f0;
   font-family: system-ui, sans-serif;
 }
+
+.dock-body-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
