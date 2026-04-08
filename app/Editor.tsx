@@ -1320,20 +1320,20 @@ export default function Editor() {
         )}
       </div>
 
-      {/* Gallery Modal */}
+      {/* Gallery Dock */}
       {showGallery && (
-        <div style={styles.modalOverlay} onClick={() => setShowGallery(false)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalHeader}>
+        <div style={styles.dockOverlay} onClick={() => setShowGallery(false)}>
+          <div style={styles.dockPanel} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.dockHeader}>
               <h2 style={{ margin: 0, fontSize: 20, color: "#fff" }}>Scene Gallery</h2>
               <button
-                style={styles.modalClose}
+                style={styles.dockClose}
                 onClick={() => setShowGallery(false)}
               >
                 x
               </button>
             </div>
-            <div style={styles.modalBody}>
+            <div style={styles.dockBody}>
               {Object.entries(categories).map(([category, layouts]) => (
                 <div key={category}>
                   <h3 style={styles.categoryHeading}>{category}</h3>
@@ -1651,33 +1651,35 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     cursor: "pointer",
   },
-  modalOverlay: {
+  dockOverlay: {
     position: "fixed" as const,
     inset: 0,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "transparent",
     zIndex: 1000,
   },
-  modalContent: {
+  dockPanel: {
+    position: "fixed" as const,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: 520,
+    maxWidth: "90vw",
     backgroundColor: "#111118",
-    border: "1px solid #1e293b",
-    borderRadius: 12,
-    width: 640,
-    maxHeight: "80vh",
+    borderLeft: "1px solid #1e293b",
+    boxShadow: "-8px 0 24px rgba(0,0,0,0.5)",
     display: "flex",
     flexDirection: "column" as const,
     overflow: "hidden",
+    zIndex: 1001,
   },
-  modalHeader: {
+  dockHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px 20px",
     borderBottom: "1px solid #1e293b",
   },
-  modalClose: {
+  dockClose: {
     background: "none",
     border: "none",
     color: "#64748b",
@@ -1685,9 +1687,10 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     padding: "4px 8px",
   },
-  modalBody: {
+  dockBody: {
     padding: 20,
     overflowY: "auto" as const,
+    flex: 1,
   },
   categoryHeading: {
     fontSize: 14,
