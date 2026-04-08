@@ -241,6 +241,7 @@ export default function Editor() {
     displayStream: MediaStream,
     hwPref: HardwareAcceleration,
     onProgress: (pct: number) => void,
+    audioStartFrame: number = 0,
   ): Promise<Blob> => {
     const playerWrap = document.querySelector(".player-wrap") as HTMLElement;
     if (!playerWrap) throw new Error("Player element not found");
@@ -353,12 +354,14 @@ export default function Editor() {
     try { videoTrack.stop(); } catch {}
 
     const CHUNK_SIZE = 1024;
-    const maxSamples = Math.min(audioBuf.length, Math.ceil((audioBuf.sampleRate * durationMs) / 1000));
+    const startSample = Math.floor((audioStartFrame / FPS) * audioBuf.sampleRate);
+    const available = Math.max(0, audioBuf.length - startSample);
+    const maxSamples = Math.min(available, Math.ceil((audioBuf.sampleRate * durationMs) / 1000));
     for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
       const len = Math.min(CHUNK_SIZE, maxSamples - i);
       const data = new Float32Array(len * audioBuf.numberOfChannels);
       for (let c = 0; c < audioBuf.numberOfChannels; c++) {
-        data.set(audioBuf.getChannelData(c).subarray(i, i + len), c * len);
+        data.set(audioBuf.getChannelData(c).subarray(startSample + i, startSample + i + len), c * len);
       }
       const ad = new AudioData({
         format: "f32-planar",
@@ -410,8 +413,9 @@ export default function Editor() {
     const zip = new JSZip();
 
     try {
+      let cumulativeFrames = 0;
       for (let i = 0; i < scenes.length; i++) {
-        const sceneProps: VideoProps = { ...savedProps, music: "none", scenes: [scenes[i]] };
+        const sceneProps: VideoProps = { ...savedProps, scenes: [scenes[i]] };
         setProps(sceneProps);
         await new Promise((r) => setTimeout(r, 800));
         const blob = await renderClipBlob(
@@ -419,8 +423,10 @@ export default function Editor() {
           displayStream,
           "no-preference",
           (pct) => setRenderProgress(Math.round(((i + pct / 100) / scenes.length) * 100)),
+          cumulativeFrames,
         );
         zip.file(`scene-${String(i + 1).padStart(2, "0")}.mp4`, blob);
+        cumulativeFrames += getSceneFrames(scenes[i]);
       }
       const zipBlob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(zipBlob);
