@@ -937,9 +937,9 @@ export default function Editor() {
               {/* Column headers */}
               <div style={styles.sceneRow}>
                 <span style={styles.sceneNumber}></span>
-                <span style={styles.columnHeader}>Design</span>
+                <span style={{ ...styles.columnHeader, marginRight: 12 }}>Design</span>
                 <span style={{ flex: 1 }}></span>
-                <span style={{ ...styles.columnHeader, width: 56, textAlign: "center" as const }}>Size</span>
+                <span style={{ ...styles.columnHeader, width: 56, textAlign: "center" as const, marginLeft: 12 }}>Size</span>
                 <span style={{ ...styles.columnHeader, width: 44, textAlign: "center" as const }}>Time</span>
                 <span style={{ width: 22 }}></span>
               </div>
@@ -971,7 +971,7 @@ export default function Editor() {
                     {i + 1}
                   </span>
                   <select
-                    style={styles.layoutSelect}
+                    style={{ ...styles.layoutSelect, marginRight: 12 }}
                     value={scene.layout ?? i}
                     onChange={(e) => {
                       const layoutIdx = Number(e.target.value);
@@ -1416,7 +1416,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   sceneRow: {
     display: "flex",
-    gap: 8,
+    gap: 4,
     alignItems: "center",
   },
   columnHeader: {
@@ -1517,6 +1517,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     textAlign: "center" as const,
     outline: "none",
+    marginLeft: 12,
   },
   durationInput: {
     width: 44,
