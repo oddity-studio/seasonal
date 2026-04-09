@@ -1006,6 +1006,32 @@ export default function Editor() {
                       </option>
                     ))}
                   </select>
+                  {getLayoutControls(scene.layout ?? i).map((ctrl, ci) => {
+                    if (ctrl.type === "videoUpload") {
+                      return (
+                        <label key={ci} style={styles.attachVideoButton} title={ctrl.label ?? "Upload video"}>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            style={{ display: "none" }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const url = URL.createObjectURL(file);
+                              updateScene(i, "backgroundVideo", {
+                                src: url,
+                                scale: 1.5,
+                                blendMode: "normal",
+                                startFrom: 0,
+                              });
+                            }}
+                          />
+                          {scene.backgroundVideo ? "change video" : "+attach video"}
+                        </label>
+                      );
+                    }
+                    return null;
+                  })}
                   {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
                     (() => {
                       const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
@@ -1139,32 +1165,6 @@ export default function Editor() {
                       placeholder={`Scene ${i + 1} text...`}
                     />
                   )}
-                  {getLayoutControls(scene.layout ?? i).map((ctrl, ci) => {
-                    if (ctrl.type === "videoUpload") {
-                      return (
-                        <label key={ci} style={styles.videoUploadButton} title={ctrl.label ?? "Upload video"}>
-                          <input
-                            type="file"
-                            accept="video/*"
-                            style={{ display: "none" }}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const url = URL.createObjectURL(file);
-                              updateScene(i, "backgroundVideo", {
-                                src: url,
-                                scale: 1.5,
-                                blendMode: "normal",
-                                startFrom: 0,
-                              });
-                            }}
-                          />
-                          {scene.backgroundVideo ? "🎬" : "+🎬"}
-                        </label>
-                      );
-                    }
-                    return null;
-                  })}
                   <input
                     style={styles.fontSizeInput}
                     type="number"
@@ -1470,19 +1470,16 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     minWidth: 0,
   },
-  videoUploadButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    border: "1px solid #334155",
-    backgroundColor: "#1e293b",
-    color: "#94a3b8",
-    fontSize: 14,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+  attachVideoButton: {
+    padding: "6px 10px",
+    borderRadius: 6,
+    border: "1px dashed #334155",
+    backgroundColor: "transparent",
+    color: "#64748b",
+    fontSize: 11,
     cursor: "pointer",
     flexShrink: 0,
+    whiteSpace: "nowrap",
   } as React.CSSProperties,
   fontSizeInput: {
     width: 56,
