@@ -664,7 +664,7 @@ export default function Editor() {
 
   return (
     <div style={styles.container}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, padding: "0 20px" }}>
         <h1 style={{ ...styles.heading, marginBottom: 0 }}>VIDEOBOX 2.0</h1>
         <div style={{ display: "flex", gap: 8 }}>
           <input
@@ -804,7 +804,7 @@ export default function Editor() {
             <div>
               <span style={styles.label}>Preset</span>
               <select
-                style={styles.layoutSelect}
+                style={{ ...styles.layoutSelect, width: "100%" }}
                 value=""
                 onChange={(e) => {
                   if (e.target.value) loadPreset(e.target.value);
@@ -837,57 +837,54 @@ export default function Editor() {
               </div>
             </div>
 
-            <div>
-              <span style={styles.label}>Style</span>
-              <div style={styles.styleRow}>
-                <label style={styles.styleLabel}>
-                  Music
-                  <select
-                    style={styles.layoutSelect}
-                    value={props.music || "Tournament.mp3"}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, music: e.target.value }))
-                    }
-                  >
-                    <option value="none">None</option>
-                    <option value="Tournament.mp3">Tournament</option>
-                    <option value="Main Lobby.mp3">Main Lobby</option>
-                    <option value="Sydosys.mp3">Sydosys</option>
-                  </select>
-                </label>
-                <label style={styles.styleLabel}>
-                  Transition
-                  <select
-                    style={styles.layoutSelect}
-                    value={props.transition || "flash.json"}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, transition: e.target.value }))
-                    }
-                  >
-                    <option value="none">None</option>
-                    <option value="flash.json">Flash</option>
-                    <option value="Arrow.webm">Arrow</option>
-                    <option value="Box1.webm">Box1</option>
-                    <option value="Box2.webm">Box2</option>
-                  </select>
-                </label>
-                <label style={styles.styleLabel}>
-                  Font
-                  <select
-                    style={styles.layoutSelect}
-                    value={props.font || "Dela Gothic One"}
-                    onChange={(e) =>
-                      setProps((prev) => ({ ...prev, font: e.target.value }))
-                    }
-                  >
-                    {FONT_OPTIONS.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
+            <div style={styles.styleRow}>
+              <label style={styles.styleLabel}>
+                Music
+                <select
+                  style={{ ...styles.layoutSelect, width: "100%" }}
+                  value={props.music || "Tournament.mp3"}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, music: e.target.value }))
+                  }
+                >
+                  <option value="none">None</option>
+                  <option value="Tournament.mp3">Tournament</option>
+                  <option value="Main Lobby.mp3">Main Lobby</option>
+                  <option value="Sydosys.mp3">Sydosys</option>
+                </select>
+              </label>
+              <label style={styles.styleLabel}>
+                Transition
+                <select
+                  style={{ ...styles.layoutSelect, width: "100%" }}
+                  value={props.transition || "flash.json"}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, transition: e.target.value }))
+                  }
+                >
+                  <option value="none">None</option>
+                  <option value="flash.json">Flash</option>
+                  <option value="Arrow.webm">Arrow</option>
+                  <option value="Box1.webm">Box1</option>
+                  <option value="Box2.webm">Box2</option>
+                </select>
+              </label>
+              <label style={styles.styleLabel}>
+                Font
+                <select
+                  style={{ ...styles.layoutSelect, width: "100%" }}
+                  value={props.font || "Dela Gothic One"}
+                  onChange={(e) =>
+                    setProps((prev) => ({ ...prev, font: e.target.value }))
+                  }
+                >
+                  {FONT_OPTIONS.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
         )}
@@ -1317,9 +1314,7 @@ export default function Editor() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    maxWidth: 1400,
-    margin: "0 auto",
-    padding: "40px 20px",
+    padding: "40px 16px 40px 0",
     backgroundColor: "#0a0a0a",
     minHeight: "100vh",
     color: "#e2e8f0",
@@ -1382,6 +1377,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   styleRow: {
     display: "flex",
+    flexDirection: "column",
     gap: 12,
     marginTop: 8,
   },
