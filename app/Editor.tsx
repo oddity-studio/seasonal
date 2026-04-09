@@ -21,9 +21,7 @@ export default function Editor() {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [automateText, setAutomateText] = useState("");
   const [thumbMissing, setThumbMissing] = useState<Record<number, boolean>>({});
-  const [bakingIdx, setBakingIdx] = useState<number | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
-  const bakeContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -110,58 +108,6 @@ export default function Editor() {
     }
   }, [props.scenes]);
 
-  const handleBakeAllThumbs = useCallback(async () => {
-    const html2canvas = (await import("html2canvas")).default;
-    const JSZip = (await import("jszip")).default;
-    const zip = new JSZip();
-    const savedProps = props;
-    const node = playerRef.current?.getContainerNode() ?? (document.querySelector(".player-wrap") as HTMLElement | null);
-    if (!node) {
-      alert("Player not found");
-      return;
-    }
-    try {
-      for (let i = 0; i < LAYOUT_OPTIONS.length; i++) {
-        setBakingIdx(i);
-        setProps((prev) => ({
-          ...prev,
-          scenes: [{ text: LAYOUT_OPTIONS[i].category, fontSize: 100, layout: i }],
-        }));
-        // Wait for React to commit, then seek the player to a stable frame, then settle.
-        await new Promise((r) => setTimeout(r, 200));
-        try { playerRef.current?.seekTo(60); } catch {}
-        await new Promise((r) => setTimeout(r, 1500));
-        try {
-          const rect = node.getBoundingClientRect();
-          const canvas = await html2canvas(node, {
-            backgroundColor: "#000000",
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            scale: 1,
-            width: Math.round(rect.width),
-            height: Math.round(rect.height),
-            windowWidth: document.documentElement.clientWidth,
-            windowHeight: document.documentElement.clientHeight,
-          });
-          const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
-          if (blob) zip.file(`${i}.png`, blob);
-        } catch (e) {
-          console.error("bake failed for", i, e);
-        }
-      }
-    } finally {
-      setProps(savedProps);
-      setBakingIdx(null);
-    }
-    const blob = await zip.generateAsync({ type: "blob" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "thumbs.zip";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [props]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -734,12 +680,17 @@ export default function Editor() {
           <button style={styles.galleryButton} onClick={() => loadInputRef.current?.click()}>
             Load
           </button>
+          {showDevTools && (
+            <button style={styles.galleryButton} onClick={handleBakeFrame}>
+              Bake Frame
+            </button>
+          )}
         </div>
       </div>
 
       <div style={styles.main}>
         <div
-          style={recordingMode ? styles.recordingOverlay : styles.preview}
+          style={recordingMode ? styles.recordingOverlay : { ...styles.preview, order: 3 }}
           data-player
         >
           {!recordingMode && (
@@ -850,39 +801,20 @@ export default function Editor() {
 
         {!recordingMode && (
           <div style={styles.controls}>
-            <div style={styles.customizeHeader}>
-              <h2 style={styles.controlsHeading}>Customize</h2>
-              <div style={{ display: "flex", gap: 8 }}>
-                <select
-                  style={styles.layoutSelect}
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) loadPreset(e.target.value);
-                  }}
-                >
-                  <option value="" disabled>Presets</option>
-                  {presetNames.map((name) => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
-                </select>
-                {showDevTools && (
-                  <>
-                    <button
-                      style={styles.galleryButton}
-                      onClick={handleBakeFrame}
-                    >
-                      Bake Frame
-                    </button>
-                    <button
-                      style={styles.galleryButton}
-                      onClick={handleBakeAllThumbs}
-                      disabled={bakingIdx !== null}
-                    >
-                      {bakingIdx !== null ? `Baking ${bakingIdx + 1}/${LAYOUT_OPTIONS.length}…` : "Bake Thumbs"}
-                    </button>
-                  </>
-                )}
-              </div>
+            <div>
+              <span style={styles.label}>Preset</span>
+              <select
+                style={styles.layoutSelect}
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) loadPreset(e.target.value);
+                }}
+              >
+                <option value="" disabled>Presets</option>
+                {presetNames.map((name) => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -957,7 +889,11 @@ export default function Editor() {
                 </label>
               </div>
             </div>
+          </div>
+        )}
 
+        {!recordingMode && (
+          <div style={styles.controls}>
             {selectedPreset && AUTOMATE_PARSERS[selectedPreset] && (
               <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 8 }}>
                 <div style={styles.scenesHeader}>
@@ -1381,7 +1317,7 @@ export default function Editor() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    maxWidth: 1200,
+    maxWidth: 1400,
     margin: "0 auto",
     padding: "40px 20px",
     backgroundColor: "#0a0a0a",
@@ -1396,15 +1332,14 @@ const styles: Record<string, React.CSSProperties> = {
   },
   main: {
     display: "grid",
-    gridTemplateColumns: "1fr 320px",
-    gap: 32,
+    gridTemplateColumns: "260px 1fr 320px",
+    gap: 24,
     alignItems: "start",
   },
   preview: {
     borderRadius: 12,
     overflow: "hidden",
     border: "1px solid #1e293b",
-    order: 2,
   },
   recordingOverlay: {
     position: "fixed" as const,
@@ -1427,13 +1362,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     border: "1px solid #1e293b",
     backgroundColor: "#111118",
-    order: 1,
-  },
-  controlsHeading: {
-    fontSize: 20,
-    fontWeight: 600,
-    margin: 0,
-    color: "#ffffff",
   },
   label: {
     display: "flex",
@@ -1625,11 +1553,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#64748b",
     fontSize: 14,
     cursor: "pointer",
-  },
-  customizeHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   galleryButton: {
     padding: "6px 14px",
