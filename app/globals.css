@@ -8,9 +8,26 @@ body {
 }
 
 .dock-body-no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
 }
 .dock-body-no-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 3px;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #475569;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar-button {
   display: none;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
 }
