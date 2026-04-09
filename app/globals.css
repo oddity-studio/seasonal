@@ -5,29 +5,35 @@ body {
   background-color: #0a0a0a;
   color: #e2e8f0;
   font-family: system-ui, sans-serif;
-}
-
-.dock-body-no-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
 }
-.dock-body-no-scrollbar::-webkit-scrollbar {
+
+::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-.dock-body-no-scrollbar::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.dock-body-no-scrollbar::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background-color: #334155;
   border-radius: 3px;
 }
-.dock-body-no-scrollbar::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background-color: #475569;
 }
-.dock-body-no-scrollbar::-webkit-scrollbar-button {
+::-webkit-scrollbar-button {
   display: none;
 }
-.dock-body-no-scrollbar::-webkit-scrollbar-corner {
+::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+.dock-body-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.dock-body-no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
