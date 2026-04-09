@@ -1017,11 +1017,11 @@ export default function Editor() {
                         updateScene(i, "text", `${l1.slice(0, 3).join("|")}\n${l2.slice(0, 3).join("|")}`);
                       };
                       return (
-                        <span style={{ display: "flex", gap: 4 }}>
+                        <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
                           {[0, 1, 2].map((li) => (
-                            <span key={li} style={{ display: "flex", gap: 2 }}>
+                            <span key={li} style={{ display: "flex", flex: 1, gap: 2, minWidth: 0 }}>
                               <input
-                                style={{ ...styles.sceneInput, width: 90, flex: "0 0 90px" }}
+                                style={{ ...styles.sceneInput, minWidth: 0 }}
                                 value={layer1[li] || ""}
                                 onChange={(e) => {
                                   const next = [...layer1];
@@ -1031,7 +1031,7 @@ export default function Editor() {
                                 placeholder={`Line ${li + 1}`}
                               />
                               <input
-                                style={{ ...styles.sceneInput, width: 44, flex: "0 0 44px" }}
+                                style={{ ...styles.sceneInput, flex: "0 0 44px", width: 44 }}
                                 maxLength={4}
                                 value={layer2[li] || ""}
                                 onChange={(e) => {
