@@ -1291,7 +1291,7 @@ export default function Editor() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    padding: "40px 16px 40px 0",
+    padding: "40px 5vw",
     backgroundColor: "#0a0a0a",
     minHeight: "100vh",
     color: "#e2e8f0",
@@ -1471,12 +1471,12 @@ const styles: Record<string, React.CSSProperties> = {
     minWidth: 0,
   },
   attachVideoButton: {
-    padding: "6px 10px",
-    borderRadius: 6,
+    padding: "8px 10px",
+    borderRadius: 8,
     border: "1px dashed #334155",
     backgroundColor: "transparent",
     color: "#64748b",
-    fontSize: 11,
+    fontSize: 14,
     cursor: "pointer",
     flexShrink: 0,
     whiteSpace: "nowrap",
