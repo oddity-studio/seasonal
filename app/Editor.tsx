@@ -1334,6 +1334,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     border: "1px solid #1e293b",
     backgroundColor: "#111118",
+    minWidth: 0,
+    overflow: "hidden",
   },
   label: {
     display: "flex",
