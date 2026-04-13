@@ -1185,7 +1185,7 @@ export default function Editor() {
                     min={1}
                     step={1}
                   />
-                  {getLayoutControls(scene.layout ?? i).some(c => c.type === "videoUpload" || c.type === "videoMute") && (() => {
+                  {getLayoutControls(scene.layout ?? i).some(c => c.type === "videoUpload" || c.type === "videoMute") ? (() => {
                     const isMuted = scene.backgroundVideo?.muted !== false;
                     return (
                       <button
@@ -1200,7 +1200,9 @@ export default function Editor() {
                         {isMuted ? "🔇" : "🔊"}
                       </button>
                     );
-                  })()}
+                  })() : (
+                    <span style={styles.muteIconSpacer} />
+                  )}
                   {props.scenes.length > 1 && (
                     <button
                       style={styles.removeButton}
@@ -1530,6 +1532,11 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     flexShrink: 0,
     lineHeight: 1,
+    width: 18,
+  },
+  muteIconSpacer: {
+    width: 18,
+    flexShrink: 0,
   },
   removeButton: {
     padding: "4px 8px",
