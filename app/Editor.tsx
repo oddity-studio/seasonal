@@ -1411,6 +1411,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     minWidth: 20,
     textAlign: "center" as const,
+    flexShrink: 0,
   },
   sceneFixedName: {
     flex: 1,
@@ -1471,6 +1472,7 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
     cursor: "pointer",
     minWidth: 0,
+    flexShrink: 0,
   },
   attachVideoButton: {
     padding: "8px 10px",
@@ -1494,6 +1496,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: "center" as const,
     outline: "none",
     marginLeft: 12,
+    flexShrink: 0,
   },
   durationInput: {
     width: 44,
@@ -1505,6 +1508,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     textAlign: "center" as const,
     outline: "none",
+    flexShrink: 0,
   },
   downloadButton: {
     marginTop: 12,
@@ -1535,6 +1539,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#64748b",
     fontSize: 14,
     cursor: "pointer",
+    flexShrink: 0,
   },
   galleryButton: {
     padding: "6px 14px",
