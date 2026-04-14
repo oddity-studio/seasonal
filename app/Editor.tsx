@@ -90,21 +90,36 @@ export default function Editor() {
     const onPause = () => setIsPlaying(false);
     const onEnded = () => setIsPlaying(false);
     const onMuteChange = (e: { detail: { isMuted: boolean } }) => setIsMuted(e.detail.isMuted);
-    const onFrameUpdate = (e: { detail: { frame: number } }) => setCurrentFrame(e.detail.frame);
     player.addEventListener("play", onPlay);
     player.addEventListener("pause", onPause);
     player.addEventListener("ended", onEnded);
     player.addEventListener("mutechange", onMuteChange);
-    player.addEventListener("frameupdate", onFrameUpdate);
     setIsMuted(player.isMuted());
-    setCurrentFrame(player.getCurrentFrame());
     return () => {
       player.removeEventListener("play", onPlay);
       player.removeEventListener("pause", onPause);
       player.removeEventListener("ended", onEnded);
       player.removeEventListener("mutechange", onMuteChange);
-      player.removeEventListener("frameupdate", onFrameUpdate);
     };
+  }, []);
+
+  // Poll current frame every animation frame so the progress bar stays in sync.
+  useEffect(() => {
+    let raf = 0;
+    let last = -1;
+    const tick = () => {
+      const p = playerRef.current;
+      if (p) {
+        const f = p.getCurrentFrame();
+        if (f !== last) {
+          last = f;
+          setCurrentFrame(f);
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const handleBakeFrame = useCallback(async () => {
@@ -1552,7 +1567,6 @@ const styles: Record<string, React.CSSProperties> = {
   progressBarFill: {
     height: "100%",
     backgroundColor: "#e2e8f0",
-    transition: "width 60ms linear",
     pointerEvents: "none" as const,
   },
   playerControls: {
