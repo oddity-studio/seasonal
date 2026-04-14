@@ -92,6 +92,7 @@ type SceneLayout = {
   slideLinesOverlay?: boolean;
   slideLinesLabels?: [string, string, string];
   slideLinesOffsetX?: number;
+  polkaDotOverlay?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -140,6 +141,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
+    polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Weekly Stats 2", category: "Weekly Report", characters: [],
@@ -147,6 +149,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
     slideLinesOffsetX: 64,
+    polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
@@ -869,6 +872,26 @@ const KingOverlay: React.FC<{ text: string; sceneDuration: number }> = ({ text, 
   );
 };
 
+// Polka-dot overlay — a tiling dot pattern slowly sliding diagonally, multiplied over the background
+const PolkaDotOverlay: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const PX_PER_SECOND = 15; // slow diagonal drift
+  const offset = (frame / fps) * PX_PER_SECOND;
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.55) 18%, transparent 20%)",
+        backgroundSize: "80px 80px",
+        backgroundPosition: `${offset}px ${offset}px`,
+        mixBlendMode: "multiply",
+        pointerEvents: "none" as const,
+        zIndex: 1,
+      }}
+    />
+  );
+};
+
 // Slide-lines overlay — static 3D-rotated plane with lines sliding in from the left
 const SlideLinesOverlay: React.FC<{
   text: string;
@@ -1170,6 +1193,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           )}
         </AbsoluteFill>
       )}
+
+      {/* Polka-dot multiply overlay — sits over the gradient/grunge background */}
+      {resolvedLayout.polkaDotOverlay && <PolkaDotOverlay />}
 
       {/* Sound waveform for scroll-mode scenes — behind characters */}
       {td?.mode === "scroll" && <SoundWaveform color={colors.light} />}
