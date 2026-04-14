@@ -782,8 +782,8 @@ export default function Editor() {
 
   return (
     <div style={styles.container}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, padding: "0 20px" }}>
-        <h1 style={{ ...styles.heading, marginBottom: 0 }}>VIDEOBOX 2.0</h1>
+      <nav style={styles.navbar}>
+        <h1 style={styles.navbarTitle}>VIDEOBOX 2.0</h1>
         <div style={{ display: "flex", gap: 8 }}>
           <input
             ref={loadInputRef}
@@ -804,9 +804,10 @@ export default function Editor() {
             </button>
           )}
         </div>
-      </div>
+      </nav>
 
-      <div style={styles.main}>
+      <div style={styles.content}>
+        <div style={styles.main}>
         <div
           style={recordingMode ? styles.recordingOverlay : { ...styles.preview, order: 3 }}
           data-player
@@ -1375,6 +1376,7 @@ export default function Editor() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Gallery Dock */}
@@ -1461,10 +1463,30 @@ export default function Editor() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    padding: "40px 5vw",
     backgroundColor: "#0a0a0a",
     minHeight: "100vh",
     color: "#e2e8f0",
+  },
+  navbar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "14px 5vw",
+    borderBottom: "1px solid #1e293b",
+    backgroundColor: "#0a0a0a",
+    position: "sticky" as const,
+    top: 0,
+    zIndex: 10,
+  },
+  navbarTitle: {
+    fontSize: 20,
+    fontWeight: 700,
+    margin: 0,
+    letterSpacing: 1,
+    color: "#ffffff",
+  },
+  content: {
+    padding: "32px 5vw",
   },
   heading: {
     fontSize: 32,
