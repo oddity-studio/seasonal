@@ -879,19 +879,19 @@ const PolkaDotOverlay: React.FC = () => {
   const PX_PER_SECOND = 15; // slow diagonal drift
   const offset = (frame / fps) * PX_PER_SECOND;
   // Two staggered radial-gradient layers → every other row offset by half the tile width
-  const DOT = "rgba(0,0,0,0.45)";
+  const DOT = "rgba(0,0,0,0.75)";
+  const TILE = 36;
+  const R = 4;
+  const FADE = 5;
+  const backgroundImage = `radial-gradient(circle at 0 0, ${DOT} ${R}px, transparent ${FADE}px), radial-gradient(circle at ${TILE / 2}px ${TILE / 2}px, ${DOT} ${R}px, transparent ${FADE}px)`;
   return (
     <AbsoluteFill
       style={{
-        backgroundImage: `
-          radial-gradient(circle at 0 0, ${DOT} 2px, transparent 3px),
-          radial-gradient(circle at 15px 15px, ${DOT} 2px, transparent 3px)
-        `,
-        backgroundSize: "30px 30px",
+        backgroundImage,
+        backgroundSize: `${TILE}px ${TILE}px`,
         backgroundPosition: `${offset}px ${offset}px`,
         mixBlendMode: "multiply",
         pointerEvents: "none" as const,
-        zIndex: 1,
       }}
     />
   );
