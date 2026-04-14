@@ -879,7 +879,7 @@ const PolkaDotOverlay: React.FC = () => {
   const PX_PER_SECOND = 15; // slow diagonal drift
   const offset = (frame / fps) * PX_PER_SECOND;
   // Two identical radial-gradient layers, one shifted half a tile → every other row offset by half
-  const DOT = "rgba(0,0,0,0.75)";
+  const DOT = "rgba(0,0,0,0.375)";
   const TILE = 36;
   const HALF = TILE / 2;
   const R = 4;
