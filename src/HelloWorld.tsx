@@ -940,7 +940,7 @@ const SlideLinesOverlay: React.FC<{
             <p
               key={li}
               style={{
-                fontSize,
+                fontSize: Math.round(fontSize * 0.6),
                 fontFamily: fontConfig.fontFamily,
                 fontWeight: fontConfig.fontWeight ?? 700,
                 fontStyle: fontConfig.fontStyle ?? "normal",
@@ -980,7 +980,7 @@ const SlideLinesOverlay: React.FC<{
               fontStyle: fontConfig.fontStyle ?? "normal",
               color: colors.highlight,
               margin: 0,
-              lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
+              lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
               letterSpacing: 4,
               textTransform: "uppercase",
               textShadow: textGlow,
@@ -1013,14 +1013,14 @@ const SlideLinesOverlay: React.FC<{
             <p
               key={li}
               style={{
-                fontSize: Math.round(fontSize * 0.585),
+                fontSize,
                 fontFamily: fontConfig.fontFamily,
                 fontWeight: fontConfig.fontWeight ?? 700,
                 fontStyle: fontConfig.fontStyle ?? "normal",
                 color: "#000000",
                 margin: 0,
-                // Match layer 1 row height so the small numbers sit on the same rows as the big lines
-                lineHeight: `${fontSize * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
+                // Match layer 1 row height so the numbers sit on the same rows as the big lines
+                lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 2.8)}px`,
                 letterSpacing: 4,
                 textTransform: "uppercase",
                 opacity,
