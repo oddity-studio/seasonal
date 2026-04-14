@@ -1013,7 +1013,7 @@ const SlideLinesOverlay: React.FC<{
             <p
               key={li}
               style={{
-                fontSize,
+                fontSize: Math.round(fontSize * 1.5),
                 fontFamily: fontConfig.fontFamily,
                 fontWeight: fontConfig.fontWeight ?? 700,
                 fontStyle: fontConfig.fontStyle ?? "normal",
