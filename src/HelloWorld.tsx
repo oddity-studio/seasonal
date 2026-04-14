@@ -999,7 +999,7 @@ const SlideLinesOverlay: React.FC<{
           right: 0,
           padding: "0 80px",
           textAlign: "right",
-          transform: "translateX(150px)",
+          transform: "translateX(50px)",
         }}>
         {lines2.map((line, li) => {
           const lineSpring = spring({
