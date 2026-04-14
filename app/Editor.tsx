@@ -1227,9 +1227,20 @@ export default function Editor() {
       </div>
 
       {/* Gallery Dock */}
-      {showGallery && (
-        <div style={styles.dockOverlay} onClick={() => setShowGallery(false)}>
-          <div style={styles.dockPanel} onClick={(e) => e.stopPropagation()}>
+      <div
+        style={{
+          ...styles.dockOverlay,
+          pointerEvents: showGallery ? "auto" : "none",
+        }}
+        onClick={() => setShowGallery(false)}
+      >
+        <div
+          style={{
+            ...styles.dockPanel,
+            transform: showGallery ? "translateX(0)" : "translateX(100%)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
             <div style={styles.dockHeader}>
               <h2 style={{ margin: 0, fontSize: 20, color: "#fff" }}>Scene Gallery</h2>
               <button
@@ -1292,8 +1303,7 @@ export default function Editor() {
               ))}
             </div>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -1590,6 +1600,8 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: "column" as const,
     overflow: "hidden",
     zIndex: 1001,
+    transition: "transform 320ms cubic-bezier(0.4, 0, 0.2, 1)",
+    willChange: "transform",
   },
   dockHeader: {
     display: "flex",
