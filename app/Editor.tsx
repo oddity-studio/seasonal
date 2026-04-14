@@ -9,6 +9,52 @@ import { AUTOMATE_PARSERS } from "./automateParsers";
 
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
+const IconPlay = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <polygon points="5,3 17,10 5,17" />
+  </svg>
+);
+const IconPause = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <rect x="4" y="3" width="4" height="14" rx="1" />
+    <rect x="12" y="3" width="4" height="14" rx="1" />
+  </svg>
+);
+const IconPrev = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <rect x="3" y="3" width="2" height="14" rx="1" />
+    <polygon points="17,3 7,10 17,17" />
+  </svg>
+);
+const IconNext = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <polygon points="3,3 13,10 3,17" />
+    <rect x="15" y="3" width="2" height="14" rx="1" />
+  </svg>
+);
+const IconFullscreen = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 7V3h4" />
+    <path d="M13 3h4v4" />
+    <path d="M17 13v4h-4" />
+    <path d="M7 17H3v-4" />
+  </svg>
+);
+const IconMuted = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="currentColor" stroke="none" />
+    <line x1="14" y1="7" x2="18" y2="13" />
+    <line x1="18" y1="7" x2="14" y2="13" />
+  </svg>
+);
+const IconUnmuted = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="currentColor" stroke="none" />
+    <path d="M14.5 7c1.5 1.5 1.5 4.5 0 6" />
+    <path d="M16.8 5c2.4 2.4 2.4 7.6 0 10" />
+  </svg>
+);
+
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
   const [rendering, setRendering] = useState(false);
@@ -22,6 +68,8 @@ export default function Editor() {
   const [automateText, setAutomateText] = useState("");
   const [thumbMissing, setThumbMissing] = useState<Record<number, boolean>>({});
   const [showDevTools, setShowDevTools] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -31,6 +79,27 @@ export default function Editor() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Subscribe to Remotion Player events so our custom controls reflect state.
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+    const onMuteChange = (e: { detail: { isMuted: boolean } }) => setIsMuted(e.detail.isMuted);
+    player.addEventListener("play", onPlay);
+    player.addEventListener("pause", onPause);
+    player.addEventListener("ended", onEnded);
+    player.addEventListener("mutechange", onMuteChange);
+    setIsMuted(player.isMuted());
+    return () => {
+      player.removeEventListener("play", onPlay);
+      player.removeEventListener("pause", onPause);
+      player.removeEventListener("ended", onEnded);
+      player.removeEventListener("mutechange", onMuteChange);
+    };
   }, []);
 
   const handleBakeFrame = useCallback(async () => {
@@ -662,6 +731,55 @@ export default function Editor() {
 
   const totalFrames = getTotalFrames(props);
 
+  // Cumulative start frame of each scene, for custom prev/next scene controls.
+  const sceneStarts = useMemo(() => {
+    const starts: number[] = [];
+    let acc = 0;
+    for (const scene of props.scenes) {
+      starts.push(acc);
+      acc += getSceneFrames(scene);
+    }
+    return starts;
+  }, [props.scenes]);
+
+  const handleTogglePlay = useCallback(() => {
+    playerRef.current?.toggle();
+  }, []);
+  const handlePrevScene = useCallback(() => {
+    const p = playerRef.current;
+    if (!p) return;
+    const f = p.getCurrentFrame();
+    const BUFFER = FPS; // if more than 1s into current scene, restart it; else jump to previous
+    for (let i = sceneStarts.length - 1; i >= 0; i--) {
+      if (sceneStarts[i] <= f - BUFFER) {
+        p.seekTo(sceneStarts[i]);
+        return;
+      }
+    }
+    p.seekTo(0);
+  }, [sceneStarts]);
+  const handleNextScene = useCallback(() => {
+    const p = playerRef.current;
+    if (!p) return;
+    const f = p.getCurrentFrame();
+    for (const s of sceneStarts) {
+      if (s > f) {
+        p.seekTo(s);
+        return;
+      }
+    }
+    p.seekTo(Math.max(0, totalFrames - 1));
+  }, [sceneStarts, totalFrames]);
+  const handleToggleMute = useCallback(() => {
+    const p = playerRef.current;
+    if (!p) return;
+    if (p.isMuted()) p.unmute();
+    else p.mute();
+  }, []);
+  const handleFullscreen = useCallback(() => {
+    playerRef.current?.requestFullscreen();
+  }, []);
+
   return (
     <div style={styles.container}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, padding: "0 20px" }}>
@@ -693,17 +811,6 @@ export default function Editor() {
           style={recordingMode ? styles.recordingOverlay : { ...styles.preview, order: 3 }}
           data-player
         >
-          {!recordingMode && (
-            <style>{`
-              .player-wrap [data-remotion-player-controls] {
-                opacity: 0 !important;
-                transition: opacity 0.3s ease !important;
-              }
-              .player-wrap:hover [data-remotion-player-controls] {
-                opacity: 1 !important;
-              }
-            `}</style>
-          )}
           <div
             className="player-wrap"
             style={recordingMode ? styles.recordingPlayerWrap : undefined}
@@ -722,7 +829,7 @@ export default function Editor() {
                   ? { width: "100%", height: "100%" }
                   : { width: "100%", aspectRatio: "9/16" }
               }
-              controls={!recordingMode}
+              controls={false}
               clickToPlay={!recordingMode}
               loop={!recordingMode}
               renderLoading={() => (
@@ -745,6 +852,50 @@ export default function Editor() {
           </div>
           {!recordingMode && (
             <>
+            <div style={styles.playerControls}>
+              <button
+                type="button"
+                style={styles.playerIconButton}
+                title="Fullscreen"
+                onClick={handleFullscreen}
+              >
+                <IconFullscreen />
+              </button>
+              <div style={styles.playerCenterControls}>
+                <button
+                  type="button"
+                  style={styles.playerIconButton}
+                  title="Previous scene"
+                  onClick={handlePrevScene}
+                >
+                  <IconPrev />
+                </button>
+                <button
+                  type="button"
+                  style={styles.playerPlayButton}
+                  title={isPlaying ? "Pause" : "Play"}
+                  onClick={handleTogglePlay}
+                >
+                  {isPlaying ? <IconPause /> : <IconPlay />}
+                </button>
+                <button
+                  type="button"
+                  style={styles.playerIconButton}
+                  title="Next scene"
+                  onClick={handleNextScene}
+                >
+                  <IconNext />
+                </button>
+              </div>
+              <button
+                type="button"
+                style={styles.playerIconButton}
+                title={isMuted ? "Unmute" : "Mute"}
+                onClick={handleToggleMute}
+              >
+                {isMuted ? <IconMuted /> : <IconUnmuted />}
+              </button>
+            </div>
             <button
               style={{
                 ...styles.downloadButton,
@@ -1331,6 +1482,45 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     overflow: "hidden",
     border: "1px solid #1e293b",
+  },
+  playerControls: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "10px 14px",
+    backgroundColor: "#0d0d15",
+    borderTop: "1px solid #1e293b",
+  },
+  playerCenterControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  playerIconButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 32,
+    height: 32,
+    border: "none",
+    borderRadius: 8,
+    background: "transparent",
+    color: "#94a3b8",
+    cursor: "pointer",
+    transition: "background 150ms ease, color 150ms ease",
+  },
+  playerPlayButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 42,
+    height: 42,
+    border: "none",
+    borderRadius: 999,
+    background: "#e2e8f0",
+    color: "#0a0a0a",
+    cursor: "pointer",
+    transition: "background 150ms ease",
   },
   recordingOverlay: {
     position: "fixed" as const,
