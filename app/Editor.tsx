@@ -70,6 +70,7 @@ export default function Editor() {
   const [showDevTools, setShowDevTools] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -89,16 +90,20 @@ export default function Editor() {
     const onPause = () => setIsPlaying(false);
     const onEnded = () => setIsPlaying(false);
     const onMuteChange = (e: { detail: { isMuted: boolean } }) => setIsMuted(e.detail.isMuted);
+    const onFrameUpdate = (e: { detail: { frame: number } }) => setCurrentFrame(e.detail.frame);
     player.addEventListener("play", onPlay);
     player.addEventListener("pause", onPause);
     player.addEventListener("ended", onEnded);
     player.addEventListener("mutechange", onMuteChange);
+    player.addEventListener("frameupdate", onFrameUpdate);
     setIsMuted(player.isMuted());
+    setCurrentFrame(player.getCurrentFrame());
     return () => {
       player.removeEventListener("play", onPlay);
       player.removeEventListener("pause", onPause);
       player.removeEventListener("ended", onEnded);
       player.removeEventListener("mutechange", onMuteChange);
+      player.removeEventListener("frameupdate", onFrameUpdate);
     };
   }, []);
 
@@ -853,6 +858,37 @@ export default function Editor() {
           </div>
           {!recordingMode && (
             <>
+            <div
+              style={styles.progressBarTrack}
+              onPointerDown={(e) => {
+                const track = e.currentTarget;
+                track.setPointerCapture(e.pointerId);
+                const seekFromEvent = (ev: React.PointerEvent | PointerEvent) => {
+                  const rect = track.getBoundingClientRect();
+                  const pct = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+                  const frame = Math.floor(pct * Math.max(1, totalFrames - 1));
+                  playerRef.current?.seekTo(frame);
+                };
+                seekFromEvent(e);
+                const onMove = (ev: PointerEvent) => seekFromEvent(ev);
+                const onUp = (ev: PointerEvent) => {
+                  track.releasePointerCapture(ev.pointerId);
+                  track.removeEventListener("pointermove", onMove);
+                  track.removeEventListener("pointerup", onUp);
+                  track.removeEventListener("pointercancel", onUp);
+                };
+                track.addEventListener("pointermove", onMove);
+                track.addEventListener("pointerup", onUp);
+                track.addEventListener("pointercancel", onUp);
+              }}
+            >
+              <div
+                style={{
+                  ...styles.progressBarFill,
+                  width: `${Math.max(0, Math.min(100, (currentFrame / Math.max(1, totalFrames - 1)) * 100))}%`,
+                }}
+              />
+            </div>
             <div style={styles.playerControls}>
               <button
                 type="button"
@@ -1505,13 +1541,26 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     overflow: "hidden",
   },
+  progressBarTrack: {
+    width: "100%",
+    height: 4,
+    backgroundColor: "#1e293b",
+    cursor: "pointer",
+    position: "relative" as const,
+    touchAction: "none" as const,
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "#e2e8f0",
+    transition: "width 60ms linear",
+    pointerEvents: "none" as const,
+  },
   playerControls: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "10px 14px",
     backgroundColor: "#0d0d15",
-    borderTop: "1px solid #1e293b",
   },
   playerCenterControls: {
     display: "flex",
