@@ -146,7 +146,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
-    slideLinesOffsetX: 14,
+    slideLinesOffsetX: 64,
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
