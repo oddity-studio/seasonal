@@ -928,9 +928,6 @@ export default function Editor() {
 
             <div style={styles.scenesHeader}>
               <span style={styles.label}>Scenes</span>
-              <button style={styles.addButton} onClick={() => setShowGallery(true)}>
-                + Add Scene
-              </button>
             </div>
 
             <div style={styles.scenesList}>
@@ -1214,6 +1211,12 @@ export default function Editor() {
                 </div>
               ))}
 
+              <button
+                style={{ ...styles.addButton, width: "100%", padding: "10px 12px" }}
+                onClick={() => setShowGallery(true)}
+              >
+                + Add Scene
+              </button>
             </div>
           </div>
         )}
