@@ -890,42 +890,45 @@ export default function Editor() {
         )}
 
         {!recordingMode && (
-          <div style={styles.controls}>
+          <div style={styles.middleColumn}>
             {selectedPreset && AUTOMATE_PARSERS[selectedPreset] && (
-              <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={styles.scenesHeader}>
-                  <span style={{ ...styles.label, flexDirection: "row" }}>{AUTOMATE_PARSERS[selectedPreset].label}</span>
-                </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
-                  <textarea
-                    value={automateText}
-                    onChange={(e) => setAutomateText(e.target.value)}
-                    placeholder="Paste weekly report text here…"
-                    rows={1}
-                    style={{
-                      ...styles.input,
-                      flex: 1,
-                      fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                      fontSize: 12,
-                      lineHeight: 1.4,
-                      resize: "vertical",
-                    }}
-                  />
-                  <button
-                    style={{ ...styles.addButton, alignSelf: "stretch", padding: "0 16px" }}
-                    onClick={() => {
-                      const entry = AUTOMATE_PARSERS[selectedPreset];
-                      if (!entry) return;
-                      const next = entry.parser(automateText, props.scenes);
-                      setProps((prev) => ({ ...prev, scenes: next }));
-                    }}
-                  >
-                    Apply
-                  </button>
+              <div style={styles.controls}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={styles.scenesHeader}>
+                    <span style={{ ...styles.label, flexDirection: "row" }}>{AUTOMATE_PARSERS[selectedPreset].label}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
+                    <textarea
+                      value={automateText}
+                      onChange={(e) => setAutomateText(e.target.value)}
+                      placeholder="Paste weekly report text here…"
+                      rows={1}
+                      style={{
+                        ...styles.input,
+                        flex: 1,
+                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                        fontSize: 12,
+                        lineHeight: 1.4,
+                        resize: "vertical",
+                      }}
+                    />
+                    <button
+                      style={{ ...styles.addButton, alignSelf: "stretch", padding: "0 16px" }}
+                      onClick={() => {
+                        const entry = AUTOMATE_PARSERS[selectedPreset];
+                        if (!entry) return;
+                        const next = entry.parser(automateText, props.scenes);
+                        setProps((prev) => ({ ...prev, scenes: next }));
+                      }}
+                    >
+                      Apply
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
+            <div style={styles.controls}>
             <div style={styles.scenesHeader}>
               <span style={styles.label}>Scenes</span>
             </div>
@@ -1218,6 +1221,7 @@ export default function Editor() {
                 + Add Scene
               </button>
             </div>
+            </div>
           </div>
         )}
       </div>
@@ -1341,6 +1345,12 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: "#111118",
     minWidth: 0,
     overflow: "hidden",
+  },
+  middleColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
+    minWidth: 0,
   },
   label: {
     display: "flex",
