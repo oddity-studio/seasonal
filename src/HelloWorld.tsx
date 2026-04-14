@@ -924,7 +924,7 @@ const SlideLinesOverlay: React.FC<{
         }}
       >
         {/* Layer 1: left-justified, slides in from the left */}
-        <div style={{ textAlign: "left" }}>
+        <div style={{ textAlign: "left", position: "relative", zIndex: 1 }}>
         {lines.map((line, li) => {
           // Interleave with layer 2: L1.i uses slot (i*2), L2.i uses slot (i*2 + 1)
           const lineSpring = spring({
