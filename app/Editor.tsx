@@ -1481,7 +1481,6 @@ const styles: Record<string, React.CSSProperties> = {
   preview: {
     borderRadius: 12,
     overflow: "hidden",
-    border: "1px solid #1e293b",
   },
   playerControls: {
     display: "flex",
