@@ -90,8 +90,9 @@ type SceneLayout = {
   killstreakOverlay?: boolean;
   kingOverlay?: boolean;
   slideLinesOverlay?: boolean;
-  slideLinesLabels?: [string, string, string];
+  slideLinesLabels?: string[];
   slideLinesOffsetX?: number;
+  slideLinesDuel?: boolean;
   polkaDotOverlay?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
@@ -151,6 +152,14 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesOffsetX: 64,
     polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
+    customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Duel", category: "Weekly Report", characters: [],
+    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
+    slideLinesOverlay: true,
+    slideLinesLabels: ["Duel of the Week"],
+    slideLinesDuel: true,
+    polkaDotOverlay: true,
+    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -911,18 +920,20 @@ const SlideLinesOverlay: React.FC<{
   y: number;
   textColor: string;
   textGlow: string;
-  labels?: [string, string, string];
+  labels?: string[];
   offsetX?: number;
-}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX }) => {
+  duel?: boolean;
+}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX, duel }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
-  // Two layers separated by "\n": "a|b|c\nx|y|z"
+  // Two layers separated by "\n": "a|b|c\nx|y|z". Duel mode caps to a single line per layer.
+  const maxLines = duel ? 1 : 3;
   const [layer1Raw, layer2Raw = ""] = (text || "").split("\n");
-  const lines = layer1Raw.split("|").map((s) => s.trim()).slice(0, 3);
-  const lines2 = layer2Raw.split("|").map((s) => s.trim()).slice(0, 3);
+  const lines = layer1Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
+  const lines2 = layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
 
   return (
@@ -999,7 +1010,7 @@ const SlideLinesOverlay: React.FC<{
           padding: "0 80px",
           textAlign: "left",
         }}>
-        {(labels ?? ["Most Battles", "Most Wins", "Most Played Beats"]).map((label, li) => (
+        {(labels ?? (duel ? ["Duel"] : ["Most Battles", "Most Wins", "Most Played Beats"])).slice(0, maxLines).map((label, li) => (
           <p
             key={li}
             style={{
@@ -1038,6 +1049,8 @@ const SlideLinesOverlay: React.FC<{
             delay: (li * 2 + 1) * LINE_STAGGER,
           });
           const opacity = interpolate(lineSpring, [0, 0.4], [0, 1], { extrapolateRight: "clamp" });
+          // In duel mode, slide in from the right: +1200px → 0
+          const slideX = duel ? interpolate(lineSpring, [0, 1], [1200, 0]) : 0;
           return (
             <p
               key={li}
@@ -1053,7 +1066,8 @@ const SlideLinesOverlay: React.FC<{
                 letterSpacing: 4,
                 textTransform: "uppercase",
                 opacity,
-                willChange: "opacity",
+                transform: `translateX(${slideX}px)`,
+                willChange: "transform, opacity",
               }}
             >
               {line}
@@ -1255,6 +1269,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           textGlow={textGlow}
           labels={resolvedLayout.slideLinesLabels}
           offsetX={resolvedLayout.slideLinesOffsetX}
+          duel={resolvedLayout.slideLinesDuel}
         />
       )}
 
