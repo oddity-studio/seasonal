@@ -1093,6 +1093,7 @@ export default function Editor() {
                 <span style={{ flex: 1 }}></span>
                 <span style={{ ...styles.columnHeader, width: 56, textAlign: "center" as const, marginLeft: 12 }}>Size</span>
                 <span style={{ ...styles.columnHeader, width: 44, textAlign: "center" as const }}>Time</span>
+                <span style={{ width: 18 }}></span>
                 <span style={{ width: 22 }}></span>
               </div>
 
