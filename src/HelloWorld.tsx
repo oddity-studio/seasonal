@@ -159,7 +159,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesLabels: ["Duel of the Week"],
     slideLinesDuel: true,
     polkaDotOverlay: true,
-    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 700 },
+    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -5, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -963,10 +963,12 @@ const SlideLinesOverlay: React.FC<{
           transform: `perspective(${perspective}px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${y}px)`,
           position: "relative",
           padding: "0 80px",
+          // In duel mode, preserve 3D so per-layer rotateY composes with the parent rotateX
+          ...(duel ? { transformStyle: "preserve-3d" as const } : {}),
         }}
       >
         {/* Layer 1: left-justified, slides in from the left */}
-        <div style={{ textAlign: "left", position: "relative", zIndex: 1 }}>
+        <div style={{ textAlign: "left", position: "relative", zIndex: 1, ...(duel ? { transform: "rotateY(30deg)" } : {}) }}>
         {lines.map((line, li) => {
           // Interleave with layer 2: L1.i uses slot (i*2), L2.i uses slot (i*2 + 1)
           const lineSpring = spring({
@@ -1041,7 +1043,7 @@ const SlideLinesOverlay: React.FC<{
           right: 0,
           padding: "0 80px",
           textAlign: "right",
-          transform: "translateX(50px)",
+          transform: duel ? "translateX(50px) rotateY(-30deg)" : "translateX(50px)",
         }}>
         {lines2.map((line, li) => {
           const lineSpring = spring({
