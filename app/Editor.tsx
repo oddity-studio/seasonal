@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -1238,17 +1238,19 @@ export default function Editor() {
                   })}
                   {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
                     (() => {
+                      const isDuel = isSlideLinesDuelLayout(scene.layout ?? i);
+                      const rowCount = isDuel ? 1 : 3;
                       const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
                       const layer1 = rawA.split("|");
                       const layer2 = rawB.split("|");
-                      while (layer1.length < 3) layer1.push("");
-                      while (layer2.length < 3) layer2.push("");
+                      while (layer1.length < rowCount) layer1.push("");
+                      while (layer2.length < rowCount) layer2.push("");
                       const save = (l1: string[], l2: string[]) => {
-                        updateScene(i, "text", `${l1.slice(0, 3).join("|")}\n${l2.slice(0, 3).join("|")}`);
+                        updateScene(i, "text", `${l1.slice(0, rowCount).join("|")}\n${l2.slice(0, rowCount).join("|")}`);
                       };
                       return (
                         <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
-                          {[0, 1, 2].map((li) => (
+                          {Array.from({ length: rowCount }, (_, li) => (
                             <span key={li} style={{ display: "flex", flex: 1, gap: 2, minWidth: 0 }}>
                               <input
                                 style={{ ...styles.sceneInput, minWidth: 0 }}
@@ -1261,8 +1263,8 @@ export default function Editor() {
                                 placeholder={`Line ${li + 1}`}
                               />
                               <input
-                                style={{ ...styles.sceneInput, flex: "0 0 44px", width: 44 }}
-                                maxLength={4}
+                                style={isDuel ? { ...styles.sceneInput, flex: 1, minWidth: 0 } : { ...styles.sceneInput, flex: "0 0 44px", width: 44 }}
+                                {...(isDuel ? {} : { maxLength: 4 })}
                                 value={layer2[li] || ""}
                                 onChange={(e) => {
                                   const next = [...layer2];

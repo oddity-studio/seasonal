@@ -251,6 +251,8 @@ export const isKingOverlayLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.kingOverlay === true;
 export const isSlideLinesOverlayLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesOverlay === true;
+export const isSlideLinesDuelLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.slideLinesDuel === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
