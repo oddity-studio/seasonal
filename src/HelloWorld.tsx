@@ -156,7 +156,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Duel", category: "Weekly Report", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
-    slideLinesLabels: ["Duel of the Week"],
+    slideLinesLabels: ["VS"],
     slideLinesDuel: true,
     polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -5, perspective: 700 },
@@ -1005,10 +1005,10 @@ const SlideLinesOverlay: React.FC<{
         })}
         </div>
 
-        {/* Layer 3: static labels, half font size, sits 50px above layer 1 rows */}
+        {/* Layer 3: static labels, half font size, sits 50px above layer 1 rows (0px in duel mode) */}
         <div style={{
           position: "absolute",
-          top: -50,
+          top: duel ? 0 : -50,
           left: 0,
           right: 0,
           padding: "0 80px",
