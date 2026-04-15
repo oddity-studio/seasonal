@@ -1057,7 +1057,8 @@ const SlideLinesOverlay: React.FC<{
             <p
               key={li}
               style={{
-                fontSize: Math.round(fontSize * 1.5),
+                // Duel mode: match layer 1's font size instead of the big 1.5x numeric style
+                fontSize: Math.round(fontSize * (duel ? 0.6 : 1.5)),
                 fontFamily: fontConfig.fontFamily,
                 fontWeight: fontConfig.fontWeight ?? 700,
                 fontStyle: fontConfig.fontStyle ?? "normal",
