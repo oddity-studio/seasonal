@@ -279,6 +279,8 @@ export const isSlideLinesDuelLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesDuel === true;
 export const isSlideLinesTourneyLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesTourney === true;
+export const isPrizesGridLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.prizesGrid === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -1414,19 +1416,28 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   );
 };
 
-const PRIZE_LOGOS = [
+export const PRIZE_LOGOS = [
   "Apogee.png", "Arturia.png", "Baby Audio.png", "ImageLine.png",
   "Landr.png", "Maor Appelbaum Mastering.png", "McDSP.png", "Melda.png",
   "Native Insturments.png", "Splice.png", "UnitedPlugins.png", "WA.png",
   "XLN Audio.png", "iZotope.png",
 ];
 
-const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDuration: number }> = ({ colorScheme, sceneDuration }) => {
+const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDuration: number; text?: string }> = ({ colorScheme, sceneDuration, text }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const colors = colorScheme;
   const custom = SCENE_LAYOUTS.find((l) => l.prizesGrid)?.customStyle?.(colors);
-  const cols = 5;
+
+  // Filter to selected logos; if none stored, show all
+  const selected = text?.trim()
+    ? text.split(",").map((s) => s.trim()).filter((s) => PRIZE_LOGOS.includes(s))
+    : PRIZE_LOGOS;
+  const logos = selected.length > 0 ? selected : PRIZE_LOGOS;
+
+  // Auto-size columns to keep tiles roughly square
+  const cols = logos.length <= 3 ? logos.length : logos.length <= 6 ? 3 : logos.length <= 9 ? 3 : logos.length <= 12 ? 4 : 5;
+
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
@@ -1442,16 +1453,16 @@ const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDurati
     >
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          alignItems: "center",
+          display: "grid",
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
           gap: 40,
           padding: 80,
+          width: "100%",
           maxWidth: 1600,
+          boxSizing: "border-box" as const,
         }}
       >
-        {PRIZE_LOGOS.map((logo, i) => {
+        {logos.map((logo, i) => {
           const tileSpring = spring({
             frame,
             fps,
@@ -1464,7 +1475,6 @@ const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDurati
             <div
               key={logo}
               style={{
-                width: `${Math.floor(100 / cols) - 4}%`,
                 aspectRatio: "3 / 2",
                 display: "flex",
                 justifyContent: "center",
@@ -1651,7 +1661,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
               durationInFrames={sceneFrames}
             >
               {sceneLayout.prizesGrid ? (
-                <PrizesCard colorScheme={colorScheme} sceneDuration={sceneFrames} />
+                <PrizesCard colorScheme={colorScheme} sceneDuration={sceneFrames} text={scene.text} />
               ) : sceneLayout.titleCard ? (
                 <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} text={scene.text} fontSize={scene.fontSize} />
               ) : (

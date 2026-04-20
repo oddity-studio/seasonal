@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, PRIZE_LOGOS, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -1355,6 +1355,35 @@ export default function Editor() {
                         placeholder="User B"
                       />
                     </span>
+                  ) : isPrizesGridLayout(scene.layout ?? i) ? (
+                    (() => {
+                      const selected = new Set(
+                        (scene.text || "").split(",").map((s) => s.trim()).filter(Boolean)
+                      );
+                      const toggle = (logo: string) => {
+                        const next = new Set(selected);
+                        if (next.has(logo)) next.delete(logo); else next.add(logo);
+                        updateScene(i, "text", [...next].join(","));
+                      };
+                      return (
+                        <details style={{ flex: 1, minWidth: 0 }}>
+                          <summary style={{ ...styles.sceneInput, cursor: "pointer", userSelect: "none" as const, listStyle: "none", display: "flex", alignItems: "center", gap: 4 }}>
+                            {selected.size === 0 ? "All logos" : `${selected.size} logo${selected.size !== 1 ? "s" : ""} selected`}
+                          </summary>
+                          <div style={{ position: "absolute", zIndex: 100, background: "#1e1e1e", border: "1px solid #444", borderRadius: 4, padding: "4px 0", marginTop: 2, minWidth: 220, maxHeight: 300, overflowY: "auto" as const }}>
+                            {PRIZE_LOGOS.map((logo) => {
+                              const checked = selected.has(logo);
+                              return (
+                                <label key={logo} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px", cursor: "pointer", background: checked ? "#2a3a2a" : "transparent", fontSize: 12, color: "#e0e0e0" }}>
+                                  <input type="checkbox" checked={checked} onChange={() => toggle(logo)} style={{ accentColor: "#4caf50" }} />
+                                  {logo.replace(".png", "")}
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </details>
+                      );
+                    })()
                   ) : isWeeklyTitleLayout(scene.layout ?? i) ? (
                     <input
                       type="week"
