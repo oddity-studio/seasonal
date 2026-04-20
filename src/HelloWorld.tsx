@@ -52,6 +52,7 @@ const CHAR2 = `${BASE}/char2.webp`;
 const CHAR3 = `${BASE}/char3.webp`;
 const LOGO = `${BASE}/logo.webp`;
 const LOGO11 = `${BASE}/s11logo.webp`;
+const S11ART = `${BASE}/S11art.webp`;
 const BRACKETS = `${BASE}/brackets.webp`;
 const BELT1 = `${BASE}/Belt1.webp`;
 
@@ -158,7 +159,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Tourney1", category: "Weekly Report", characters: [],
-    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
+    backgroundVideo: { src: "/rough.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesTourney: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
@@ -201,11 +202,9 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
-  // S11 Logo — copy of S12 Logo with its own logo image
+  // S11 Logo — title card with S11 artwork
   { label: "S11 Logo", category: "Season 12", characters: [
-    { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
-    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
-    { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
+    { src: S11ART, side: "left", scale: 1, bottomPct: 0, widthPct: 100, leftPct: 0 },
   ], titleCard: true, logoSrc: LOGO11, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // Gradients category — no characters, flat text
   { label: "Sunset", category: "Gradients", characters: [],
