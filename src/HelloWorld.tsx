@@ -947,7 +947,7 @@ const SlideLinesOverlay: React.FC<{
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = tourney ? rotateZ : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
-  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [0, -400], { extrapolateRight: "clamp" }) : 0;
+  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [200, -200], { extrapolateRight: "clamp" }) : 0;
 
   // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
   const maxLines = duel ? 1 : 3;
