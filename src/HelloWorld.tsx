@@ -51,6 +51,7 @@ const CHAR1 = `${BASE}/char1.webp`;
 const CHAR2 = `${BASE}/char2.webp`;
 const CHAR3 = `${BASE}/char3.webp`;
 const LOGO = `${BASE}/logo.webp`;
+const LOGO11 = `${BASE}/s11logo.webp`;
 const BRACKETS = `${BASE}/brackets.webp`;
 const BELT1 = `${BASE}/Belt1.webp`;
 
@@ -83,6 +84,7 @@ type SceneLayout = {
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;
+  logoSrc?: string;
   beltStomp?: { src: string };
   battleOverlay?: boolean;
   battleSlide?: number;
@@ -198,12 +200,12 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
-  // S11 Logo — copy of S12 Logo
+  // S11 Logo — copy of S12 Logo with its own logo image
   { label: "S11 Logo", category: "Season 12", characters: [
     { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
     { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
-  ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
+  ], titleCard: true, logoSrc: LOGO11, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // Gradients category — no characters, flat text
   { label: "Sunset", category: "Gradients", characters: [],
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
@@ -1485,7 +1487,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
             }}
           >
             <Img
-              src={LOGO}
+              src={SCENE_LAYOUTS[layoutIndex]?.logoSrc ?? LOGO}
               style={{ width: 1000, height: "auto" }}
             />
           </div>
