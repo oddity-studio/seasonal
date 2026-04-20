@@ -1436,7 +1436,7 @@ const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDurati
   const logos = selected.length > 0 ? selected : PRIZE_LOGOS;
 
   // Auto-size columns to keep tiles roughly square
-  const cols = logos.length <= 3 ? logos.length : logos.length <= 6 ? 3 : logos.length <= 9 ? 3 : logos.length <= 12 ? 4 : 5;
+  const cols = logos.length <= 2 ? logos.length : 3;
 
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
