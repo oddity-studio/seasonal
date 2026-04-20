@@ -948,6 +948,7 @@ const SlideLinesOverlay: React.FC<{
   const animatedRotateZ = tourney ? rotateZ : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
   const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [300, -200], { extrapolateRight: "clamp" }) : 0;
+  const animatedRotateX = tourney ? interpolate(frame, [0, sceneDuration], [-40, -20], { extrapolateRight: "clamp" }) : rotateX;
 
   // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
   const maxLines = duel ? 1 : 3;
@@ -982,7 +983,7 @@ const SlideLinesOverlay: React.FC<{
       <div
         style={{
           // Static 3D plane rotation (matches Video Cube angle)
-          transform: `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${rotateX}deg) translateY(${y + scrollY}px)`,
+          transform: `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${animatedRotateX}deg) translateY(${y + scrollY}px)`,
           position: "relative",
           padding: "0 80px",
           // In duel mode, preserve 3D so per-layer rotateY composes with the parent rotateX
