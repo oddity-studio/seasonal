@@ -93,6 +93,7 @@ type SceneLayout = {
   slideLinesLabels?: string[];
   slideLinesOffsetX?: number;
   slideLinesDuel?: boolean;
+  slideLinesTourney?: boolean;
   polkaDotOverlay?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
@@ -156,6 +157,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Tourney1", category: "Weekly Report", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
+    slideLinesTourney: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
     polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 700 },
@@ -261,6 +263,8 @@ export const isSlideLinesOverlayLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesOverlay === true;
 export const isSlideLinesDuelLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesDuel === true;
+export const isSlideLinesTourneyLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.slideLinesTourney === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -933,7 +937,8 @@ const SlideLinesOverlay: React.FC<{
   labels?: string[];
   offsetX?: number;
   duel?: boolean;
-}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX, duel }) => {
+  tourney?: boolean;
+}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX, duel, tourney }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exitStart = sceneDuration - 30;
@@ -1072,8 +1077,8 @@ const SlideLinesOverlay: React.FC<{
             <p
               key={li}
               style={{
-                // Duel mode: match layer 1's font size instead of the big 1.5x numeric style
-                fontSize: Math.round(fontSize * (duel ? 0.6 : 1.5)),
+                // Duel/Tourney mode: match layer 1's font size instead of the big 1.5x numeric style
+                fontSize: Math.round(fontSize * (duel || tourney ? 0.6 : 1.5)),
                 fontFamily: fontConfig.fontFamily,
                 fontWeight: fontConfig.fontWeight ?? 700,
                 fontStyle: fontConfig.fontStyle ?? "normal",
@@ -1288,6 +1293,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           labels={resolvedLayout.slideLinesLabels}
           offsetX={resolvedLayout.slideLinesOffsetX}
           duel={resolvedLayout.slideLinesDuel}
+          tourney={resolvedLayout.slideLinesTourney}
         />
       )}
 
