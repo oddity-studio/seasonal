@@ -932,6 +932,9 @@ const SlideLinesOverlay: React.FC<{
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
+  const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
+  const animatedRotateZ = interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
+
   // Two layers separated by "\n": "a|b|c\nx|y|z". Duel mode caps to a single line per layer.
   const maxLines = duel ? 1 : 3;
   const [layer1Raw, layer2Raw = ""] = (text || "").split("\n");
@@ -961,7 +964,7 @@ const SlideLinesOverlay: React.FC<{
       <div
         style={{
           // Static 3D plane rotation (matches Video Cube angle)
-          transform: `perspective(${perspective}px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${y}px)`,
+          transform: `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${rotateX}deg) translateY(${y}px)`,
           position: "relative",
           padding: "0 80px",
           // In duel mode, preserve 3D so per-layer rotateY composes with the parent rotateX
