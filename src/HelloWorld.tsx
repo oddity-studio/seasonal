@@ -160,7 +160,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesDuel: true,
     polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -5, perspective: 700 },
-    slideLinesOffsetX: 0,
+    slideLinesOffsetX: 20,
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -1041,7 +1041,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 2: right-justified, small black numbers, fades in interleaved with layer 1 */}
         <div style={{
           position: "absolute",
-          top: 100,
+          top: 110,
           left: 0,
           right: 0,
           padding: "0 80px",
