@@ -968,6 +968,10 @@ const SlideLinesOverlay: React.FC<{
     ? layer2Raw.split(" ").filter((s) => s.trim())
     : layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
+  // Compress the animation timeline so all slide-ins finish 1s before the scene ends
+  const slideFrame = sceneDuration > fps
+    ? Math.min(frame * (sceneDuration / (sceneDuration - fps)), sceneDuration - fps)
+    : frame;
 
   return (
     <div
@@ -1003,7 +1007,7 @@ const SlideLinesOverlay: React.FC<{
         {lines.map((line, li) => {
           // Interleave with layer 2: L1.i uses slot (i*2), L2.i uses slot (i*2 + 1)
           const lineSpring = spring({
-            frame,
+            frame: slideFrame,
             fps,
             config: { damping: 14, mass: 0.8 },
             delay: (li * 2) * LINE_STAGGER,
@@ -1083,7 +1087,7 @@ const SlideLinesOverlay: React.FC<{
         }}>
         {lines2.map((line, li) => {
           const lineSpring = spring({
-            frame,
+            frame: slideFrame,
             fps,
             config: { damping: 14, mass: 0.8 },
             delay: (li * 2 + 1) * LINE_STAGGER,
