@@ -204,7 +204,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // S11 Logo — title card with S11 artwork
   { label: "S11 Logo", category: "Season 12", characters: [
-    { src: S11ART, side: "left", scale: 1, bottomPct: 0, widthPct: 100, leftPct: 0 },
+    { src: S11ART, side: "left", scale: 1.3, bottomPct: 0, widthPct: 100, leftPct: 0 },
   ], titleCard: true, logoSrc: LOGO11, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // Gradients category — no characters, flat text
   { label: "Sunset", category: "Gradients", characters: [],
