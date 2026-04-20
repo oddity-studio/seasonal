@@ -1015,7 +1015,7 @@ const SlideLinesOverlay: React.FC<{
           padding: "0 80px",
           textAlign: "center",
           zIndex: 2,
-          ...(duel ? { transform: "translateZ(400px)" } : {}),
+          ...(duel ? { transform: "translateX(200px) translateZ(400px)" } : {}),
         }}>
         {(labels ?? (duel ? ["Duel"] : ["Most Battles", "Most Wins", "Most Played Beats"])).slice(0, maxLines).map((label, li) => (
           <p
