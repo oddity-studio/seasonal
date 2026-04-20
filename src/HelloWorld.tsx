@@ -1030,7 +1030,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 3: static labels, half font size, sits 50px above layer 1 rows (0px in duel mode) */}
         <div style={{
           position: "absolute",
-          top: duel ? 30 : tourney ? 10 : -50,
+          top: duel ? 30 : tourney ? 30 : -50,
           left: 0,
           right: 0,
           padding: "0 80px",
