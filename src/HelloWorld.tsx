@@ -963,7 +963,7 @@ const SlideLinesOverlay: React.FC<{
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = tourney ? rotateZ : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
-  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [500, -500], { extrapolateRight: "clamp" }) : 0;
+  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [800, -800], { extrapolateRight: "clamp" }) : 0;
   const animatedRotateX = tourney ? interpolate(frame, [0, sceneDuration], [-40, -20], { extrapolateRight: "clamp" }) : rotateX;
 
   // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
