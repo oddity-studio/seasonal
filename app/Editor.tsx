@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, getLayoutDefaultDuration } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -1194,7 +1194,9 @@ export default function Editor() {
                           "text",
                           isSlideLinesDuelLayout(layoutIdx)
                             ? "Player1\nPlayer2"
-                            : "Player1|Player2|Player3\n126|89|257",
+                            : isSlideLinesTourneyLayout(layoutIdx)
+                              ? "Player1 Player2 Player3\n126 89 257"
+                              : "Player1|Player2|Player3\n126|89|257",
                         );
                       }
                       if (isWeeklyTitleLayout(layoutIdx) && !scene.text) {
@@ -1243,6 +1245,27 @@ export default function Editor() {
                     return null;
                   })}
                   {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
+                    isSlideLinesTourneyLayout(scene.layout ?? i) ? (
+                      (() => {
+                        const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
+                        return (
+                          <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
+                            <input
+                              style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                              value={rawA}
+                              onChange={(e) => updateScene(i, "text", `${e.target.value}\n${rawB}`)}
+                              placeholder="Layer 1 (space = new line)"
+                            />
+                            <input
+                              style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                              value={rawB}
+                              onChange={(e) => updateScene(i, "text", `${rawA}\n${e.target.value}`)}
+                              placeholder="Layer 2 (space = new line)"
+                            />
+                          </span>
+                        );
+                      })()
+                    ) : (
                     (() => {
                       const isDuel = isSlideLinesDuelLayout(scene.layout ?? i);
                       const rowCount = isDuel ? 1 : 3;
@@ -1284,6 +1307,7 @@ export default function Editor() {
                         </span>
                       );
                     })()
+                    )
                   ) : isKillstreakOverlayLayout(scene.layout ?? i) || isKingOverlayLayout(scene.layout ?? i) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input

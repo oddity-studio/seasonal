@@ -947,11 +947,15 @@ const SlideLinesOverlay: React.FC<{
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
-  // Two layers separated by "\n": "a|b|c\nx|y|z". Duel mode caps to a single line per layer.
+  // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
   const maxLines = duel ? 1 : 3;
   const [layer1Raw, layer2Raw = ""] = (text || "").split("\n");
-  const lines = layer1Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
-  const lines2 = layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
+  const lines = tourney
+    ? layer1Raw.split(" ").filter((s) => s.trim())
+    : layer1Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
+  const lines2 = tourney
+    ? layer2Raw.split(" ").filter((s) => s.trim())
+    : layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
 
   return (
