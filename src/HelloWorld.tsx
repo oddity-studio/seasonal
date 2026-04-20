@@ -1013,12 +1013,9 @@ const SlideLinesOverlay: React.FC<{
           left: 0,
           right: 0,
           padding: "0 80px",
-          textAlign: "left",
-          // Render in front of layer 1 (zIndex 1) and layer 2. In duel mode the parent
-          // is preserve-3d and zIndex is ignored, so also pull forward on Z so the
-          // label clears the rotated edges of layers 1 and 2.
+          textAlign: "center",
           zIndex: 2,
-          ...(duel ? { transform: "translateZ(150px)" } : {}),
+          ...(duel ? { transform: "translateZ(400px)" } : {}),
         }}>
         {(labels ?? (duel ? ["Duel"] : ["Most Battles", "Most Wins", "Most Played Beats"])).slice(0, maxLines).map((label, li) => (
           <p
