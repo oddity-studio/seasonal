@@ -85,6 +85,7 @@ type SceneLayout = {
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;
   logoSrc?: string;
+  prizesGrid?: boolean;
   beltStomp?: { src: string };
   battleOverlay?: boolean;
   battleSlide?: number;
@@ -254,6 +255,11 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 100, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
     customControls: [{ type: "videoMute" }] },
+  // Prizes — tile grid of sponsor/partner logos
+  { label: "Prizes", category: "General", characters: [],
+    prizesGrid: true,
+    textDefaults: { y: 0, fontSize: 100, mode: "flat" },
+    customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -1408,6 +1414,83 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   );
 };
 
+const PRIZE_LOGOS = [
+  "Apogee.png", "Arturia.png", "Baby Audio.png", "ImageLine.png",
+  "Landr.png", "Maor Appelbaum Mastering.png", "McDSP.png", "Melda.png",
+  "Native Insturments.png", "Splice.png", "UnitedPlugins.png", "WA.png",
+  "XLN Audio.png", "iZotope.png",
+];
+
+const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDuration: number }> = ({ colorScheme, sceneDuration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const colors = colorScheme;
+  const custom = SCENE_LAYOUTS.find((l) => l.prizesGrid)?.customStyle?.(colors);
+  const cols = 5;
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+
+  return (
+    <AbsoluteFill
+      style={{
+        background: custom?.background ?? `linear-gradient(135deg, ${colors.dark}, #000000)`,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        opacity: exit,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 40,
+          padding: 80,
+          maxWidth: 1600,
+        }}
+      >
+        {PRIZE_LOGOS.map((logo, i) => {
+          const tileSpring = spring({
+            frame,
+            fps,
+            config: { damping: 16, mass: 0.6 },
+            delay: i * 4,
+          });
+          const scale = interpolate(tileSpring, [0, 1], [0.3, 1]);
+          const opacity = interpolate(tileSpring, [0, 0.5], [0, 1], { extrapolateRight: "clamp" });
+          return (
+            <div
+              key={logo}
+              style={{
+                width: `${Math.floor(100 / cols) - 4}%`,
+                aspectRatio: "3 / 2",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                opacity,
+                transform: `scale(${scale})`,
+                willChange: "transform, opacity",
+              }}
+            >
+              <Img
+                src={`${BASE}/picker/Friends/${logo}`}
+                style={{
+                  maxWidth: "80%",
+                  maxHeight: "80%",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 4px 20px rgba(255,255,255,0.15))",
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex: number; fontConfig: FontConfig; text?: string; fontSize?: number }> = ({ colorScheme, layoutIndex, fontConfig, text, fontSize = 100 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -1567,7 +1650,9 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
               from={sceneStart}
               durationInFrames={sceneFrames}
             >
-              {sceneLayout.titleCard ? (
+              {sceneLayout.prizesGrid ? (
+                <PrizesCard colorScheme={colorScheme} sceneDuration={sceneFrames} />
+              ) : sceneLayout.titleCard ? (
                 <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} text={scene.text} fontSize={scene.fontSize} />
               ) : (
                 <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
