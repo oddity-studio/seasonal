@@ -1453,13 +1453,13 @@ const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDurati
     >
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          display: "flex",
+          flexWrap: "wrap" as const,
+          justifyContent: "center",
+          alignContent: "center",
           gap: 40,
           padding: 80,
-          width: "100%",
           maxWidth: 1600,
-          boxSizing: "border-box" as const,
         }}
       >
         {logos.map((logo, i) => {
@@ -1475,6 +1475,7 @@ const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDurati
             <div
               key={logo}
               style={{
+                width: `calc(${100 / cols}% - ${40 * (cols - 1) / cols}px)`,
                 aspectRatio: "3 / 2",
                 display: "flex",
                 justifyContent: "center",
