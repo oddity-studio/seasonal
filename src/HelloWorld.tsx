@@ -1152,7 +1152,7 @@ const SlideLinesOverlay: React.FC<{
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number }> = ({
+const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number; overlayVideo?: string }> = ({
   text,
   index,
   layoutIndex,
@@ -1166,6 +1166,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   perspective: persp,
   backgroundVideo: backgroundVideoProp,
   sceneDuration: dur = SCENE_DURATION,
+  overlayVideo = "none",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -1238,7 +1239,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       }}
     >
       {/* Background video layer */}
-      {backgroundVideo && (
+      {backgroundVideo && !(overlayVideo && overlayVideo !== "none" && backgroundVideo.src.includes(overlayVideo)) && (
         <AbsoluteFill
           style={{
             overflow: "hidden",
@@ -1672,7 +1673,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
   );
 };
 
-export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One" }) => {
+export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = "Tournament.mp3", transition = "flash.json", font = "Dela Gothic One", overlayVideo = "none" }) => {
   const fontConfig = FONT_MAP[font] || FONT_MAP["Dela Gothic One"];
 
   // Compute cumulative start positions for variable-duration scenes
@@ -1687,6 +1688,20 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {/* Background music */}
       {music !== "none" && <Audio src={`${BASE}/picker/music/${music}`} volume={1} />}
+
+      {/* Global screen-blended video overlay across entire composition */}
+      {overlayVideo && overlayVideo !== "none" && (
+        <AbsoluteFill style={{ mixBlendMode: "screen", zIndex: 100, pointerEvents: "none" as const }}>
+          <video
+            src={`${BASE}/${overlayVideo}`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </AbsoluteFill>
+      )}
 
       {/* Scene cards with Lottie transitions overlaid at scene start */}
       {scenes.map((scene, i) => {
@@ -1707,7 +1722,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
               ) : sceneLayout.titleCard ? (
                 <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} text={scene.text} fontSize={scene.fontSize} />
               ) : (
-                <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} />
+                <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} overlayVideo={overlayVideo} />
               )}
             </Sequence>
             {/* Transition overlay */}
