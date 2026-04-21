@@ -8,8 +8,8 @@
   "font": "Exo 2",
   "scenes": [
     {
-      "text": "Apr 5th \u2013 Apr 12th",
-      "layout": 21,
+      "text": "Apr 5th – Apr 12th",
+      "layout": 24,
       "fontSize": 72,
       "duration": 5,
       "backgroundVideo": {
@@ -25,7 +25,7 @@
     {
       "text": "156|Player1",
       "fontSize": 150,
-      "layout": 22,
+      "layout": 25,
       "duration": 8,
       "backgroundVideo": {
         "src": "",
@@ -40,7 +40,7 @@
     {
       "text": "5|Player1",
       "fontSize": 150,
-      "layout": 23,
+      "layout": 26,
       "duration": 8,
       "backgroundVideo": {
         "src": "",
@@ -50,7 +50,7 @@
     {
       "text": "",
       "fontSize": 150,
-      "layout": 24,
+      "layout": 27,
       "duration": 10,
       "backgroundVideo": {
         "src": "",
