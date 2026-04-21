@@ -218,7 +218,7 @@ export default function Editor() {
       .then((data) => {
         const parsed = videoPropsSchema.safeParse(data);
         if (parsed.success) {
-          setProps(parsed.data);
+          setProps({ ...parsed.data, overlayVideo: parsed.data.overlayVideo ?? "none" });
           setSelectedPreset(name);
         }
       })
@@ -262,7 +262,7 @@ export default function Editor() {
       try {
         const parsed = videoPropsSchema.safeParse(JSON.parse(reader.result as string));
         if (parsed.success) {
-          setProps(parsed.data);
+          setProps({ ...parsed.data, overlayVideo: parsed.data.overlayVideo ?? "none" });
         } else {
           alert("Invalid preset file.");
         }
