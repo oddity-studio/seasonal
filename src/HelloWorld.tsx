@@ -304,7 +304,8 @@ const FighterChar: React.FC<{
   const eased = 1 - (1 - slideProgress) * (1 - slideProgress);
   const offscreen = placement.side === "left" ? -600 : 600;
   const restX = placement.offsetX ?? 0;
-  const slideX = fadeOnly ? 0 : offscreen + (restX - offscreen) * eased;
+  const driftX = fadeOnly ? interpolate(frame, [0, sceneDuration], [0, 80], { extrapolateRight: "clamp" }) : 0;
+  const slideX = fadeOnly ? driftX : offscreen + (restX - offscreen) * eased;
 
   // Idle bob — fighting stance sway
   const bob = fadeOnly ? 0 : Math.sin(frame * 0.06 + charIndex * 2) * 6;
