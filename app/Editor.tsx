@@ -204,7 +204,10 @@ export default function Editor() {
     const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
     fetch(`${BASE}/picker/presets/index.json`)
       .then((r) => r.json())
-      .then((names: string[]) => setPresetNames(names))
+      .then((names: string[]) => {
+        setPresetNames(names);
+        if (names.includes("Demo")) loadPreset("Demo");
+      })
       .catch(() => {});
   }, []);
 
