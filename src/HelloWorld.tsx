@@ -360,7 +360,7 @@ const FighterChar: React.FC<{
             position: "absolute",
             inset: 0,
             zIndex: 10,
-            background: `linear-gradient(to top, ${darkColor}, transparent)`,
+            background: `linear-gradient(to top left, ${darkColor}, transparent)`,
             pointerEvents: "none" as const,
           }} />
         )}
