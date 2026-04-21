@@ -6,6 +6,7 @@ import {
   spring,
   interpolate,
   Sequence,
+  Loop,
   Img,
   Video,
   Audio,
@@ -67,6 +68,7 @@ type CharPlacement = {
   widthPct?: number; // if set, size by width % instead of full height
   leftPct?: number; // explicit left position in %
   opacity?: number; // base opacity (defaults to 1)
+  fadeOnly?: boolean; // fade in instead of sliding
 };
 
 type TextMode = "normal" | "flat" | "scroll";
@@ -87,6 +89,7 @@ type SceneLayout = {
   titleCard?: boolean;
   logoSrc?: string;
   prizesGrid?: boolean;
+  loopVideo?: boolean;
   beltStomp?: { src: string };
   battleOverlay?: boolean;
   battleSlide?: number;
@@ -160,10 +163,10 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Tourney1", category: "Weekly Report", characters: [],
     backgroundVideo: { src: "/rough.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
+    loopVideo: true,
     slideLinesOverlay: true,
     slideLinesTourney: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
-    polkaDotOverlay: false,
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -30, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Duel", category: "Weekly Report", characters: [],
@@ -204,9 +207,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // S11 Logo — title card with S11 artwork
   { label: "S11 Logo", category: "Season 12", characters: [
-   { src: CHAR1, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 0, offsetX: 200 },
-    { src: CHAR3, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 33.33, offsetX: -200 },
-    { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
+    { src: S11ART, side: "left", scale: 1.1, bottomPct: 0, widthPct: 100, leftPct: 0, fadeOnly: true },
   ], titleCard: true, logoSrc: LOGO11, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // Gradients category — no characters, flat text
   { label: "Sunset", category: "Gradients", characters: [],
@@ -292,6 +293,9 @@ const FighterChar: React.FC<{
   charIndex: number;
   sceneDuration?: number;
 }> = ({ placement, frame, fps, charIndex, sceneDuration = SCENE_DURATION }) => {
+  // Fade-only mode: no slide or bob, just opacity fade-in
+  const fadeOnly = placement.fadeOnly ?? false;
+
   // Slide in from the side — simple interpolation instead of spring physics
   const slideFrames = 20;
   const delayFrames = charIndex * 10;
@@ -300,12 +304,12 @@ const FighterChar: React.FC<{
   const eased = 1 - (1 - slideProgress) * (1 - slideProgress);
   const offscreen = placement.side === "left" ? -600 : 600;
   const restX = placement.offsetX ?? 0;
-  const slideX = offscreen + (restX - offscreen) * eased;
+  const slideX = fadeOnly ? 0 : offscreen + (restX - offscreen) * eased;
 
   // Idle bob — fighting stance sway
-  const bob = Math.sin(frame * 0.06 + charIndex * 2) * 6;
+  const bob = fadeOnly ? 0 : Math.sin(frame * 0.06 + charIndex * 2) * 6;
   // Subtle horizontal sway
-  const sway = Math.sin(frame * 0.04 + charIndex * 3) * 4;
+  const sway = fadeOnly ? 0 : Math.sin(frame * 0.04 + charIndex * 3) * 4;
 
   // Exit: quick fade via GPU-accelerated filter (avoids expensive opacity compositing on large images)
   const exitStart = sceneDuration - 15;
@@ -313,7 +317,8 @@ const FighterChar: React.FC<{
     ? interpolate(frame, [exitStart, sceneDuration], [0, 1], { extrapolateRight: "clamp" })
     : 0;
   const baseOpacity = placement.opacity ?? 1;
-  const exitOpacity = baseOpacity * (1 - exitProgress);
+  const fadeIn = fadeOnly ? interpolate(frame, [0, 30], [0, 1], { extrapolateRight: "clamp" }) : 1;
+  const exitOpacity = baseOpacity * fadeIn * (1 - exitProgress);
 
   const isLeft = placement.side === "left";
   const flipX = placement.flip ? -1 : 1;
@@ -1232,28 +1237,35 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             alignItems: resolvedLayout.videoFit === "contain" ? "center" : undefined,
           }}
         >
-          <Video
-            src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
-            muted={backgroundVideo.muted !== false}
-            volume={resolvedLayout.battleOverlay
-              ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
-              : 1}
-            startFrom={backgroundVideo.startFrom ?? 0}
-            style={
-              resolvedLayout.videoFit === "contain"
-                ? {
-                    height: "100%",
-                    width: "auto",
-                    transform: `scale(${backgroundVideo.scale ?? 1})`,
-                  }
-                : {
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transform: `scale(${backgroundVideo.scale ?? 1})`,
-                  }
-            }
-          />
+          {(() => {
+            const videoEl = (
+              <Video
+                src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
+                muted={backgroundVideo.muted !== false}
+                volume={resolvedLayout.battleOverlay
+                  ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
+                  : 1}
+                startFrom={backgroundVideo.startFrom ?? 0}
+                style={
+                  resolvedLayout.videoFit === "contain"
+                    ? {
+                        height: "100%",
+                        width: "auto",
+                        transform: `scale(${backgroundVideo.scale ?? 1})`,
+                      }
+                    : {
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transform: `scale(${backgroundVideo.scale ?? 1})`,
+                      }
+                }
+              />
+            );
+            return resolvedLayout.loopVideo
+              ? <Loop durationInFrames={fps * 5}>{videoEl}</Loop>
+              : videoEl;
+          })()}
           {backgroundVideo.blendMode === "normal" && (
             <div style={{
               position: "absolute",
