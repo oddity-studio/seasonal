@@ -292,7 +292,8 @@ const FighterChar: React.FC<{
   fps: number;
   charIndex: number;
   sceneDuration?: number;
-}> = ({ placement, frame, fps, charIndex, sceneDuration = SCENE_DURATION }) => {
+  darkColor?: string;
+}> = ({ placement, frame, fps, charIndex, sceneDuration = SCENE_DURATION, darkColor }) => {
   // Fade-only mode: no slide or bob, just opacity fade-in
   const fadeOnly = placement.fadeOnly ?? false;
 
@@ -354,6 +355,14 @@ const FighterChar: React.FC<{
             willChange: "transform",
           }}
         />
+        {fadeOnly && darkColor && (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(to top, ${darkColor}, transparent)`,
+            pointerEvents: "none" as const,
+          }} />
+        )}
       </div>
     );
   }
@@ -381,7 +390,7 @@ const FighterChar: React.FC<{
   );
 };
 
-const CharacterLayer: React.FC<{ layoutIndex: number; sceneDuration?: number }> = ({ layoutIndex, sceneDuration }) => {
+const CharacterLayer: React.FC<{ layoutIndex: number; sceneDuration?: number; darkColor?: string }> = ({ layoutIndex, sceneDuration, darkColor }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const layout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
@@ -396,6 +405,7 @@ const CharacterLayer: React.FC<{ layoutIndex: number; sceneDuration?: number }> 
           fps={fps}
           charIndex={ci}
           sceneDuration={sceneDuration}
+          darkColor={darkColor}
         />
       ))}
     </div>
@@ -1314,7 +1324,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       )}
 
       {/* Character layer */}
-      <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} />
+      <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} darkColor={colors.dark} />
 
       {/* Battle of the Week overlay */}
       {resolvedLayout.battleOverlay && (
