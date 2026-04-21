@@ -143,18 +143,15 @@ const SCENE_LAYOUTS: SceneLayout[] = [
   { label: "Brackets", category: "Tournament", characters: [],
     backgroundImageSrc: BRACKETS, textDefaults: { y: -60, fontSize: 200, mode: "flat" } },
   { label: "Grunge", category: "General", characters: [],
-    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     textDefaults: { y: 200, fontSize: 200, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Weekly Stats 1", category: "Weekly Report", characters: [],
-    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
     polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Weekly Stats 2", category: "Weekly Report", characters: [],
-    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
     slideLinesOffsetX: 64,
@@ -162,15 +159,12 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Tourney1", category: "Tournament", characters: [],
-    backgroundVideo: { src: "/rough.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
-    loopVideo: true,
     slideLinesOverlay: true,
     slideLinesTourney: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -30, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Duel", category: "Tournament", characters: [],
-    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["VS"],
     slideLinesDuel: true,
@@ -179,7 +173,6 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesOffsetX: 20,
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Belt Stomp", category: "Tournament", characters: [],
-    backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     beltStomp: { src: BELT1 },
     textDefaults: { y: 200, fontSize: 120, rotateX: 10, mode: "flat" },
     customStyle: (c) => ({ background: `radial-gradient(circle, ${c.highlight}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
@@ -1239,7 +1232,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       }}
     >
       {/* Background video layer */}
-      {backgroundVideo && !(overlayVideo && overlayVideo !== "none" && backgroundVideo.src.includes(overlayVideo)) && (
+      {backgroundVideo && (
         <AbsoluteFill
           style={{
             overflow: "hidden",
