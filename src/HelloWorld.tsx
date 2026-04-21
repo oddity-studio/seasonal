@@ -140,7 +140,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: -60, fontSize: 80, mode: "flat" },
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "none" }),
     customControls: [{ type: "videoUpload", field: "backgroundVideo" }] },
-  { label: "Brackets", category: "General", characters: [],
+  { label: "Brackets", category: "Tournament", characters: [],
     backgroundImageSrc: BRACKETS, textDefaults: { y: -60, fontSize: 200, mode: "flat" } },
   { label: "Grunge", category: "General", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
@@ -161,7 +161,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     polkaDotOverlay: true,
     textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
-  { label: "Tourney1", category: "Weekly Report", characters: [],
+  { label: "Tourney1", category: "Tournament", characters: [],
     backgroundVideo: { src: "/rough.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     loopVideo: true,
     slideLinesOverlay: true,
@@ -169,7 +169,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -30, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
-  { label: "Duel", category: "Weekly Report", characters: [],
+  { label: "Duel", category: "Tournament", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     slideLinesOverlay: true,
     slideLinesLabels: ["VS"],
@@ -178,7 +178,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -5, perspective: 700 },
     slideLinesOffsetX: 20,
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
-  { label: "Belt Stomp", category: "General", characters: [],
+  { label: "Belt Stomp", category: "Tournament", characters: [],
     backgroundVideo: { src: "/Grunge.mp4", scale: 1, blendMode: "screen", startFrom: 0 },
     beltStomp: { src: BELT1 },
     textDefaults: { y: 200, fontSize: 120, rotateX: 10, mode: "flat" },
@@ -206,7 +206,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     { src: CHAR2, side: "left", scale: 1, bottomPct: 0, widthPct: 33.33, leftPct: 66.66 },
   ], titleCard: true, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // S11 Logo — title card with S11 artwork
-  { label: "S11 Logo", category: "Season 12", characters: [
+  { label: "S11 Logo", category: "Tournament", characters: [
     { src: S11ART, side: "left", scale: 1.1, bottomPct: 0, widthPct: 100, leftPct: 0, fadeOnly: true },
   ], titleCard: true, logoSrc: LOGO11, textDefaults: { y: 0, fontSize: 100, mode: "flat" } },
   // Gradients category — no characters, flat text
@@ -258,7 +258,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     customStyle: () => ({ background: "#000000", textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
     customControls: [{ type: "videoMute" }] },
   // Prizes — tile grid of sponsor/partner logos
-  { label: "Prizes", category: "General", characters: [],
+  { label: "Prizes", category: "Tournament", characters: [],
     prizesGrid: true,
     textDefaults: { y: 0, fontSize: 100, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
