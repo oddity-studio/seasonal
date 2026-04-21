@@ -8,6 +8,7 @@
   "music": "Tournament.mp3",
   "transition": "flash.json",
   "font": "Montserrat",
+  "overlayVideo": "rough.mp4",
   "scenes": [
     {
       "text": "Tournament Starts Now!",
