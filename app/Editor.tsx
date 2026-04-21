@@ -1092,7 +1092,7 @@ export default function Editor() {
                 </select>
               </label>
               <label style={styles.styleLabel}>
-                Overlay Video
+                Overlay
                 <select
                   style={{ ...styles.layoutSelect, width: "100%" }}
                   value={props.overlayVideo || "none"}
@@ -1101,8 +1101,8 @@ export default function Editor() {
                   }
                 >
                   <option value="none">None</option>
-                  <option value="Grunge.mp4">Grunge.mp4</option>
-                  <option value="rough.mp4">rough.mp4</option>
+                  <option value="Grunge.mp4">Grunge</option>
+                  <option value="rough.mp4">Paint</option>
                 </select>
               </label>
             </div>
