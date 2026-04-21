@@ -359,6 +359,7 @@ const FighterChar: React.FC<{
           <div style={{
             position: "absolute",
             inset: 0,
+            zIndex: 10,
             background: `linear-gradient(to top, ${darkColor}, transparent)`,
             pointerEvents: "none" as const,
           }} />
