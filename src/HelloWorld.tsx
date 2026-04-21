@@ -1158,8 +1158,26 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Use scene-level values if provided, otherwise fall back to layout defaults
   const resolvedLayout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
+
+  const [bgVideoLoopFrames, setBgVideoLoopFrames] = React.useState<number>(dur);
+  React.useEffect(() => {
+    if (!resolvedLayout.loopVideo) return;
+    const rawSrc = resolvedLayout.backgroundVideo?.src;
+    if (!rawSrc) return;
+    const fullSrc = rawSrc.startsWith("blob:") || rawSrc.startsWith("data:") ? rawSrc : `${BASE}${rawSrc}`;
+    const v = document.createElement("video");
+    v.preload = "metadata";
+    v.src = fullSrc;
+    const onMeta = () => {
+      if (v.duration && Number.isFinite(v.duration)) {
+        setBgVideoLoopFrames(Math.round(v.duration * fps));
+      }
+    };
+    v.addEventListener("loadedmetadata", onMeta);
+    return () => v.removeEventListener("loadedmetadata", onMeta);
+  }, [resolvedLayout.loopVideo, resolvedLayout.backgroundVideo?.src, fps]);
+
   const td = resolvedLayout.textDefaults;
   // Merge scene-level backgroundVideo over layout default so partial overrides
   // (e.g. toggling `muted` only) don't wipe out the layout's `src`.
@@ -1237,29 +1255,35 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             alignItems: resolvedLayout.videoFit === "contain" ? "center" : undefined,
           }}
         >
-          <Video
-            src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
-            muted={backgroundVideo.muted !== false}
-            volume={resolvedLayout.battleOverlay
-              ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
-              : 1}
-            startFrom={backgroundVideo.startFrom ?? 0}
-            {...(resolvedLayout.loopVideo ? { loop: true } : {})}
-            style={
-              resolvedLayout.videoFit === "contain"
-                ? {
-                    height: "100%",
-                    width: "auto",
-                    transform: `scale(${backgroundVideo.scale ?? 1})`,
-                  }
-                : {
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transform: `scale(${backgroundVideo.scale ?? 1})`,
-                  }
-            }
-          />
+          {(() => {
+            const videoEl = (
+              <Video
+                src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
+                muted={backgroundVideo.muted !== false}
+                volume={resolvedLayout.battleOverlay
+                  ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
+                  : 1}
+                startFrom={backgroundVideo.startFrom ?? 0}
+                style={
+                  resolvedLayout.videoFit === "contain"
+                    ? {
+                        height: "100%",
+                        width: "auto",
+                        transform: `scale(${backgroundVideo.scale ?? 1})`,
+                      }
+                    : {
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transform: `scale(${backgroundVideo.scale ?? 1})`,
+                      }
+                }
+              />
+            );
+            return resolvedLayout.loopVideo
+              ? <Loop durationInFrames={bgVideoLoopFrames}>{videoEl}</Loop>
+              : videoEl;
+          })()}
           {backgroundVideo.blendMode === "normal" && (
             <div style={{
               position: "absolute",
