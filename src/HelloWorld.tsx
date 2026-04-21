@@ -1621,7 +1621,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
               left: "50%",
               transform: `translate(-50%, -50%) scale(${logoScale + breathe})`,
               opacity: logoOpacity,
-              zIndex: 10,
+              zIndex: 20,
               filter: `drop-shadow(0 0 ${glowIntensity}px rgba(255,255,255,0.8)) drop-shadow(0 0 ${glowIntensity * 2}px ${colorScheme.highlight})`,
             }}
           >
