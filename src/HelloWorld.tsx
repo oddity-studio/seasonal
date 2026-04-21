@@ -1237,35 +1237,29 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             alignItems: resolvedLayout.videoFit === "contain" ? "center" : undefined,
           }}
         >
-          {(() => {
-            const videoEl = (
-              <Video
-                src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
-                muted={backgroundVideo.muted !== false}
-                volume={resolvedLayout.battleOverlay
-                  ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
-                  : 1}
-                startFrom={backgroundVideo.startFrom ?? 0}
-                style={
-                  resolvedLayout.videoFit === "contain"
-                    ? {
-                        height: "100%",
-                        width: "auto",
-                        transform: `scale(${backgroundVideo.scale ?? 1})`,
-                      }
-                    : {
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        transform: `scale(${backgroundVideo.scale ?? 1})`,
-                      }
-                }
-              />
-            );
-            return resolvedLayout.loopVideo
-              ? <Loop durationInFrames={fps * 5}>{videoEl}</Loop>
-              : videoEl;
-          })()}
+          <Video
+            src={backgroundVideo.src.startsWith("blob:") || backgroundVideo.src.startsWith("data:") ? backgroundVideo.src : `${BASE}${backgroundVideo.src}`}
+            muted={backgroundVideo.muted !== false}
+            volume={resolvedLayout.battleOverlay
+              ? interpolate(frame, [0, fps * 2], [0, 1], { extrapolateRight: "clamp" })
+              : 1}
+            startFrom={backgroundVideo.startFrom ?? 0}
+            {...(resolvedLayout.loopVideo ? { loop: true } : {})}
+            style={
+              resolvedLayout.videoFit === "contain"
+                ? {
+                    height: "100%",
+                    width: "auto",
+                    transform: `scale(${backgroundVideo.scale ?? 1})`,
+                  }
+                : {
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    transform: `scale(${backgroundVideo.scale ?? 1})`,
+                  }
+            }
+          />
           {backgroundVideo.blendMode === "normal" && (
             <div style={{
               position: "absolute",
