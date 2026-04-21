@@ -200,17 +200,6 @@ export default function Editor() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    fetch(`${BASE}/picker/presets/index.json`)
-      .then((r) => r.json())
-      .then((names: string[]) => {
-        setPresetNames(names);
-        if (names.includes("Demo")) loadPreset("Demo");
-      })
-      .catch(() => {});
-  }, []);
-
   const loadPreset = useCallback((name: string) => {
     const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
     fetch(`${BASE}/picker/presets/${encodeURIComponent(name)}.json`)
@@ -224,6 +213,21 @@ export default function Editor() {
       })
       .catch(() => {});
   }, []);
+
+  // Fetch preset list, then auto-load Demo
+  useEffect(() => {
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    fetch(`${BASE}/picker/presets/index.json`)
+      .then((r) => r.json())
+      .then((names: string[]) => setPresetNames(names))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (presetNames.length > 0 && !selectedPreset) {
+      if (presetNames.includes("Demo")) loadPreset("Demo");
+    }
+  }, [presetNames, loadPreset, selectedPreset]);
 
   // Group layouts by category
   const categories = LAYOUT_OPTIONS.reduce<Record<string, typeof LAYOUT_OPTIONS>>((acc, opt) => {
