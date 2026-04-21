@@ -1555,7 +1555,7 @@ const TitleCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; layoutIndex:
         background: `linear-gradient(135deg, #000000, ${colorScheme.dark})`,
       }}
     >
-      <CharacterLayer layoutIndex={layoutIndex} />
+      <CharacterLayer layoutIndex={layoutIndex} darkColor={colorScheme.dark} />
 
       {/* Explosion burst on logo impact */}
       {(() => {
