@@ -12,14 +12,14 @@
     {
       "text": "Player1|Player2",
       "fontSize": 80,
-      "layout": 5,
+      "layout": "BotWeek1",
       "duration": 30,
       "backgroundVideo": { "src": "", "muted": false }
     },
     {
       "text": "Player1|Player2",
       "fontSize": 150,
-      "layout": 6,
+      "layout": "BotWeek2",
       "duration": 30,
       "backgroundVideo": { "src": "", "muted": false }
     }

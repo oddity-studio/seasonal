@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, PRIZE_LOGOS, getLayoutDefaultDuration } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, PRIZE_LOGOS, getLayoutDefaultDuration, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -182,7 +182,7 @@ export default function Editor() {
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           // Name by current first scene's layout index if any
-          const layoutIdx = props.scenes[0]?.layout ?? 0;
+          const layoutIdx = resolveLayoutIndex(props.scenes[0]?.layout, 0);
           a.href = url;
           a.download = `${layoutIdx}.png`;
           a.click();
@@ -236,16 +236,22 @@ export default function Editor() {
   }, {});
 
   const handleSave = useCallback(() => {
-    // Strip blob: URLs from backgroundVideo since they're session-only, but keep muted state
+    // Strip blob: URLs from backgroundVideo since they're session-only, but keep muted state.
+    // Also normalize layout → string label so presets survive template reordering.
     const cleaned = {
       ...props,
       scenes: props.scenes.map((s) => {
-        if (s.backgroundVideo?.src?.startsWith("blob:")) {
-          const { backgroundVideo, ...rest } = s;
+        let scene = s;
+        if (typeof s.layout === "number") {
+          const label = getLayoutLabel(s.layout);
+          if (label) scene = { ...scene, layout: label };
+        }
+        if (scene.backgroundVideo?.src?.startsWith("blob:")) {
+          const { backgroundVideo, ...rest } = scene;
           const muted = backgroundVideo?.muted;
           return muted !== undefined ? { ...rest, backgroundVideo: { src: "", muted } } : rest;
         }
-        return s;
+        return scene;
       }),
     };
     const json = JSON.stringify(cleaned, null, 2);
@@ -1197,10 +1203,11 @@ export default function Editor() {
                   </span>
                   <select
                     style={{ ...styles.layoutSelect, marginRight: 12 }}
-                    value={scene.layout ?? i}
+                    value={resolveLayoutIndex(scene.layout, i)}
                     onChange={(e) => {
                       const layoutIdx = Number(e.target.value);
-                      updateScene(i, "layout", layoutIdx);
+                      const label = getLayoutLabel(layoutIdx);
+                      updateScene(i, "layout", label ?? layoutIdx);
                       const dur = getLayoutDefaultDuration(layoutIdx);
                       if (dur != null) updateScene(i, "duration", dur);
                       if (isKillstreakOverlayLayout(layoutIdx) && !scene.text) {
@@ -1239,7 +1246,7 @@ export default function Editor() {
                       </option>
                     ))}
                   </select>
-                  {getLayoutControls(scene.layout ?? i).map((ctrl, ci) => {
+                  {getLayoutControls(resolveLayoutIndex(scene.layout, i)).map((ctrl, ci) => {
                     if (ctrl.type === "videoUpload") {
                       return (
                         <label key={ci} style={styles.attachVideoButton} title={ctrl.label ?? "Upload video"}>
@@ -1265,8 +1272,8 @@ export default function Editor() {
                     }
                     return null;
                   })}
-                  {isSlideLinesOverlayLayout(scene.layout ?? i) ? (
-                    isSlideLinesTourneyLayout(scene.layout ?? i) ? (
+                  {isSlideLinesOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
+                    isSlideLinesTourneyLayout(resolveLayoutIndex(scene.layout, i)) ? (
                       (() => {
                         const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
                         return (
@@ -1288,7 +1295,7 @@ export default function Editor() {
                       })()
                     ) : (
                     (() => {
-                      const isDuel = isSlideLinesDuelLayout(scene.layout ?? i);
+                      const isDuel = isSlideLinesDuelLayout(resolveLayoutIndex(scene.layout, i));
                       const rowCount = isDuel ? 1 : 3;
                       const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
                       const layer1 = rawA.split("|");
@@ -1329,7 +1336,7 @@ export default function Editor() {
                       );
                     })()
                     )
-                  ) : isKillstreakOverlayLayout(scene.layout ?? i) || isKingOverlayLayout(scene.layout ?? i) ? (
+                  ) : isKillstreakOverlayLayout(resolveLayoutIndex(scene.layout, i)) || isKingOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
                         style={{ ...styles.sceneInput, flex: "0 0 80px" }}
@@ -1353,7 +1360,7 @@ export default function Editor() {
                         placeholder="Username"
                       />
                     </span>
-                  ) : isBattleLayout(scene.layout ?? i) ? (
+                  ) : isBattleLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
                         style={{ ...styles.sceneInput, flex: 1 }}
@@ -1376,7 +1383,7 @@ export default function Editor() {
                         placeholder="User B"
                       />
                     </span>
-                  ) : isPrizesGridLayout(scene.layout ?? i) ? (
+                  ) : isPrizesGridLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     (() => {
                       const selected = new Set(
                         (scene.text || "").split(",").map((s) => s.trim()).filter(Boolean)
@@ -1405,7 +1412,7 @@ export default function Editor() {
                         </details>
                       );
                     })()
-                  ) : isWeeklyTitleLayout(scene.layout ?? i) ? (
+                  ) : isWeeklyTitleLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <input
                       type="week"
                       style={styles.sceneInput}
@@ -1471,7 +1478,7 @@ export default function Editor() {
                     min={1}
                     step={1}
                   />
-                  {getLayoutControls(scene.layout ?? i).some(c => c.type === "videoUpload" || c.type === "videoMute") ? (() => {
+                  {getLayoutControls(resolveLayoutIndex(scene.layout, i)).some(c => c.type === "videoUpload" || c.type === "videoMute") ? (() => {
                     const isMuted = scene.backgroundVideo?.muted !== false;
                     return (
                       <button

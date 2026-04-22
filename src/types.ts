@@ -16,7 +16,7 @@ export const backgroundVideoSchema = z.object({
 
 export const sceneSchema = z.object({
   text: z.string(),
-  layout: z.number().optional(),
+  layout: z.union([z.number(), z.string()]).optional(),
   fontSize: z.number().optional(),
   y: z.number().optional(),
   x: z.number().optional(),
@@ -62,13 +62,13 @@ export const defaultVideoProps: VideoProps = {
     highlight: "#ffaa00",
   },
   scenes: [
-    { text: "", fontSize: 80, layout: 17 },
-    { text: "New Season Starts Now", fontSize: 150, layout: 0 },
-    { text: "Make Your Mark", fontSize: 230, layout: 1 },
-    { text: "And Forge Your Legacy", fontSize: 140, layout: 3 },
-    { text: "Using Our New Tools", fontSize: 150, layout: 2 },
-    { text: "Sounds Packs Effects Tutorials Apps Plugins And More...", fontSize: 150, layout: 13 },
-    { text: "Right Here Right Now", fontSize: 150, layout: 14 },
-    { text: "", fontSize: 80, layout: 17 },
+    { text: "", fontSize: 80, layout: "S12 Logo" },
+    { text: "New Season Starts Now", fontSize: 150, layout: "S12 Scene1" },
+    { text: "Make Your Mark", fontSize: 230, layout: "S12 Scene2" },
+    { text: "And Forge Your Legacy", fontSize: 140, layout: "Video Cube" },
+    { text: "Using Our New Tools", fontSize: 150, layout: "S12 Scene3" },
+    { text: "Sounds Packs Effects Tutorials Apps Plugins And More...", fontSize: 150, layout: "S12 Scene4" },
+    { text: "Right Here Right Now", fontSize: 150, layout: "S12 Scene5" },
+    { text: "", fontSize: 80, layout: "S12 Logo" },
   ],
 };

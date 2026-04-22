@@ -257,6 +257,21 @@ const SCENE_LAYOUTS: SceneLayout[] = [
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
 export const getLayoutControls = (index: number): CustomControl[] =>
   SCENE_LAYOUTS[index]?.customControls ?? [];
+
+/**
+ * Resolve a scene's layout (number index OR string label) to a numeric index.
+ * String labels are preferred in stored presets because they survive template reordering.
+ */
+export const resolveLayoutIndex = (layout: number | string | undefined, fallback: number): number => {
+  if (typeof layout === "number") return layout;
+  if (typeof layout === "string") {
+    const idx = SCENE_LAYOUTS.findIndex((l) => l.label === layout);
+    return idx >= 0 ? idx : fallback;
+  }
+  return fallback;
+};
+
+export const getLayoutLabel = (index: number): string | undefined => SCENE_LAYOUTS[index]?.label;
 export const isBattleLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.battleOverlay === true;
 export const isWeeklyTitleLayout = (index: number): boolean =>
@@ -1698,7 +1713,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
         const sceneStart = sceneStarts[i];
         const sceneFrames = getSceneFrames(scene);
         const transitionOffset = transition === "flash.webm" ? 12 : 18;
-        const sceneLayoutIndex = scene.layout ?? i;
+        const sceneLayoutIndex = resolveLayoutIndex(scene.layout, i);
         const sceneLayout = SCENE_LAYOUTS[sceneLayoutIndex % SCENE_LAYOUTS.length];
         return (
           <React.Fragment key={i}>
