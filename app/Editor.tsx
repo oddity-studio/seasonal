@@ -1021,7 +1021,7 @@ export default function Editor() {
               <span style={styles.label}>Preset</span>
               <select
                 style={{ ...styles.layoutSelect, width: "100%" }}
-                value=""
+                value={selectedPreset || ""}
                 onChange={(e) => {
                   if (e.target.value) loadPreset(e.target.value);
                 }}
