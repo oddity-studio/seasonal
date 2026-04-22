@@ -12,23 +12,23 @@
   "scenes": [
     {
       "text": "Tournament Starts Now!",
-      "layout": 19,
+      "layout": 18,
       "fontSize": 80
     },
     {
-      "text": "Brackets are set",
+      "text": "Brackets are set",
       "layout": 7,
       "fontSize": 130
     },
     {
       "text": "Braingotblaps Inotech3d Rasmus Sik-Trakz Eazymoney Eugenemack Aquariusi Themystery Sullymon Shabazzprod Johnrush Bryckz Swider 901beats Cannaprize\nWyndxgo Lovedead Fury-Beats Skitzo Yummi Slotlistslut Totallynotfruity Xi_Reboot_iX Dink-The-Poof Sugarpopz Mythzero GBTheGoat Relik Potion DJFontaine",
-      "layout": 11,
+      "layout": 10,
       "fontSize": 70,
       "duration": 7
     },
     {
       "text": "Who's taking the belt?",
-      "layout": 13,
+      "layout": 12,
       "fontSize": 140
     },
     {
@@ -38,12 +38,12 @@
     },
     {
       "text": "PRIZES HERE,Native Insturments.png,UnitedPlugins.png,XLN Audio.png,Apogee.png,Arturia.png,ImageLine.png,Maor Appelbaum Mastering.png,McDSP.png,Melda.png,Baby Audio.png,Landr.png",
-      "layout": 28,
+      "layout": 27,
       "fontSize": 150
     },
     {
       "text": "ROUND ONE... FIGHT!",
-      "layout": 19,
+      "layout": 18,
       "fontSize": 80
     }
   ]

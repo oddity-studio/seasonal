@@ -10,7 +10,7 @@
   "scenes": [
     {
       "text": "Apr 5th – Apr 12th",
-      "layout": 24,
+      "layout": 23,
       "fontSize": 72,
       "duration": 5,
       "backgroundVideo": {
@@ -21,12 +21,12 @@
     {
       "text": "Player1|Player1|Player1\n786|454|121",
       "fontSize": 122,
-      "layout": 9
+      "layout": 8
     },
     {
       "text": "156|Player1",
       "fontSize": 150,
-      "layout": 25,
+      "layout": 24,
       "duration": 8,
       "backgroundVideo": {
         "src": "",
@@ -36,12 +36,12 @@
     {
       "text": "Player1|Player1|Player1\n215|655|45",
       "fontSize": 120,
-      "layout": 10
+      "layout": 9
     },
     {
       "text": "5|Player1",
       "fontSize": 150,
-      "layout": 26,
+      "layout": 25,
       "duration": 8,
       "backgroundVideo": {
         "src": "",
@@ -51,7 +51,7 @@
     {
       "text": "",
       "fontSize": 150,
-      "layout": 27,
+      "layout": 26,
       "duration": 10,
       "backgroundVideo": {
         "src": "",
