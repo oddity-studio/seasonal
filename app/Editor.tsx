@@ -7,6 +7,29 @@ import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSc
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
 
+type RssEntry = { username: string; number: string };
+
+const RSS_FEEDS: Record<string, string> = {
+  "weekly-top-battles": "https://www.audeobox.com/api/feeds/weekly-top-battles.xml",
+};
+
+async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
+  const url = RSS_FEEDS[feedKey];
+  if (!url) return null;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const title = doc.querySelector("item > title")?.textContent ?? "";
+    const m = title.match(/#\d+\s*[—–-]\s*(.+?)\s*\((\d+)/);
+    if (!m) return null;
+    return { username: m[1].trim(), number: m[2] };
+  } catch {
+    return null;
+  }
+}
+
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
 const IconPlay = () => (
@@ -200,18 +223,33 @@ export default function Editor() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  const loadPreset = useCallback((name: string) => {
+  const loadPreset = useCallback(async (name: string) => {
     const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    fetch(`${BASE}/picker/presets/${encodeURIComponent(name)}.json`)
-      .then((r) => r.json())
-      .then((data) => {
-        const parsed = videoPropsSchema.safeParse(data);
-        if (parsed.success) {
-          setProps({ ...parsed.data, overlayVideo: parsed.data.overlayVideo ?? "none" });
-          setSelectedPreset(name);
+    try {
+      const res = await fetch(`${BASE}/picker/presets/${encodeURIComponent(name)}.json`);
+      const data = await res.json();
+      const parsed = videoPropsSchema.safeParse(data);
+      if (!parsed.success) return;
+      const presetProps = { ...parsed.data, overlayVideo: parsed.data.overlayVideo ?? "none" };
+
+      if (name === "Weekly Report") {
+        const battles = await fetchRssFirst("weekly-top-battles");
+        if (battles) {
+          presetProps.scenes = presetProps.scenes.map((scene) => {
+            if (scene.layout !== "Weekly Stats 1") return scene;
+            const [users = "", nums = ""] = scene.text.split("\n");
+            const uArr = users.split("|");
+            const nArr = nums.split("|");
+            uArr[0] = battles.username;
+            nArr[0] = battles.number;
+            return { ...scene, text: `${uArr.join("|")}\n${nArr.join("|")}` };
+          });
         }
-      })
-      .catch(() => {});
+      }
+
+      setProps(presetProps);
+      setSelectedPreset(name);
+    } catch {}
   }, []);
 
   // Fetch preset list, then auto-load Demo
