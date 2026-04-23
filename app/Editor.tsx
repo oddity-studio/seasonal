@@ -81,6 +81,13 @@ function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<str
   return { ...scene, text: `${uArr.join("|")}\n${nArr.join("|")}` };
 }
 
+const RSS_BORDER = { border: "1px solid #f59e0b" };
+
+const hasRssBindings = (layout: string | number | undefined): boolean => {
+  if (typeof layout === "string") return layout in LAYOUT_RSS_BINDINGS;
+  return false;
+};
+
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
 
 const IconPlay = () => (
@@ -1105,7 +1112,7 @@ export default function Editor() {
                 ))}
               </select>
               <button
-                style={{ ...styles.galleryButton, width: "100%", marginTop: 12, opacity: fetching ? 0.5 : 1 }}
+                style={{ ...styles.galleryButton, width: "100%", marginTop: 12, opacity: fetching ? 0.5 : 1, ...RSS_BORDER, color: "#f59e0b" }}
                 disabled={fetching}
                 onClick={async () => {
                   setFetching(true);
@@ -1420,7 +1427,7 @@ export default function Editor() {
                           {Array.from({ length: rowCount }, (_, li) => (
                             <span key={li} style={{ display: "flex", flex: 1, gap: 2, minWidth: 0 }}>
                               <input
-                                style={{ ...styles.sceneInput, minWidth: 0 }}
+                                style={{ ...styles.sceneInput, minWidth: 0, ...(hasRssBindings(scene.layout) ? RSS_BORDER : {}) }}
                                 value={layer1[li] || ""}
                                 onChange={(e) => {
                                   const next = [...layer1];
@@ -1430,7 +1437,7 @@ export default function Editor() {
                                 placeholder={`Line ${li + 1}`}
                               />
                               <input
-                                style={isDuel ? { ...styles.sceneInput, flex: 1, minWidth: 0 } : { ...styles.sceneInput, flex: "0 0 44px", width: 44 }}
+                                style={isDuel ? { ...styles.sceneInput, flex: 1, minWidth: 0 } : { ...styles.sceneInput, flex: "0 0 44px", width: 44, ...(hasRssBindings(scene.layout) ? RSS_BORDER : {}) }}
                                 {...(isDuel ? {} : { maxLength: 4 })}
                                 value={layer2[li] || ""}
                                 onChange={(e) => {
@@ -1449,7 +1456,7 @@ export default function Editor() {
                   ) : isKillstreakOverlayLayout(resolveLayoutIndex(scene.layout, i)) || isKingOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
-                        style={{ ...styles.sceneInput, flex: 1 }}
+                        style={{ ...styles.sceneInput, flex: 1, ...RSS_BORDER }}
                         maxLength={20}
                         value={(scene.text || "").split("|")[1]?.trim() || ""}
                         onChange={(e) => {
@@ -1460,7 +1467,7 @@ export default function Editor() {
                         placeholder="Username"
                       />
                       <input
-                        style={{ ...styles.sceneInput, flex: "0 0 80px" }}
+                        style={{ ...styles.sceneInput, flex: "0 0 80px", ...RSS_BORDER }}
                         value={(scene.text || "").split("|")[0]?.trim() || ""}
                         onChange={(e) => {
                           const parts = (scene.text || "").split("|");
