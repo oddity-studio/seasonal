@@ -1221,8 +1221,12 @@ const Top10Overlay: React.FC<{
 }> = ({ text, sceneDuration, colors, fontConfig, fontSize, textColor, textGlow }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const lines = (text || "").split("\n").filter((s) => s.trim()).slice(0, 10);
-  while (lines.length < 10) lines.push("");
+  const parts = (text || "").split("|").map((s) => s.trim());
+  const lines: { username: string; points: string }[] = [];
+  for (let j = 0; j < parts.length - 1; j += 2) {
+    if (parts[j]) lines.push({ username: parts[j], points: parts[j + 1] || "" });
+  }
+  while (lines.length < 10) lines.push({ username: "", points: "" });
   const LINE_DELAY = 8;
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
@@ -1230,10 +1234,8 @@ const Top10Overlay: React.FC<{
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", zIndex: 12, opacity: exit, pointerEvents: "none" as const }}>
       <div style={{ width: "85%", display: "flex", flexDirection: "column", gap: 4 }}>
-        {lines.map((line, li) => {
-          const parts = line.split("|");
-          const username = parts[0]?.trim() || "";
-          const points = parts[1]?.trim() || "";
+        {lines.map((entry, li) => {
+          const { username, points } = entry;
           const rank = li + 1;
           const lineSpring = spring({
             frame,

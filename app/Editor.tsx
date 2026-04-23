@@ -91,7 +91,7 @@ function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<str
   if (fmt === "top10") {
     const entries = cacheAll[bindings[0].feedKey];
     if (!entries?.length) return scene;
-    return { ...scene, text: entries.map((e) => `${e.username}|${e.number}`).join("\n") };
+    return { ...scene, text: entries.map((e) => `${e.username}|${e.number}`).join("|") };
   }
   if (fmt === "numUser") {
     const entry = cache[bindings[0].feedKey];
@@ -1492,11 +1492,11 @@ export default function Editor() {
                     })()
                     )
                   ) : isTop10Layout(resolveLayoutIndex(scene.layout, i)) ? (
-                    <textarea
-                      style={{ ...styles.sceneInput, flex: 1, minHeight: 80, resize: "vertical" as const, fontFamily: "monospace", fontSize: 11, ...RSS_BORDER }}
-                      value={scene.text || ""}
+                    <input
+                      style={{ ...styles.sceneInput, flex: 1, ...RSS_BORDER }}
+                      value={(scene.text || "").replace(/\n/g, "|")}
                       onChange={(e) => updateScene(i, "text", e.target.value)}
-                      placeholder={"Username1|1190\nUsername2|1135\n..."}
+                      placeholder="User1|1190|User2|1135|..."
                     />
                   ) : isKillstreakOverlayLayout(resolveLayoutIndex(scene.layout, i)) || isKingOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
