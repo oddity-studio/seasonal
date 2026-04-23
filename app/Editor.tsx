@@ -9,12 +9,22 @@ import { AUTOMATE_PARSERS } from "./automateParsers";
 
 type RssEntry = { username: string; number: string };
 
+const RSS_URLS: Record<string, string> = {
+  "weekly-top-battles": "https://www.audeobox.com/api/feeds/weekly-top-battles.xml",
+};
+
 async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
+  const feedUrl = RSS_URLS[feedKey];
+  if (!feedUrl) return null;
   try {
-    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    const res = await fetch(`${BASE}/rss-cache/${encodeURIComponent(feedKey)}.json`);
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`);
     if (!res.ok) return null;
-    return await res.json();
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const title = doc.querySelector("item > title")?.textContent ?? "";
+    const m = title.match(/#\d+\s*[—–-]\s*(.+?)\s*\((\d+)/);
+    if (!m) return null;
+    return { username: m[1].trim(), number: m[2] };
   } catch {
     return null;
   }
