@@ -1162,9 +1162,9 @@ const SlideLinesOverlay: React.FC<{
             <div style={{
               position: "absolute",
               top: 0,
-              left: -200,
-              right: -200,
-              zIndex: 0,
+              left: -600,
+              right: -600,
+              zIndex: -1,
             }}>
               {Array.from({ length: maxLines }, (_, li) => (
                 <div
