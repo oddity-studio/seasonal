@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, PRIZE_LOGOS, getLayoutDefaultDuration, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -18,12 +18,13 @@ const RSS_FEEDS: Record<string, string> = {
   "weekly-top-xp": "https://www.audeobox.com/api/feeds/weekly-top-xp.xml",
   "top-winstreak": "https://www.audeobox.com/api/feeds/top-winstreak.xml",
   "weekly-top-genre-kings": "https://www.audeobox.com/api/feeds/weekly-top-genre-kings.xml",
+  "top-producers": "https://www.audeobox.com/api/feeds/top-producers.xml",
 };
 
 type RssBinding = {
   feedKey: string;
   slotIndex: number;
-  format?: "stats" | "numUser";
+  format?: "stats" | "numUser" | "top10";
 };
 
 const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
@@ -42,6 +43,9 @@ const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
   ],
   "King": [
     { feedKey: "weekly-top-genre-kings", slotIndex: 0, format: "numUser" },
+  ],
+  "Top10": [
+    { feedKey: "top-producers", slotIndex: 0, format: "top10" },
   ],
 };
 
@@ -62,8 +66,33 @@ async function fetchRssFeed(feedKey: string): Promise<RssEntry | null> {
   }
 }
 
-function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<string, RssEntry>): Scene {
+async function fetchRssAll(feedKey: string): Promise<RssEntry[]> {
+  const feedUrl = RSS_FEEDS[feedKey];
+  if (!feedUrl) return [];
+  try {
+    const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`);
+    if (!res.ok) return [];
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const items = doc.querySelectorAll("item > title");
+    const entries: RssEntry[] = [];
+    items.forEach((el) => {
+      const m = (el.textContent ?? "").match(/#\d+\s*[—–-]\s*(.+?)\s*\((\d+)/);
+      if (m) entries.push({ username: m[1].trim(), number: m[2] });
+    });
+    return entries;
+  } catch {
+    return [];
+  }
+}
+
+function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<string, RssEntry>, cacheAll: Record<string, RssEntry[]>): Scene {
   const fmt = bindings[0]?.format;
+  if (fmt === "top10") {
+    const entries = cacheAll[bindings[0].feedKey];
+    if (!entries?.length) return scene;
+    return { ...scene, text: entries.map((e) => `${e.username}|${e.number}`).join("\n") };
+  }
   if (fmt === "numUser") {
     const entry = cache[bindings[0].feedKey];
     if (!entry) return scene;
@@ -1119,25 +1148,34 @@ export default function Editor() {
                   try {
                     const resolveLabel = (l: string | number | undefined) =>
                       typeof l === "string" ? l : getLayoutLabel(typeof l === "number" ? l : -1) ?? "";
-                    const needed = new Set<string>();
+                    const neededSingle = new Set<string>();
+                    const neededAll = new Set<string>();
                     for (const scene of props.scenes) {
                       const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
-                      if (bindings) bindings.forEach((b) => needed.add(b.feedKey));
+                      if (bindings) bindings.forEach((b) => {
+                        if (b.format === "top10") neededAll.add(b.feedKey);
+                        else neededSingle.add(b.feedKey);
+                      });
                     }
                     const cache: Record<string, RssEntry> = {};
-                    await Promise.all(
-                      [...needed].map(async (key) => {
+                    const cacheAll: Record<string, RssEntry[]> = {};
+                    await Promise.all([
+                      ...[...neededSingle].map(async (key) => {
                         const entry = await fetchRssFeed(key);
                         if (entry) cache[key] = entry;
-                      })
-                    );
-                    if (Object.keys(cache).length > 0) {
+                      }),
+                      ...[...neededAll].map(async (key) => {
+                        const entries = await fetchRssAll(key);
+                        if (entries.length) cacheAll[key] = entries;
+                      }),
+                    ]);
+                    if (Object.keys(cache).length > 0 || Object.keys(cacheAll).length > 0) {
                       setProps((prev) => ({
                         ...prev,
                         scenes: prev.scenes.map((scene) => {
                           const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
                           if (!bindings) return scene;
-                          return applyRssToScene(scene, bindings, cache);
+                          return applyRssToScene(scene, bindings, cache, cacheAll);
                         }),
                       }));
                     }
@@ -1453,6 +1491,13 @@ export default function Editor() {
                       );
                     })()
                     )
+                  ) : isTop10Layout(resolveLayoutIndex(scene.layout, i)) ? (
+                    <textarea
+                      style={{ ...styles.sceneInput, flex: 1, minHeight: 80, resize: "vertical" as const, fontFamily: "monospace", fontSize: 11, ...RSS_BORDER }}
+                      value={scene.text || ""}
+                      onChange={(e) => updateScene(i, "text", e.target.value)}
+                      placeholder={"Username1|1190\nUsername2|1135\n..."}
+                    />
                   ) : isKillstreakOverlayLayout(resolveLayoutIndex(scene.layout, i)) || isKingOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input

@@ -102,6 +102,7 @@ type SceneLayout = {
   slideLinesDuel?: boolean;
   slideLinesTourney?: boolean;
   polkaDotOverlay?: boolean;
+  top10?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
   customControls?: CustomControl[];
@@ -252,6 +253,11 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     prizesGrid: true,
     textDefaults: { y: 0, fontSize: 100, mode: "flat" },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
+  { label: "Top10", category: "Weekly Report", characters: [],
+    top10: true,
+    defaultDuration: 10,
+    textDefaults: { y: 0, fontSize: 60, mode: "flat" },
+    customStyle: (c) => ({ background: `linear-gradient(180deg, ${c.dark}, #000000)`, textColor: "#ffffff", textGlow: `0 0 15px ${c.highlight}60` }) },
 ];
 
 export const LAYOUT_OPTIONS = SCENE_LAYOUTS.map((l, i) => ({ index: i, label: l.label, category: l.category }));
@@ -288,6 +294,8 @@ export const isSlideLinesTourneyLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesTourney === true;
 export const isPrizesGridLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.prizesGrid === true;
+export const isTop10Layout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.top10 === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
 
@@ -1202,6 +1210,94 @@ const SlideLinesOverlay: React.FC<{
   );
 };
 
+const Top10Overlay: React.FC<{
+  text: string;
+  sceneDuration: number;
+  colors: ColorScheme;
+  fontConfig: FontConfig;
+  fontSize: number;
+  textColor: string;
+  textGlow: string;
+}> = ({ text, sceneDuration, colors, fontConfig, fontSize, textColor, textGlow }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const lines = (text || "").split("\n").filter((s) => s.trim()).slice(0, 10);
+  while (lines.length < 10) lines.push("");
+  const LINE_DELAY = 8;
+  const exitStart = sceneDuration - 30;
+  const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
+
+  return (
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", zIndex: 12, opacity: exit, pointerEvents: "none" as const }}>
+      <div style={{ width: "85%", display: "flex", flexDirection: "column", gap: 4 }}>
+        {lines.map((line, li) => {
+          const parts = line.split("|");
+          const username = parts[0]?.trim() || "";
+          const points = parts[1]?.trim() || "";
+          const rank = li + 1;
+          const lineSpring = spring({
+            frame,
+            fps,
+            config: { damping: 14, mass: 0.8 },
+            delay: li * LINE_DELAY,
+          });
+          const slideX = interpolate(lineSpring, [0, 1], [-800, 0]);
+          const opacity = interpolate(lineSpring, [0, 0.4], [0, 1], { extrapolateRight: "clamp" });
+          return (
+            <div
+              key={li}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                padding: "8px 20px",
+                borderRadius: 6,
+                background: li % 2 === 0 ? `${colors.dark}40` : "transparent",
+                transform: `translateX(${slideX}px)`,
+                opacity,
+                willChange: "transform, opacity",
+              }}
+            >
+              <span style={{
+                fontSize: fontSize * 1.2,
+                fontFamily: fontConfig.fontFamily,
+                fontWeight: fontConfig.fontWeight ?? 700,
+                color: colors.highlight,
+                minWidth: 60,
+                textAlign: "right",
+                textShadow: textGlow,
+              }}>
+                {username ? `#${rank}` : ""}
+              </span>
+              <span style={{
+                fontSize,
+                fontFamily: fontConfig.fontFamily,
+                fontWeight: fontConfig.fontWeight ?? 700,
+                color: textColor,
+                flex: 1,
+                textTransform: "uppercase",
+                letterSpacing: 2,
+                textShadow: textGlow,
+              }}>
+                {username}
+              </span>
+              <span style={{
+                fontSize: fontSize * 0.8,
+                fontFamily: fontConfig.fontFamily,
+                fontWeight: fontConfig.fontWeight ?? 700,
+                color: colors.light,
+                textShadow: textGlow,
+              }}>
+                {points}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number; overlayVideo?: string }> = ({
   text,
   index,
@@ -1419,8 +1515,20 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         />
       )}
 
+      {resolvedLayout.top10 && (
+        <Top10Overlay
+          text={text}
+          sceneDuration={dur}
+          colors={colors}
+          fontConfig={fontConfig}
+          fontSize={resolvedFontSize}
+          textColor={textColor}
+          textGlow={textGlow}
+        />
+      )}
+
       {/* Text overlay (skip for overlay scenes) */}
-      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && !resolvedLayout.kingOverlay && !resolvedLayout.slideLinesOverlay && (() => {
+      {!resolvedLayout.battleOverlay && !resolvedLayout.weeklyTitle && !resolvedLayout.killstreakOverlay && !resolvedLayout.kingOverlay && !resolvedLayout.slideLinesOverlay && !resolvedLayout.top10 && (() => {
         const textMode: TextMode = td?.mode ?? "normal";
         const isFlat = textMode === "flat";
         const isScroll = textMode === "scroll";
