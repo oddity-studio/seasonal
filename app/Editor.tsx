@@ -13,6 +13,9 @@ const RSS_FEEDS: Record<string, string> = {
   "weekly-top-battles": "https://www.audeobox.com/api/feeds/weekly-top-battles.xml",
   "weekly-top-wins": "https://www.audeobox.com/api/feeds/weekly-top-wins.xml",
   "weekly-top-plays": "https://www.audeobox.com/api/feeds/weekly-top-plays.xml",
+  "weekly-top-votes": "https://www.audeobox.com/api/feeds/weekly-top-votes.xml",
+  "weekly-top-comments": "https://www.audeobox.com/api/feeds/weekly-top-comments.xml",
+  "weekly-top-xp": "https://www.audeobox.com/api/feeds/weekly-top-xp.xml",
 };
 
 type RssBinding = {
@@ -25,6 +28,11 @@ const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
     { feedKey: "weekly-top-battles", slotIndex: 0 },
     { feedKey: "weekly-top-wins", slotIndex: 1 },
     { feedKey: "weekly-top-plays", slotIndex: 2 },
+  ],
+  "Weekly Stats 2": [
+    { feedKey: "weekly-top-votes", slotIndex: 0 },
+    { feedKey: "weekly-top-comments", slotIndex: 1 },
+    { feedKey: "weekly-top-xp", slotIndex: 2 },
   ],
 };
 
