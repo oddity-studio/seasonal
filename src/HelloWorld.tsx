@@ -999,6 +999,7 @@ const SlideLinesOverlay: React.FC<{
     ? layer2Raw.split(" ").filter((s) => s.trim())
     : layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
+  const isStats = !duel && !tourney;
   // Compress the animation timeline so all slide-ins finish 1s before the scene ends
   const slideFrame = sceneDuration > fps
     ? Math.min(frame * (sceneDuration / (sceneDuration - fps)), sceneDuration - fps)
@@ -1056,7 +1057,7 @@ const SlideLinesOverlay: React.FC<{
                 fontStyle: fontConfig.fontStyle ?? "normal",
                 color: textColor,
                 margin: 0,
-                lineHeight: (fontConfig.lineHeight ?? 1.0) * 4.0,
+                lineHeight: (fontConfig.lineHeight ?? 1.0) * (isStats ? 5.5 : 4.0),
                 letterSpacing: 8,
                 textTransform: "uppercase",
                 textShadow: textGlow,
@@ -1095,7 +1096,7 @@ const SlideLinesOverlay: React.FC<{
               fontStyle: fontConfig.fontStyle ?? "normal",
               color: colors.highlight,
               margin: 0,
-              lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0)}px`,
+              lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * (isStats ? 5.5 : 4.0))}px`,
               letterSpacing: 4,
               textTransform: "uppercase",
               textShadow: textGlow,
@@ -1138,7 +1139,7 @@ const SlideLinesOverlay: React.FC<{
                 color: "#000000",
                 margin: 0,
                 // Match layer 1 row height so the numbers sit on the same rows as the big lines
-                lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0)}px`,
+                lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * (isStats ? 5.5 : 4.0))}px`,
                 letterSpacing: 4,
                 textTransform: "uppercase",
                 opacity,
