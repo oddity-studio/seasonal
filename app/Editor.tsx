@@ -1231,7 +1231,7 @@ export default function Editor() {
 
         {!recordingMode && (
           <div style={styles.middleColumn}>
-            {selectedPreset && AUTOMATE_PARSERS[selectedPreset] && (
+            {showDevTools && selectedPreset && AUTOMATE_PARSERS[selectedPreset] && (
               <div style={styles.controls}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <div style={styles.scenesHeader}>
