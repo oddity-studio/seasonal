@@ -9,7 +9,8 @@
     "start": "next start",
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts HelloWorld out/video.mp4",
-    "bake-thumbs": "node scripts/bakeThumbs.mjs"
+    "bake-thumbs": "node scripts/bakeThumbs.mjs",
+    "fetch-rss": "node scripts/fetch-rss.js"
   },
   "repository": {
     "type": "git",

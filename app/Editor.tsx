@@ -10,16 +10,11 @@ import { AUTOMATE_PARSERS } from "./automateParsers";
 type RssEntry = { username: string; number: string };
 
 async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
-  if (process.env.NODE_ENV !== "development") return null;
   try {
-    const res = await fetch(`/api/rss/${encodeURIComponent(feedKey)}`);
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const res = await fetch(`${BASE}/rss-cache/${encodeURIComponent(feedKey)}.json`);
     if (!res.ok) return null;
-    const xml = await res.text();
-    const doc = new DOMParser().parseFromString(xml, "text/xml");
-    const title = doc.querySelector("item > title")?.textContent ?? "";
-    const m = title.match(/#\d+\s*[—–-]\s*(.+?)\s*\((\d+)/);
-    if (!m) return null;
-    return { username: m[1].trim(), number: m[2] };
+    return await res.json();
   } catch {
     return null;
   }
