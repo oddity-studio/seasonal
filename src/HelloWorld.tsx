@@ -983,6 +983,7 @@ const SlideLinesOverlay: React.FC<{
   const exitStart = sceneDuration - 30;
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
+  const isStats = !duel && !tourney;
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = (isStats || tourney) ? rotateZ : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
@@ -999,7 +1000,6 @@ const SlideLinesOverlay: React.FC<{
     ? layer2Raw.split(" ").filter((s) => s.trim())
     : layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
-  const isStats = !duel && !tourney;
   // Compress the animation timeline so all slide-ins finish 1s before the scene ends
   const slideFrame = sceneDuration > fps
     ? Math.min(frame * (sceneDuration / (sceneDuration - fps)), sceneDuration - fps)
