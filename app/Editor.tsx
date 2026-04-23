@@ -17,7 +17,7 @@ async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
   const feedUrl = RSS_URLS[feedKey];
   if (!feedUrl) return null;
   try {
-    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`);
+    const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`);
     if (!res.ok) return null;
     const xml = await res.text();
     const doc = new DOMParser().parseFromString(xml, "text/xml");
