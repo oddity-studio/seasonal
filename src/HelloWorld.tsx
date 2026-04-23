@@ -1152,6 +1152,37 @@ const SlideLinesOverlay: React.FC<{
           );
         })}
         </div>
+
+        {/* Layer 4 (stats only): horizontal gradient stripes behind each group */}
+        {isStats && (() => {
+          const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 5.5);
+          const stripeTop = -8;
+          const stripeH = rowH * 0.7;
+          return (
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: -200,
+              right: -200,
+              zIndex: 0,
+            }}>
+              {Array.from({ length: maxLines }, (_, li) => (
+                <div
+                  key={li}
+                  style={{
+                    position: "absolute",
+                    top: stripeTop + li * rowH,
+                    left: 0,
+                    right: 0,
+                    height: stripeH,
+                    background: `linear-gradient(90deg, ${colors.light}cc, ${colors.highlight}cc)`,
+                    borderRadius: 4,
+                  }}
+                />
+              ))}
+            </div>
+          );
+        })()}
       </div>
       </div>
     </div>
