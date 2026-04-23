@@ -9,15 +9,10 @@ import { AUTOMATE_PARSERS } from "./automateParsers";
 
 type RssEntry = { username: string; number: string };
 
-const RSS_FEEDS: Record<string, string> = {
-  "weekly-top-battles": "https://www.audeobox.com/api/feeds/weekly-top-battles.xml",
-};
-
 async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
-  const url = RSS_FEEDS[feedKey];
-  if (!url) return null;
   try {
-    const res = await fetch(url);
+    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const res = await fetch(`${BASE}/api/rss?feed=${encodeURIComponent(feedKey)}`);
     if (!res.ok) return null;
     const xml = await res.text();
     const doc = new DOMParser().parseFromString(xml, "text/xml");
