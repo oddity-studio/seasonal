@@ -9,12 +9,23 @@ import { AUTOMATE_PARSERS } from "./automateParsers";
 
 type RssEntry = { username: string; number: string };
 
-const RSS_URLS: Record<string, string> = {
+const RSS_FEEDS: Record<string, string> = {
   "weekly-top-battles": "https://www.audeobox.com/api/feeds/weekly-top-battles.xml",
 };
 
-async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
-  const feedUrl = RSS_URLS[feedKey];
+type RssBinding = {
+  feedKey: string;
+  slotIndex: number;
+};
+
+const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
+  "Weekly Stats 1": [
+    { feedKey: "weekly-top-battles", slotIndex: 0 },
+  ],
+};
+
+async function fetchRssFeed(feedKey: string): Promise<RssEntry | null> {
+  const feedUrl = RSS_FEEDS[feedKey];
   if (!feedUrl) return null;
   try {
     const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`);
@@ -28,6 +39,19 @@ async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
   } catch {
     return null;
   }
+}
+
+function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<string, RssEntry>): Scene {
+  const [users = "", nums = ""] = scene.text.split("\n");
+  const uArr = users.split("|");
+  const nArr = nums.split("|");
+  for (const { feedKey, slotIndex } of bindings) {
+    const entry = cache[feedKey];
+    if (!entry) continue;
+    uArr[slotIndex] = entry.username;
+    nArr[slotIndex] = entry.number;
+  }
+  return { ...scene, text: `${uArr.join("|")}\n${nArr.join("|")}` };
 }
 
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
@@ -88,6 +112,7 @@ export default function Editor() {
   const loadInputRef = useRef<HTMLInputElement>(null);
   const [presetNames, setPresetNames] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
   const [automateText, setAutomateText] = useState("");
   const [thumbMissing, setThumbMissing] = useState<Record<number, boolean>>({});
   const [showDevTools, setShowDevTools] = useState(false);
@@ -230,24 +255,7 @@ export default function Editor() {
       const data = await res.json();
       const parsed = videoPropsSchema.safeParse(data);
       if (!parsed.success) return;
-      const presetProps = { ...parsed.data, overlayVideo: parsed.data.overlayVideo ?? "none" };
-
-      if (name === "Weekly Report") {
-        const battles = await fetchRssFirst("weekly-top-battles");
-        if (battles) {
-          presetProps.scenes = presetProps.scenes.map((scene) => {
-            if (scene.layout !== "Weekly Stats 1") return scene;
-            const [users = "", nums = ""] = scene.text.split("\n");
-            const uArr = users.split("|");
-            const nArr = nums.split("|");
-            uArr[0] = battles.username;
-            nArr[0] = battles.number;
-            return { ...scene, text: `${uArr.join("|")}\n${nArr.join("|")}` };
-          });
-        }
-      }
-
-      setProps(presetProps);
+      setProps({ ...parsed.data, overlayVideo: parsed.data.overlayVideo ?? "none" });
       setSelectedPreset(name);
     } catch {}
   }, []);
@@ -1069,6 +1077,43 @@ export default function Editor() {
                   <option key={name} value={name}>{name}</option>
                 ))}
               </select>
+              <button
+                style={{ ...styles.galleryButton, width: "100%", marginTop: 4, opacity: fetching ? 0.5 : 1 }}
+                disabled={fetching}
+                onClick={async () => {
+                  setFetching(true);
+                  try {
+                    const needed = new Set<string>();
+                    for (const scene of props.scenes) {
+                      const layout = typeof scene.layout === "string" ? scene.layout : "";
+                      const bindings = LAYOUT_RSS_BINDINGS[layout];
+                      if (bindings) bindings.forEach((b) => needed.add(b.feedKey));
+                    }
+                    const cache: Record<string, RssEntry> = {};
+                    await Promise.all(
+                      [...needed].map(async (key) => {
+                        const entry = await fetchRssFeed(key);
+                        if (entry) cache[key] = entry;
+                      })
+                    );
+                    if (Object.keys(cache).length > 0) {
+                      setProps((prev) => ({
+                        ...prev,
+                        scenes: prev.scenes.map((scene) => {
+                          const layout = typeof scene.layout === "string" ? scene.layout : "";
+                          const bindings = LAYOUT_RSS_BINDINGS[layout];
+                          if (!bindings) return scene;
+                          return applyRssToScene(scene, bindings, cache);
+                        }),
+                      }));
+                    }
+                  } finally {
+                    setFetching(false);
+                  }
+                }}
+              >
+                {fetching ? "Fetching…" : "Fetch"}
+              </button>
             </div>
 
             <div>
