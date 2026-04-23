@@ -1158,6 +1158,7 @@ const SlideLinesOverlay: React.FC<{
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 5.5);
           const stripeTop = 192;
           const stripeH = rowH * 0.7;
+          const stripeWidth = 1800;
           return (
             <div style={{
               position: "absolute",
@@ -1165,21 +1166,33 @@ const SlideLinesOverlay: React.FC<{
               left: -600,
               right: -600,
               zIndex: -1,
+              overflow: "hidden",
             }}>
-              {Array.from({ length: maxLines }, (_, li) => (
-                <div
-                  key={li}
-                  style={{
-                    position: "absolute",
-                    top: stripeTop + li * rowH,
-                    left: 0,
-                    right: 0,
-                    height: stripeH,
-                    background: `linear-gradient(90deg, ${colors.light}cc, ${colors.highlight}cc)`,
-                    borderRadius: 4,
-                  }}
-                />
-              ))}
+              {Array.from({ length: maxLines }, (_, li) => {
+                const stripeSpring = spring({
+                  frame: slideFrame,
+                  fps,
+                  config: { damping: 16, mass: 1.0 },
+                  delay: li * LINE_STAGGER * 2,
+                });
+                const slideX = interpolate(stripeSpring, [0, 1], [-stripeWidth, 180]);
+                return (
+                  <div
+                    key={li}
+                    style={{
+                      position: "absolute",
+                      top: stripeTop + li * rowH,
+                      left: 0,
+                      width: stripeWidth,
+                      height: stripeH,
+                      background: `linear-gradient(90deg, ${colors.light}cc, ${colors.highlight}cc)`,
+                      borderRadius: 4,
+                      transform: `translateX(${slideX}px)`,
+                      willChange: "transform",
+                    }}
+                  />
+                );
+              })}
             </div>
           );
         })()}
