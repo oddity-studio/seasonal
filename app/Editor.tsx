@@ -11,6 +11,7 @@ type RssEntry = { username: string; number: string };
 
 const RSS_FEEDS: Record<string, string> = {
   "weekly-top-battles": "https://www.audeobox.com/api/feeds/weekly-top-battles.xml",
+  "weekly-top-wins": "https://www.audeobox.com/api/feeds/weekly-top-wins.xml",
 };
 
 type RssBinding = {
@@ -21,6 +22,7 @@ type RssBinding = {
 const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
   "Weekly Stats 1": [
     { feedKey: "weekly-top-battles", slotIndex: 0 },
+    { feedKey: "weekly-top-wins", slotIndex: 1 },
   ],
 };
 
