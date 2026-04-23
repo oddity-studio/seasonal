@@ -84,8 +84,8 @@ function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<str
 const RSS_BORDER = { border: "1px solid #f59e0b" };
 
 const hasRssBindings = (layout: string | number | undefined): boolean => {
-  if (typeof layout === "string") return layout in LAYOUT_RSS_BINDINGS;
-  return false;
+  const label = typeof layout === "string" ? layout : getLayoutLabel(typeof layout === "number" ? layout : -1);
+  return label != null && label in LAYOUT_RSS_BINDINGS;
 };
 
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
@@ -1117,10 +1117,11 @@ export default function Editor() {
                 onClick={async () => {
                   setFetching(true);
                   try {
+                    const resolveLabel = (l: string | number | undefined) =>
+                      typeof l === "string" ? l : getLayoutLabel(typeof l === "number" ? l : -1) ?? "";
                     const needed = new Set<string>();
                     for (const scene of props.scenes) {
-                      const layout = typeof scene.layout === "string" ? scene.layout : "";
-                      const bindings = LAYOUT_RSS_BINDINGS[layout];
+                      const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
                       if (bindings) bindings.forEach((b) => needed.add(b.feedKey));
                     }
                     const cache: Record<string, RssEntry> = {};
@@ -1134,8 +1135,7 @@ export default function Editor() {
                       setProps((prev) => ({
                         ...prev,
                         scenes: prev.scenes.map((scene) => {
-                          const layout = typeof scene.layout === "string" ? scene.layout : "";
-                          const bindings = LAYOUT_RSS_BINDINGS[layout];
+                          const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
                           if (!bindings) return scene;
                           return applyRssToScene(scene, bindings, cache);
                         }),
@@ -1675,7 +1675,7 @@ export default function Editor() {
                           const dur = getLayoutDefaultDuration(opt.index);
                           setProps((prev) => ({
                             ...prev,
-                            scenes: [...prev.scenes, { text: "", fontSize: 150, layout: opt.index, ...(dur != null ? { duration: dur } : {}) }],
+                            scenes: [...prev.scenes, { text: "", fontSize: 150, layout: opt.label, ...(dur != null ? { duration: dur } : {}) }],
                           }));
                           setShowGallery(false);
                         }}
