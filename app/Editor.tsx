@@ -1395,9 +1395,9 @@ export default function Editor() {
                       };
                       return (
                         <details style={{ flex: 1, minWidth: 0 }}>
-                          <summary style={{ ...styles.sceneInput, cursor: "pointer", userSelect: "none" as const, listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, WebkitAppearance: "none" as const }}>
+                          <summary style={{ ...styles.layoutSelect, flex: 1, cursor: "pointer", userSelect: "none" as const, listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
                             <span>{selected.size === 0 ? "All logos" : `${selected.size} logo${selected.size !== 1 ? "s" : ""} selected`}</span>
-                            <span style={{ fontSize: 10, color: "#888", pointerEvents: "none" }}>&#9660;</span>
+                            <span style={{ fontSize: 8, color: "#94a3b8", pointerEvents: "none" }}>&#9660;</span>
                           </summary>
                           <div style={{ position: "absolute", zIndex: 100, background: "#1e1e1e", border: "1px solid #444", borderRadius: 4, padding: "4px 0", marginTop: 2, minWidth: 220, maxHeight: 300, overflowY: "auto" as const }}>
                             {PRIZE_LOGOS.map((logo) => {
