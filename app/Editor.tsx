@@ -1449,16 +1449,6 @@ export default function Editor() {
                   ) : isKillstreakOverlayLayout(resolveLayoutIndex(scene.layout, i)) || isKingOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <span style={{ display: "flex", flex: 1, gap: 4 }}>
                       <input
-                        style={{ ...styles.sceneInput, flex: "0 0 80px" }}
-                        value={(scene.text || "").split("|")[0]?.trim() || ""}
-                        onChange={(e) => {
-                          const parts = (scene.text || "").split("|");
-                          const u = parts[1]?.trim() || "";
-                          updateScene(i, "text", `${e.target.value}|${u}`);
-                        }}
-                        placeholder="#"
-                      />
-                      <input
                         style={{ ...styles.sceneInput, flex: 1 }}
                         maxLength={20}
                         value={(scene.text || "").split("|")[1]?.trim() || ""}
@@ -1468,6 +1458,16 @@ export default function Editor() {
                           updateScene(i, "text", `${n}|${e.target.value}`);
                         }}
                         placeholder="Username"
+                      />
+                      <input
+                        style={{ ...styles.sceneInput, flex: "0 0 80px" }}
+                        value={(scene.text || "").split("|")[0]?.trim() || ""}
+                        onChange={(e) => {
+                          const parts = (scene.text || "").split("|");
+                          const u = parts[1]?.trim() || "";
+                          updateScene(i, "text", `${e.target.value}|${u}`);
+                        }}
+                        placeholder="#"
                       />
                     </span>
                   ) : isBattleLayout(resolveLayoutIndex(scene.layout, i)) ? (
