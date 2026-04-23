@@ -298,6 +298,8 @@ export const isTop10Layout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.top10 === true;
 export const getLayoutDefaultDuration = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.defaultDuration;
+export const getLayoutDefaultFontSize = (index: number): number | undefined =>
+  SCENE_LAYOUTS[index]?.textDefaults?.fontSize;
 
 const FighterChar: React.FC<{
   placement: CharPlacement;

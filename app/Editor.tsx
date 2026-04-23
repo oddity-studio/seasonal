@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -1718,9 +1718,10 @@ export default function Editor() {
                         style={{ ...styles.galleryCard, cursor: "pointer" }}
                         onClick={() => {
                           const dur = getLayoutDefaultDuration(opt.index);
+                          const fs = getLayoutDefaultFontSize(opt.index) ?? 150;
                           setProps((prev) => ({
                             ...prev,
-                            scenes: [...prev.scenes, { text: "", fontSize: 150, layout: opt.label, ...(dur != null ? { duration: dur } : {}) }],
+                            scenes: [...prev.scenes, { text: "", fontSize: fs, layout: opt.label, ...(dur != null ? { duration: dur } : {}) }],
                           }));
                           setShowGallery(false);
                         }}
