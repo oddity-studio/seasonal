@@ -10,9 +10,9 @@ import { AUTOMATE_PARSERS } from "./automateParsers";
 type RssEntry = { username: string; number: string };
 
 async function fetchRssFirst(feedKey: string): Promise<RssEntry | null> {
+  if (process.env.NODE_ENV !== "development") return null;
   try {
-    const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    const res = await fetch(`${BASE}/api/rss/${encodeURIComponent(feedKey)}`);
+    const res = await fetch(`/api/rss/${encodeURIComponent(feedKey)}`);
     if (!res.ok) return null;
     const xml = await res.text();
     const doc = new DOMParser().parseFromString(xml, "text/xml");
