@@ -16,11 +16,14 @@ const RSS_FEEDS: Record<string, string> = {
   "weekly-top-votes": "https://www.audeobox.com/api/feeds/weekly-top-votes.xml",
   "weekly-top-comments": "https://www.audeobox.com/api/feeds/weekly-top-comments.xml",
   "weekly-top-xp": "https://www.audeobox.com/api/feeds/weekly-top-xp.xml",
+  "top-winstreak": "https://www.audeobox.com/api/feeds/top-winstreak.xml",
+  "weekly-top-genre-kings": "https://www.audeobox.com/api/feeds/weekly-top-genre-kings.xml",
 };
 
 type RssBinding = {
   feedKey: string;
   slotIndex: number;
+  format?: "stats" | "numUser";
 };
 
 const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
@@ -33,6 +36,12 @@ const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
     { feedKey: "weekly-top-votes", slotIndex: 0 },
     { feedKey: "weekly-top-comments", slotIndex: 1 },
     { feedKey: "weekly-top-xp", slotIndex: 2 },
+  ],
+  "Killstreak": [
+    { feedKey: "top-winstreak", slotIndex: 0, format: "numUser" },
+  ],
+  "King": [
+    { feedKey: "weekly-top-genre-kings", slotIndex: 0, format: "numUser" },
   ],
 };
 
@@ -54,6 +63,12 @@ async function fetchRssFeed(feedKey: string): Promise<RssEntry | null> {
 }
 
 function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<string, RssEntry>): Scene {
+  const fmt = bindings[0]?.format;
+  if (fmt === "numUser") {
+    const entry = cache[bindings[0].feedKey];
+    if (!entry) return scene;
+    return { ...scene, text: `${entry.number}|${entry.username}` };
+  }
   const [users = "", nums = ""] = scene.text.split("\n");
   const uArr = users.split("|");
   const nArr = nums.split("|");
