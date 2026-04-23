@@ -1157,7 +1157,7 @@ const SlideLinesOverlay: React.FC<{
         {isStats && (() => {
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 5.5);
           const stripeTop = 192;
-          const stripeH = rowH * 0.7;
+          const stripeH = rowH * 0.56;
           const stripeWidth = 1800;
           return (
             <div style={{
@@ -1175,7 +1175,7 @@ const SlideLinesOverlay: React.FC<{
                   config: { damping: 16, mass: 1.0 },
                   delay: li * LINE_STAGGER * 2,
                 });
-                const slideX = interpolate(stripeSpring, [0, 1], [-stripeWidth, 180]);
+                const slideX = interpolate(stripeSpring, [0, 1], [-stripeWidth * 1.3, 180]);
                 return (
                   <div
                     key={li}
