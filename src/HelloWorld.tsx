@@ -1175,7 +1175,7 @@ const SlideLinesOverlay: React.FC<{
                   config: { damping: 16, mass: 1.0 },
                   delay: li * LINE_STAGGER * 2,
                 });
-                const slideX = interpolate(stripeSpring, [0, 1], [-stripeWidth * 1.3, 180]);
+                const slideX = interpolate(stripeSpring, [0, 1], [-stripeWidth * 1.3, 300]);
                 return (
                   <div
                     key={li}
