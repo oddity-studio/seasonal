@@ -1078,7 +1078,7 @@ export default function Editor() {
                 ))}
               </select>
               <button
-                style={{ ...styles.galleryButton, width: "100%", marginTop: 4, opacity: fetching ? 0.5 : 1 }}
+                style={{ ...styles.galleryButton, width: "100%", marginTop: 12, opacity: fetching ? 0.5 : 1 }}
                 disabled={fetching}
                 onClick={async () => {
                   setFetching(true);
@@ -1112,7 +1112,7 @@ export default function Editor() {
                   }
                 }}
               >
-                {fetching ? "Fetching…" : "Fetch"}
+                {fetching ? "Fetching…" : "Fetch Data"}
               </button>
             </div>
 
