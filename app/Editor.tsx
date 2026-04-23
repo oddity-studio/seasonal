@@ -1670,7 +1670,7 @@ export default function Editor() {
                     {layouts.map((opt) => (
                       <div
                         key={opt.index}
-                        style={{ ...styles.galleryCard, cursor: "pointer" }}
+                        style={{ ...styles.galleryCard, cursor: "pointer", ...(hasRssBindings(opt.label) ? RSS_BORDER : {}) }}
                         onClick={() => {
                           const dur = getLayoutDefaultDuration(opt.index);
                           setProps((prev) => ({
