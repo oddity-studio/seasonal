@@ -50,6 +50,12 @@
     },
     {
       "text": "",
+      "fontSize": 40,
+      "layout": "Top10",
+      "duration": 10
+    },
+    {
+      "text": "",
       "fontSize": 150,
       "layout": "Outro",
       "duration": 10,
