@@ -1110,7 +1110,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 2: right-justified, small black numbers, fades in interleaved with layer 1 */}
         <div style={{
           position: "absolute",
-          top: duel || tourney ? 50 : 110,
+          top: duel || tourney ? 50 : 85,
           left: 0,
           right: 0,
           padding: "0 80px",
