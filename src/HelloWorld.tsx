@@ -1165,8 +1165,8 @@ const SlideLinesOverlay: React.FC<{
               top: 0,
               left: -600,
               right: -600,
+              bottom: -600,
               zIndex: -1,
-              overflow: "hidden",
             }}>
               {Array.from({ length: maxLines }, (_, li) => {
                 const stripeSpring = spring({
