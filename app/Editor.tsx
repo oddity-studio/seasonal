@@ -1707,7 +1707,7 @@ export default function Editor() {
                             />
                           )}
                         </div>
-                        <span style={styles.galleryLabel}>{opt.label}</span>
+                        <span style={{ ...styles.galleryLabel, ...(hasRssBindings(opt.label) ? { color: "#f59e0b" } : {}) }}>{opt.label}</span>
                       </div>
                     ))}
                   </div>
