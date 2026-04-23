@@ -1156,7 +1156,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 4 (stats only): horizontal gradient stripes behind each group */}
         {isStats && (() => {
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 5.5);
-          const stripeTop = -8;
+          const stripeTop = 192;
           const stripeH = rowH * 0.7;
           return (
             <div style={{
