@@ -1236,6 +1236,19 @@ const Top10Overlay: React.FC<{
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", zIndex: 12, opacity: exit, pointerEvents: "none" as const }}>
       <div style={{ width: "85%", display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{
+          fontSize: fontSize * 2.5,
+          fontFamily: fontConfig.fontFamily,
+          fontWeight: fontConfig.fontWeight ?? 700,
+          color: colors.highlight,
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: 8,
+          marginBottom: 16,
+          textShadow: textGlow,
+        }}>
+          TOP TEN
+        </div>
         {lines.map((entry, li) => {
           const { username, points } = entry;
           const rank = li + 1;
