@@ -1159,16 +1159,18 @@ export default function Editor() {
                     }
                     const cache: Record<string, RssEntry> = {};
                     const cacheAll: Record<string, RssEntry[]> = {};
-                    await Promise.all([
-                      ...[...neededSingle].map(async (key) => {
-                        const entry = await fetchRssFeed(key);
-                        if (entry) cache[key] = entry;
-                      }),
-                      ...[...neededAll].map(async (key) => {
-                        const entries = await fetchRssAll(key);
-                        if (entries.length) cacheAll[key] = entries;
-                      }),
-                    ]);
+                    const singleKeys = [...neededSingle];
+                    const allKeys = [...neededAll];
+                    for (let idx = 0; idx < singleKeys.length; idx++) {
+                      if (idx > 0) await new Promise((r) => setTimeout(r, 300));
+                      const entry = await fetchRssFeed(singleKeys[idx]);
+                      if (entry) cache[singleKeys[idx]] = entry;
+                    }
+                    for (let idx = 0; idx < allKeys.length; idx++) {
+                      if (idx > 0 || singleKeys.length > 0) await new Promise((r) => setTimeout(r, 300));
+                      const entries = await fetchRssAll(allKeys[idx]);
+                      if (entries.length) cacheAll[allKeys[idx]] = entries;
+                    }
                     if (Object.keys(cache).length > 0 || Object.keys(cacheAll).length > 0) {
                       setProps((prev) => ({
                         ...prev,
