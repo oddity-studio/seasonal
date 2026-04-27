@@ -160,7 +160,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesOverlay: true,
     slideLinesTourney: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
-    textDefaults: { y: 0, fontSize: 100, rotateZ: 25, rotateX: -30, perspective: 700 },
+    textDefaults: { y: 0, fontSize: 100, rotateZ: 0, rotateX: 0, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Duel", category: "Tournament", characters: [],
     slideLinesOverlay: true,
@@ -995,10 +995,10 @@ const SlideLinesOverlay: React.FC<{
 
   const isStats = !duel && !tourney;
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
-  const animatedRotateZ = (isStats || tourney) ? rotateZ : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
+  const animatedRotateZ = (isStats || tourney) ? 0 : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
-  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [1000, -700], { extrapolateRight: "clamp" }) : 0;
-  const animatedRotateX = tourney ? interpolate(frame, [0, sceneDuration], [-40, -20], { extrapolateRight: "clamp" }) : rotateX;
+  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [1920, -2400], { extrapolateRight: "clamp" }) : 0;
+  const animatedRotateX = tourney ? 0 : rotateX;
 
   // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
   const maxLines = duel ? 1 : 3;
@@ -1037,7 +1037,9 @@ const SlideLinesOverlay: React.FC<{
       <div
         style={{
           // Static 3D plane rotation (matches Video Cube angle)
-          transform: `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${animatedRotateX}deg) translateY(${y + scrollY}px)`,
+          transform: tourney
+            ? `translateY(${y + scrollY}px)`
+            : `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${animatedRotateX}deg) translateY(${y + scrollY}px)`,
           position: "relative",
           padding: "0 80px",
           // In duel mode, preserve 3D so per-layer rotateY composes with the parent rotateX
