@@ -1640,7 +1640,7 @@ export const PRIZE_LOGOS = [
   "Apogee.png", "Arturia.png", "Baby Audio.png", "ImageLine.png",
   "Landr.png", "Maor Appelbaum Mastering.png", "McDSP.png", "Melda.png",
   "Native Insturments.png", "Splice.png", "UnitedPlugins.png", "WA.png",
-  "XLN Audio.png", "iZotope.png",
+  "XLN Audio.png", "iZotope.png", "Safari Audio.png",
 ];
 
 const PrizesCard: React.FC<{ colorScheme: VideoProps["colorScheme"]; sceneDuration: number; text?: string }> = ({ colorScheme, sceneDuration, text }) => {
