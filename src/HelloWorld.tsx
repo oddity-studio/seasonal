@@ -1088,7 +1088,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 3: static labels, half font size, sits 50px above layer 1 rows (0px in duel mode) */}
         <div style={{
           position: "absolute",
-          top: duel ? 30 : tourney ? "calc(50% + 30px)" : -50,
+          top: duel ? 30 : tourney ? "calc(50% + 50px)" : -50,
           left: 0,
           right: 0,
           padding: tourney ? 0 : "0 80px",
@@ -1140,7 +1140,7 @@ const SlideLinesOverlay: React.FC<{
           });
           const opacity = interpolate(lineSpring, [0, 0.4], [0, 1], { extrapolateRight: "clamp" });
           // In duel mode, slide in from the right: +1200px → 0
-          const slideX = duel ? interpolate(lineSpring, [0, 1], [1200, 0]) : 0;
+          const slideX = (duel || tourney) ? interpolate(lineSpring, [0, 1], [1200, 0]) : 0;
           return (
             <p
               key={li}
