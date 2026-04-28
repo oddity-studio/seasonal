@@ -1030,8 +1030,8 @@ const SlideLinesOverlay: React.FC<{
     >
       <div
         style={{
-          // Shift the whole block 86px to the left of center
-          transform: `translateX(${offsetX ?? -86}px)`,
+          // Shift the whole block 86px to the left of center (skip in tourney)
+          transform: tourney ? "none" : `translateX(${offsetX ?? -86}px)`,
         }}
       >
       <div
@@ -1041,7 +1041,7 @@ const SlideLinesOverlay: React.FC<{
             ? `translateY(${y + scrollY}px)`
             : `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${animatedRotateX}deg) translateY(${y + scrollY}px)`,
           position: "relative",
-          padding: "0 80px",
+          padding: tourney ? 0 : "0 80px",
           // In duel mode, preserve 3D so per-layer rotateY composes with the parent rotateX
           ...(duel ? { transformStyle: "preserve-3d" as const } : {}),
         }}
