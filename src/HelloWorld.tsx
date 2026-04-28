@@ -1180,7 +1180,7 @@ const SlideLinesOverlay: React.FC<{
             return (
               <img
                 key={`fire-${li}-${triggerFrame}`}
-                src={`${BASE}/firedash.webp#t=${li}`}
+                src={`${BASE}/firedash.webp?i=${li}`}
                 style={{
                   position: "absolute",
                   left: "50%",
