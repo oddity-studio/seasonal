@@ -1167,6 +1167,33 @@ const SlideLinesOverlay: React.FC<{
         })}
         </div>
 
+        {/* Layer 4 (tourney only): firedash animated webp per line pair */}
+        {tourney && (() => {
+          const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0);
+          const fireCount = Math.max(lines.length, lines2.length);
+          return Array.from({ length: fireCount }, (_, li) => {
+            const triggerFrame = li * 2 * LINE_STAGGER;
+            const visible = slideFrame >= triggerFrame;
+            return (
+              <img
+                key={li}
+                src={`${BASE}/firedash.webp`}
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: `${50 + li * rowH}px`,
+                  transform: "translateX(-50%)",
+                  height: rowH,
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                  opacity: visible ? 1 : 0,
+                  zIndex: 10,
+                }}
+              />
+            );
+          });
+        })()}
+
         {/* Layer 4 (stats only): horizontal gradient stripes behind each group */}
         {isStats && (() => {
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 5.5);
