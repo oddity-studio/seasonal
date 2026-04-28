@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -1379,9 +1379,11 @@ export default function Editor() {
                           "text",
                           isSlideLinesDuelLayout(layoutIdx)
                             ? "Player1\nPlayer2"
-                            : isSlideLinesTourneyLayout(layoutIdx)
-                              ? "Player1 Player2 Player3\n126 89 257"
-                              : "Player1|Player2|Player3\n126|89|257",
+                            : isSlideLinesFixedLayout(layoutIdx)
+                              ? "PLAYER PLAYER\nPLAYER PLAYER"
+                              : isSlideLinesTourneyLayout(layoutIdx)
+                                ? "Player1 Player2 Player3\n126 89 257"
+                                : "Player1|Player2|Player3\n126|89|257",
                         );
                       }
                       if (isWeeklyTitleLayout(layoutIdx) && !scene.text) {
@@ -1721,9 +1723,25 @@ export default function Editor() {
                         onClick={() => {
                           const dur = getLayoutDefaultDuration(opt.index);
                           const fs = getLayoutDefaultFontSize(opt.index) ?? 150;
+                          let defaultText = "";
+                          if (isSlideLinesFixedLayout(opt.index)) {
+                            defaultText = "PLAYER PLAYER\nPLAYER PLAYER";
+                          } else if (isSlideLinesDuelLayout(opt.index)) {
+                            defaultText = "Player1\nPlayer2";
+                          } else if (isSlideLinesTourneyLayout(opt.index)) {
+                            defaultText = "Player1 Player2 Player3\n126 89 257";
+                          } else if (isSlideLinesOverlayLayout(opt.index)) {
+                            defaultText = "Player1|Player2|Player3\n126|89|257";
+                          } else if (isBattleLayout(opt.index)) {
+                            defaultText = "Player1|Player2";
+                          } else if (isKillstreakOverlayLayout(opt.index)) {
+                            defaultText = "3|Player One";
+                          } else if (isKingOverlayLayout(opt.index)) {
+                            defaultText = "3|Player One";
+                          }
                           setProps((prev) => ({
                             ...prev,
-                            scenes: [...prev.scenes, { text: "", fontSize: fs, layout: opt.label, ...(dur != null ? { duration: dur } : {}) }],
+                            scenes: [...prev.scenes, { text: defaultText, fontSize: fs, layout: opt.label, ...(dur != null ? { duration: dur } : {}) }],
                           }));
                           setShowGallery(false);
                         }}

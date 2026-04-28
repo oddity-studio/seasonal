@@ -59,6 +59,8 @@ export const isSlideLinesDuelLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesDuel === true;
 export const isSlideLinesTourneyLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesTourney === true;
+export const isSlideLinesFixedLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.slideLinesFixed === true;
 export const isPrizesGridLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.prizesGrid === true;
 export const isTop10Layout = (index: number): boolean =>
