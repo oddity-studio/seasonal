@@ -1091,7 +1091,7 @@ const SlideLinesOverlay: React.FC<{
           top: duel ? 30 : tourney ? "50%" : -50,
           left: 0,
           right: 0,
-          padding: "0 80px",
+          padding: tourney ? 0 : "0 80px",
           textAlign: "center",
           zIndex: 2,
           ...(duel ? { transform: "translateX(5px) translateZ(400px)" } : {}),
@@ -1127,7 +1127,7 @@ const SlideLinesOverlay: React.FC<{
           top: duel || tourney ? 50 : 85,
           left: 0,
           right: 0,
-          padding: "0 80px",
+          padding: tourney ? 0 : "0 80px",
           textAlign: duel ? "center" : "right",
           transform: duel ? "rotateY(-30deg)" : tourney ? "none" : "translateX(50px)",
         }}>
