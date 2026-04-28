@@ -1167,17 +1167,20 @@ const SlideLinesOverlay: React.FC<{
         })}
         </div>
 
-        {/* Layer 4 (tourney only): firedash animated webp per line pair */}
+        {/* Layer 4 (tourney only): firedash animated webp per line pair, plays once */}
         {tourney && (() => {
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0);
           const fireCount = Math.max(lines.length, lines2.length);
+          const fireDuration = 30;
           return Array.from({ length: fireCount }, (_, li) => {
             const triggerFrame = li * 2 * LINE_STAGGER;
-            const visible = slideFrame >= triggerFrame;
+            const elapsed = slideFrame - triggerFrame;
+            const visible = elapsed >= 0 && elapsed < fireDuration;
+            if (!visible) return null;
             return (
               <img
-                key={li}
-                src={`${BASE}/firedash.webp`}
+                key={`fire-${li}-${triggerFrame}`}
+                src={`${BASE}/firedash.webp#t=${li}`}
                 style={{
                   position: "absolute",
                   left: "50%",
@@ -1186,7 +1189,6 @@ const SlideLinesOverlay: React.FC<{
                   height: rowH,
                   objectFit: "contain",
                   pointerEvents: "none",
-                  opacity: visible ? 1 : 0,
                   zIndex: 10,
                 }}
               />
