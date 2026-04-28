@@ -1027,6 +1027,65 @@ const SlideLinesOverlay: React.FC<{
         })()}
       </div>
       </div>
+
+      {/* Bracket fork layer (fixed tourney only) */}
+      {fixed && (() => {
+        const forkSpring = spring({ frame, fps, config: { damping: 14, mass: 1.0 } });
+        const forkOpacity = interpolate(forkSpring, [0, 0.4], [0, 0.6], { extrapolateRight: "clamp" });
+        const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * rowMultiplier);
+        const forkH = rowH * lines.length;
+        const midY = forkH / 2;
+        const topY = rowH * 0.5;
+        const botY = forkH - rowH * 0.5;
+        const midX = 540;
+        const strokeW = 4;
+        return (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            opacity: forkOpacity,
+            pointerEvents: "none" as const,
+          }}>
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: 0,
+              width: 1080,
+              height: forkH,
+              transform: `translateX(50%) translateY(-50%)`,
+            }}>
+              <svg
+                viewBox={`0 0 1080 ${forkH}`}
+                width="1080"
+                height={forkH}
+                style={{ display: "block" }}
+              >
+                <path
+                  d={`M 0,${topY} L ${midX - 20},${topY} Q ${midX},${topY} ${midX},${topY + 20} L ${midX},${midY}`}
+                  fill="none"
+                  stroke={colors.highlight}
+                  strokeWidth={strokeW}
+                />
+                <path
+                  d={`M 0,${botY} L ${midX - 20},${botY} Q ${midX},${botY} ${midX},${botY - 20} L ${midX},${midY}`}
+                  fill="none"
+                  stroke={colors.highlight}
+                  strokeWidth={strokeW}
+                />
+                <line
+                  x1={midX}
+                  y1={midY}
+                  x2={1080}
+                  y2={midY}
+                  stroke={colors.highlight}
+                  strokeWidth={strokeW}
+                />
+              </svg>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
