@@ -1185,11 +1185,11 @@ const SlideLinesOverlay: React.FC<{
                   position: "absolute",
                   left: "50%",
                   top: `${50 + li * rowH}px`,
-                  transform: "translateX(-50%)",
+                  transform: "translateX(-50%) scale(1.3)",
                   height: rowH,
                   objectFit: "contain",
                   pointerEvents: "none",
-                  zIndex: 10,
+                  zIndex: -1,
                 }}
               />
             );
