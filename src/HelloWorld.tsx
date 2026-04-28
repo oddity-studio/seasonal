@@ -1171,7 +1171,7 @@ const SlideLinesOverlay: React.FC<{
         {tourney && (() => {
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0);
           const fireCount = Math.max(lines.length, lines2.length);
-          const fireDuration = 30;
+          const fireDuration = 60;
           return Array.from({ length: fireCount }, (_, li) => {
             const triggerFrame = li * 2 * LINE_STAGGER;
             const elapsed = slideFrame - triggerFrame;
