@@ -86,6 +86,7 @@ export type SceneLayout = {
   slideLinesOffsetX?: number;
   slideLinesDuel?: boolean;
   slideLinesTourney?: boolean;
+  slideLinesFixed?: boolean;
   polkaDotOverlay?: boolean;
   top10?: boolean;
   videoFit?: "cover" | "contain";
