@@ -1127,7 +1127,7 @@ export default function Editor() {
         {!recordingMode && (
           <div style={styles.controls}>
             <div>
-              <span style={styles.label}>Preset</span>
+              <span style={{ ...styles.label, marginBottom: 6 }}>Preset</span>
               <select
                 style={{ ...styles.layoutSelect, width: "100%" }}
                 value={selectedPreset || ""}
