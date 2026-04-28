@@ -765,6 +765,13 @@ const SlideLinesOverlay: React.FC<{
 
   const isStats = !duel && !tourney;
   const rowMultiplier = isStats ? 5.5 : fixed ? 6.0 : 4.0;
+
+  // Phase 2 (fixed only): after slide-in settles, pan everything 100% left
+  const slideInEnd = fixed ? Math.min(sceneDuration * 0.35, fps * 2.5) : 0;
+  const panDuration = fixed ? Math.min(sceneDuration * 0.25, fps * 1.5) : 0;
+  const panX = fixed
+    ? interpolate(frame, [slideInEnd, slideInEnd + panDuration], [0, -1080], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 0;
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = (isStats || tourney) ? 0 : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
@@ -797,6 +804,8 @@ const SlideLinesOverlay: React.FC<{
         zIndex: 12,
         opacity: exit,
         pointerEvents: "none" as const,
+        transform: panX !== 0 ? `translateX(${panX}px)` : undefined,
+        willChange: fixed ? "transform" : undefined,
       }}
     >
       <div
