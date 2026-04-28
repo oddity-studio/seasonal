@@ -1172,6 +1172,20 @@ const SlideLinesOverlay: React.FC<{
           const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0);
           const fireCount = Math.max(lines.length, lines2.length);
           const fireDuration = 60;
+          const hex = colors.highlight.replace("#", "");
+          const r = parseInt(hex.substring(0, 2), 16) / 255;
+          const g = parseInt(hex.substring(2, 4), 16) / 255;
+          const b = parseInt(hex.substring(4, 6), 16) / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          let hue = 0;
+          if (max !== min) {
+            const d = max - min;
+            hue = max === r ? ((g - b) / d + (g < b ? 6 : 0)) * 60
+              : max === g ? ((b - r) / d + 2) * 60
+              : ((r - g) / d + 4) * 60;
+          }
+          const fireBaseHue = 20;
+          const hueShift = hue - fireBaseHue;
           return Array.from({ length: fireCount }, (_, li) => {
             const triggerFrame = li * 2 * LINE_STAGGER;
             const elapsed = slideFrame - triggerFrame;
@@ -1190,6 +1204,7 @@ const SlideLinesOverlay: React.FC<{
                   objectFit: "contain",
                   pointerEvents: "none",
                   zIndex: -1,
+                  filter: `hue-rotate(${hueShift}deg)`,
                 }}
               />
             );
