@@ -762,6 +762,7 @@ const SlideLinesOverlay: React.FC<{
   const exit = frame > exitStart ? interpolate(frame, [exitStart, sceneDuration], [1, 0], { extrapolateRight: "clamp" }) : 1;
 
   const isStats = !duel && !tourney;
+  const rowMultiplier = isStats ? 5.5 : fixed ? 6.0 : 4.0;
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = (isStats || tourney) ? 0 : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
@@ -838,7 +839,7 @@ const SlideLinesOverlay: React.FC<{
                 fontStyle: fontConfig.fontStyle ?? "normal",
                 color: textColor,
                 margin: 0,
-                lineHeight: (fontConfig.lineHeight ?? 1.0) * (isStats ? 5.5 : 4.0),
+                lineHeight: (fontConfig.lineHeight ?? 1.0) * rowMultiplier,
                 letterSpacing: 8,
                 textTransform: "uppercase",
                 textShadow: textGlow,
@@ -878,7 +879,7 @@ const SlideLinesOverlay: React.FC<{
               fontStyle: fontConfig.fontStyle ?? "normal",
               color: colors.highlight,
               margin: 0,
-              lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * (isStats ? 5.5 : 4.0))}px`,
+              lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * rowMultiplier)}px`,
               letterSpacing: 4,
               textTransform: "uppercase",
               textShadow: textGlow,
@@ -921,7 +922,7 @@ const SlideLinesOverlay: React.FC<{
                 color: "#000000",
                 margin: 0,
                 // Match layer 1 row height so the numbers sit on the same rows as the big lines
-                lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * (isStats ? 5.5 : 4.0))}px`,
+                lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * rowMultiplier)}px`,
                 letterSpacing: 4,
                 textTransform: "uppercase",
                 opacity,
@@ -937,7 +938,7 @@ const SlideLinesOverlay: React.FC<{
 
         {/* Layer 4 (tourney only): firedash animated webp per line pair, plays once */}
         {tourney && (() => {
-          const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * 4.0);
+          const rowH = Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * rowMultiplier);
           const fireCount = Math.max(lines.length, lines2.length);
           const fireDuration = 60;
           const hex = colors.highlight.replace("#", "");
