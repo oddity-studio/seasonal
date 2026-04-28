@@ -1037,7 +1037,96 @@ const SlideLinesOverlay: React.FC<{
       </div>
       </div>
 
-      {/* Bracket fork layer (fixed tourney only) */}
+      {/* Phase 2 duplicate layers (fixed tourney only) — positioned 1080px right, shows first line only, no slide-in */}
+      {fixed && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            pointerEvents: "none" as const,
+            transform: "translateX(1080px)",
+          }}
+        >
+          <div style={{ width: "100%", padding: "0 15%" }}>
+            <div style={{ position: "relative" }}>
+              {/* Layer 1 duplicate — first line only */}
+              <div style={{ textAlign: "left", position: "relative", zIndex: 1 }}>
+                {lines[0] && (
+                  <p style={{
+                    fontSize: Math.round(fontSize * 0.6),
+                    fontFamily: fontConfig.fontFamily,
+                    fontWeight: fontConfig.fontWeight ?? 700,
+                    fontStyle: fontConfig.fontStyle ?? "normal",
+                    color: textColor,
+                    margin: 0,
+                    lineHeight: (fontConfig.lineHeight ?? 1.0) * rowMultiplier,
+                    letterSpacing: 8,
+                    textTransform: "uppercase",
+                    textShadow: textGlow,
+                  }}>
+                    {lines[0]}
+                  </p>
+                )}
+              </div>
+
+              {/* Layer 3 duplicate — first label only */}
+              <div style={{
+                position: "absolute",
+                top: "calc(50% + 50px)",
+                left: 0,
+                right: 0,
+                textAlign: "center",
+                zIndex: 2,
+                transform: "translateY(-50%)",
+              }}>
+                <p style={{
+                  fontSize: Math.round(fontSize * 0.33),
+                  fontFamily: fontConfig.fontFamily,
+                  fontWeight: fontConfig.fontWeight ?? 700,
+                  fontStyle: fontConfig.fontStyle ?? "normal",
+                  color: colors.highlight,
+                  margin: 0,
+                  lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * rowMultiplier)}px`,
+                  letterSpacing: 4,
+                  textTransform: "uppercase",
+                  textShadow: textGlow,
+                }}>
+                  VS
+                </p>
+              </div>
+
+              {/* Layer 2 duplicate — first line only */}
+              <div style={{
+                position: "absolute",
+                top: 80,
+                left: 0,
+                right: 0,
+                textAlign: "right",
+                transform: "none",
+              }}>
+                {lines2[0] && (
+                  <p style={{
+                    fontSize: Math.round(fontSize * 0.6),
+                    fontFamily: fontConfig.fontFamily,
+                    fontWeight: fontConfig.fontWeight ?? 700,
+                    fontStyle: fontConfig.fontStyle ?? "normal",
+                    color: "#000000",
+                    margin: 0,
+                    lineHeight: `${Math.round(fontSize * 0.6) * ((fontConfig.lineHeight ?? 1.0) * rowMultiplier)}px`,
+                    letterSpacing: 4,
+                    textTransform: "uppercase",
+                  }}>
+                    {lines2[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {fixed && (() => {
         const forkSpring = spring({ frame, fps, config: { damping: 14, mass: 1.0 } });
         const forkOpacity = interpolate(forkSpring, [0, 0.4], [0, 0.6], { extrapolateRight: "clamp" });
