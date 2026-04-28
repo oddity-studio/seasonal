@@ -1032,6 +1032,7 @@ const SlideLinesOverlay: React.FC<{
         style={{
           // Shift the whole block 86px to the left of center (skip in tourney)
           transform: tourney ? "none" : `translateX(${offsetX ?? -86}px)`,
+          ...(tourney ? { width: "100%" } : {}),
         }}
       >
       <div
