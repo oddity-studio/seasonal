@@ -1030,8 +1030,9 @@ const SlideLinesOverlay: React.FC<{
     >
       <div
         style={{
-          // Shift the whole block 86px to the left of center
-          transform: `translateX(${offsetX ?? -86}px)`,
+          // Shift the whole block 86px to the left of center (skip in tourney)
+          transform: tourney ? "none" : `translateX(${offsetX ?? -86}px)`,
+          ...(tourney ? { width: "100%" } : {}),
         }}
       >
       <div
@@ -1041,13 +1042,13 @@ const SlideLinesOverlay: React.FC<{
             ? `translateY(${y + scrollY}px)`
             : `perspective(${perspective}px) rotateZ(${animatedRotateZ}deg) rotateX(${animatedRotateX}deg) translateY(${y + scrollY}px)`,
           position: "relative",
-          padding: "0 80px",
+          padding: tourney ? 0 : "0 80px",
           // In duel mode, preserve 3D so per-layer rotateY composes with the parent rotateX
           ...(duel ? { transformStyle: "preserve-3d" as const } : {}),
         }}
       >
         {/* Layer 1: left-justified, slides in from the left */}
-        <div style={{ textAlign: "left", position: "relative", zIndex: 1, ...(duel ? { transform: "rotateY(30deg)" } : {}), ...(tourney ? { paddingLeft: "16%" } : {}) }}>
+        <div style={{ textAlign: "left", position: "relative", zIndex: 1, ...(duel ? { transform: "rotateY(30deg)" } : {}) }}>
         {lines.map((line, li) => {
           // Interleave with layer 2: L1.i uses slot (i*2), L2.i uses slot (i*2 + 1)
           const lineSpring = spring({
@@ -1126,7 +1127,7 @@ const SlideLinesOverlay: React.FC<{
           top: duel || tourney ? 50 : 85,
           left: 0,
           right: 0,
-          padding: tourney ? "0 16% 0 80px" : "0 80px",
+          padding: "0 80px",
           textAlign: duel ? "center" : "right",
           transform: duel ? "rotateY(-30deg)" : tourney ? "none" : "translateX(50px)",
         }}>
