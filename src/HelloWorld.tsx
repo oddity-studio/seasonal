@@ -160,7 +160,7 @@ const SCENE_LAYOUTS: SceneLayout[] = [
     slideLinesOverlay: true,
     slideLinesTourney: true,
     slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
-    textDefaults: { y: 0, fontSize: 100, rotateZ: 0, rotateX: 0, perspective: 700 },
+    textDefaults: { y: 0, fontSize: 90, rotateZ: 0, rotateX: 0, perspective: 700 },
     customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }) },
   { label: "Duel", category: "Tournament", characters: [],
     slideLinesOverlay: true,
@@ -1088,7 +1088,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 3: static labels, half font size, sits 50px above layer 1 rows (0px in duel mode) */}
         <div style={{
           position: "absolute",
-          top: duel ? 30 : tourney ? "50%" : -50,
+          top: duel ? 30 : tourney ? "calc(50% + 30px)" : -50,
           left: 0,
           right: 0,
           padding: tourney ? 0 : "0 80px",
@@ -1124,7 +1124,7 @@ const SlideLinesOverlay: React.FC<{
         {/* Layer 2: right-justified, small black numbers, fades in interleaved with layer 1 */}
         <div style={{
           position: "absolute",
-          top: duel || tourney ? 50 : 85,
+          top: duel ? 50 : tourney ? 80 : 85,
           left: 0,
           right: 0,
           padding: tourney ? 0 : "0 80px",
