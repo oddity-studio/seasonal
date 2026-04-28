@@ -754,7 +754,8 @@ const SlideLinesOverlay: React.FC<{
   offsetX?: number;
   duel?: boolean;
   tourney?: boolean;
-}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX, duel, tourney }) => {
+  fixed?: boolean;
+}> = ({ text, sceneDuration, colors, fontConfig, fontSize, rotateZ, rotateX, perspective, y, textColor, textGlow, labels, offsetX, duel, tourney, fixed }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exitStart = sceneDuration - 30;
@@ -764,7 +765,7 @@ const SlideLinesOverlay: React.FC<{
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
   const animatedRotateZ = (isStats || tourney) ? 0 : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
-  const scrollY = tourney ? interpolate(frame, [0, sceneDuration], [1920, -2400], { extrapolateRight: "clamp" }) : 0;
+  const scrollY = (tourney && !fixed) ? interpolate(frame, [0, sceneDuration], [1920, -2400], { extrapolateRight: "clamp" }) : 0;
   const animatedRotateX = tourney ? 0 : rotateX;
 
   // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
@@ -1344,6 +1345,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           offsetX={resolvedLayout.slideLinesOffsetX}
           duel={resolvedLayout.slideLinesDuel}
           tourney={resolvedLayout.slideLinesTourney}
+          fixed={resolvedLayout.slideLinesFixed}
         />
       )}
 
