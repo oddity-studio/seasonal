@@ -1479,7 +1479,7 @@ export default function Editor() {
                                 placeholder="L1 line 1"
                               />
                               <button
-                                style={{ ...toggleStyle, background: t1 ? "#f59e0b" : "#475569" }}
+                                style={{ ...toggleStyle, background: t1 ? "#a855f7" : "#3b82f6" }}
                                 onClick={() => save(box1, box2, box3, box4, !t1, t2)}
                                 title={t1 ? "Winner: right" : "Winner: left"}
                               >
@@ -1500,7 +1500,7 @@ export default function Editor() {
                                 placeholder="L1 line 2"
                               />
                               <button
-                                style={{ ...toggleStyle, background: t2 ? "#f59e0b" : "#475569" }}
+                                style={{ ...toggleStyle, background: t2 ? "#a855f7" : "#3b82f6" }}
                                 onClick={() => save(box1, box2, box3, box4, t1, !t2)}
                                 title={t2 ? "Winner: right" : "Winner: left"}
                               >
