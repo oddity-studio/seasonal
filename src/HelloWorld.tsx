@@ -881,6 +881,7 @@ const SlideLinesOverlay: React.FC<{
           padding: tourney ? 0 : "0 80px",
           textAlign: "center",
           zIndex: 2,
+          ...(isStats ? { width: 700 } : {}),
           ...(duel ? { transform: "translateX(5px) translateZ(400px)" } : {}),
           ...(tourney ? { transform: "translateY(-50%)" } : {}),
         }}>
