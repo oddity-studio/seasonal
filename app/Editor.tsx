@@ -1380,7 +1380,7 @@ export default function Editor() {
                           isSlideLinesDuelLayout(layoutIdx)
                             ? "Player1\nPlayer2"
                             : isSlideLinesFixedLayout(layoutIdx)
-                              ? "PLAYER PLAYER\nPLAYER PLAYER"
+                              ? "PLAYER PLAYER\nPLAYER PLAYER\n0,0"
                               : isSlideLinesTourneyLayout(layoutIdx)
                                 ? "Player1 Player2 Player3\n126 89 257"
                                 : "Player1|Player2|Player3\n126|89|257",
@@ -1432,7 +1432,91 @@ export default function Editor() {
                     return null;
                   })}
                   {isSlideLinesOverlayLayout(resolveLayoutIndex(scene.layout, i)) ? (
-                    isSlideLinesTourneyLayout(resolveLayoutIndex(scene.layout, i)) ? (
+                    isSlideLinesFixedLayout(resolveLayoutIndex(scene.layout, i)) ? (
+                      (() => {
+                        const parts = (scene.text || "").split("\n");
+                        const l1Entries = (parts[0] || "").split(" ");
+                        const l2Entries = (parts[1] || "").split(" ");
+                        const toggles = (parts[2] || "0,0").split(",");
+                        const box1 = l1Entries[0] || "";
+                        const box3 = l1Entries[1] || "";
+                        const box2 = l2Entries[0] || "";
+                        const box4 = l2Entries[1] || "";
+                        const t1 = toggles[0] === "1";
+                        const t2 = toggles[1] === "1";
+                        const save = (b1: string, b2: string, b3: string, b4: string, s1: boolean, s2: boolean) => {
+                          updateScene(i, "text", `${b1} ${b3}\n${b2} ${b4}\n${s1 ? "1" : "0"},${s2 ? "1" : "0"}`);
+                        };
+                        const toggleStyle: React.CSSProperties = {
+                          position: "relative",
+                          width: 36,
+                          height: 18,
+                          borderRadius: 9,
+                          cursor: "pointer",
+                          border: "none",
+                          padding: 0,
+                          flexShrink: 0,
+                          alignSelf: "center",
+                        };
+                        const knobStyle = (on: boolean): React.CSSProperties => ({
+                          position: "absolute",
+                          top: 2,
+                          left: on ? 18 : 2,
+                          width: 14,
+                          height: 14,
+                          borderRadius: 7,
+                          background: "#fff",
+                          transition: "left 0.15s",
+                        });
+                        return (
+                          <span style={{ display: "flex", flexDirection: "column", flex: 1, gap: 4, minWidth: 0 }}>
+                            <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                              <input
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                value={box1}
+                                onChange={(e) => save(e.target.value, box2, box3, box4, t1, t2)}
+                                placeholder="L1 line 1"
+                              />
+                              <button
+                                style={{ ...toggleStyle, background: t1 ? "#f59e0b" : "#475569" }}
+                                onClick={() => save(box1, box2, box3, box4, !t1, t2)}
+                                title={t1 ? "Winner: right" : "Winner: left"}
+                              >
+                                <div style={knobStyle(t1)} />
+                              </button>
+                              <input
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                value={box2}
+                                onChange={(e) => save(box1, e.target.value, box3, box4, t1, t2)}
+                                placeholder="L2 line 1"
+                              />
+                            </span>
+                            <span style={{ height: 8 }} />
+                            <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                              <input
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                value={box3}
+                                onChange={(e) => save(box1, box2, e.target.value, box4, t1, t2)}
+                                placeholder="L1 line 2"
+                              />
+                              <button
+                                style={{ ...toggleStyle, background: t2 ? "#f59e0b" : "#475569" }}
+                                onClick={() => save(box1, box2, box3, box4, t1, !t2)}
+                                title={t2 ? "Winner: right" : "Winner: left"}
+                              >
+                                <div style={knobStyle(t2)} />
+                              </button>
+                              <input
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                value={box4}
+                                onChange={(e) => save(box1, box2, box3, box4, t1, t2)}
+                                placeholder="L2 line 2"
+                              />
+                            </span>
+                          </span>
+                        );
+                      })()
+                    ) : isSlideLinesTourneyLayout(resolveLayoutIndex(scene.layout, i)) ? (
                       (() => {
                         const [rawA = "", rawB = ""] = (scene.text || "").split("\n");
                         return (
@@ -1725,7 +1809,7 @@ export default function Editor() {
                           const fs = getLayoutDefaultFontSize(opt.index) ?? 150;
                           let defaultText = "";
                           if (isSlideLinesFixedLayout(opt.index)) {
-                            defaultText = "PLAYER PLAYER\nPLAYER PLAYER";
+                            defaultText = "PLAYER PLAYER\nPLAYER PLAYER\n0,0";
                           } else if (isSlideLinesDuelLayout(opt.index)) {
                             defaultText = "Player1\nPlayer2";
                           } else if (isSlideLinesTourneyLayout(opt.index)) {

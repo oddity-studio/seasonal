@@ -779,14 +779,21 @@ const SlideLinesOverlay: React.FC<{
   const animatedRotateX = tourney ? 0 : rotateX;
 
   // Two layers separated by "\n". Pipe-separated items for normal/duel; space-separated for tourney.
+  // Fixed tourney adds a third line for toggle state: "t1,t2" (0=left, 1=right).
   const maxLines = duel ? 1 : 3;
-  const [layer1Raw, layer2Raw = ""] = (text || "").split("\n");
+  const textParts = (text || "").split("\n");
+  const [layer1Raw, layer2Raw = ""] = textParts;
   const lines = tourney
     ? layer1Raw.split(" ").filter((s) => s.trim())
     : layer1Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const lines2 = tourney
     ? layer2Raw.split(" ").filter((s) => s.trim())
     : layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
+  const toggleRaw = fixed ? (textParts[2] || "0,0").split(",") : [];
+  const toggle1Right = toggleRaw[0] === "1";
+  const toggle2Right = toggleRaw[1] === "1";
+  const phase2L1 = fixed ? (toggle1Right ? (lines2[0] || "") : (lines[0] || "")) : (lines[0] || "");
+  const phase2L2 = fixed ? (toggle2Right ? (lines2[1] || "") : (lines[1] || "")) : (lines2[0] || "");
   const LINE_STAGGER = 10; // frames between successive entrances (interleaved across layers)
   // Compress the animation timeline so all slide-ins finish 1s before the scene ends
   const slideFrame = sceneDuration > fps
@@ -1052,9 +1059,9 @@ const SlideLinesOverlay: React.FC<{
         >
           <div style={{ width: "100%", padding: "0 15%" }}>
             <div style={{ position: "relative" }}>
-              {/* Layer 1 duplicate — first line only */}
+              {/* Layer 1 duplicate — winner from toggle 1 */}
               <div style={{ textAlign: "left", position: "relative", zIndex: 1 }}>
-                {lines[0] && (
+                {phase2L1 && (
                   <p style={{
                     fontSize: Math.round(fontSize * 0.6),
                     fontFamily: fontConfig.fontFamily,
@@ -1067,7 +1074,7 @@ const SlideLinesOverlay: React.FC<{
                     textTransform: "uppercase",
                     textShadow: textGlow,
                   }}>
-                    {lines[0]}
+                    {phase2L1}
                   </p>
                 )}
               </div>
@@ -1107,7 +1114,7 @@ const SlideLinesOverlay: React.FC<{
                 textAlign: "right",
                 transform: "none",
               }}>
-                {lines2[0] && (
+                {phase2L2 && (
                   <p style={{
                     fontSize: Math.round(fontSize * 0.6),
                     fontFamily: fontConfig.fontFamily,
@@ -1119,7 +1126,7 @@ const SlideLinesOverlay: React.FC<{
                     letterSpacing: 4,
                     textTransform: "uppercase",
                   }}>
-                    {lines2[0]}
+                    {phase2L2}
                   </p>
                 )}
               </div>
