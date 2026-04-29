@@ -1136,7 +1136,7 @@ const SlideLinesOverlay: React.FC<{
         const topY = rowH * 0.5;
         const botY = forkH - rowH * 0.5;
         const midX = 540;
-        const strokeW = 4;
+        const strokeW = 6;
         return (
           <div style={{
             position: "absolute",
@@ -1151,7 +1151,7 @@ const SlideLinesOverlay: React.FC<{
               left: 0,
               width: 1080,
               height: forkH,
-              transform: `translateX(50%) translateY(-50%)`,
+              transform: `translateX(50%) translateY(calc(-50% + 10px))`,
             }}>
               <svg
                 viewBox={`0 0 1080 ${forkH}`}
