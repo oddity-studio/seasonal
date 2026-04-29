@@ -519,7 +519,7 @@ const BracketsLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, 
       position: "absolute",
       inset: 0,
       overflow: "hidden",
-      opacity: enter,
+      opacity: enter * 0.7,
       mixBlendMode: "screen" as const,
     }}>
       <Img
