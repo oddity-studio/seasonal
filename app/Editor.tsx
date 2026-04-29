@@ -1348,6 +1348,7 @@ export default function Editor() {
                     ...styles.sceneRow,
                     opacity: dragIndex === i ? 0.4 : 1,
                     borderTop: dragOverIndex === i && dragIndex !== null && dragIndex !== i ? "2px solid #94a3b8" : "2px solid transparent",
+                    ...(isSlideLinesFixedLayout(resolveLayoutIndex(scene.layout, i)) ? { alignItems: "flex-start" } : {}),
                   }}
                 >
                   <span
@@ -1491,7 +1492,6 @@ export default function Editor() {
                                 placeholder="L2 line 1"
                               />
                             </span>
-                            <span style={{ height: 8 }} />
                             <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
                               <input
                                 style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
