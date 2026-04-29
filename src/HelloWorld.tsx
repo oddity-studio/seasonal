@@ -773,7 +773,7 @@ const SlideLinesOverlay: React.FC<{
     ? interpolate(frame, [slideInEnd, slideInEnd + panDuration], [0, -1080], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : 0;
   const rotateZSpring = spring({ frame, fps, config: { damping: 18, mass: 1.2 } });
-  const animatedRotateZ = (isStats || tourney) ? 0 : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
+  const animatedRotateZ = isStats ? rotateZ : tourney ? 0 : interpolate(rotateZSpring, [0, 1], [50, rotateZ]);
 
   const scrollY = (tourney && !fixed) ? interpolate(frame, [0, sceneDuration], [1920, -2400], { extrapolateRight: "clamp" }) : 0;
   const animatedRotateX = tourney ? 0 : rotateX;
