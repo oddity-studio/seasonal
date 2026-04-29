@@ -12,7 +12,6 @@ import WeeklyStats1 from "./WeeklyStats1";
 import WeeklyStats2 from "./WeeklyStats2";
 import Tourney1 from "./Tourney1";
 import TourneyBranch from "./TourneyBranch";
-import Duel from "./Duel";
 import BeltStomp from "./BeltStomp";
 import S12Scene4 from "./S12Scene4";
 import S12Scene5 from "./S12Scene5";
@@ -44,7 +43,6 @@ export const SCENE_LAYOUTS: SceneLayout[] = [
   WeeklyStats2,
   Tourney1,
   TourneyBranch,
-  Duel,
   BeltStomp,
   S12Scene4,
   S12Scene5,
