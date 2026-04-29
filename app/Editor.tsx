@@ -1645,7 +1645,7 @@ export default function Editor() {
                       };
                       return (
                         <details style={{ flex: 1, minWidth: 0 }}>
-                          <summary style={{ ...styles.sceneInput, cursor: "pointer", userSelect: "none" as const, listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+                          <summary style={{ ...styles.sceneInput, cursor: "pointer", userSelect: "none" as const, listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, fontFamily: "inherit" }}>
                             <span>{selected.size === 0 ? "All logos" : `${selected.size} logo${selected.size !== 1 ? "s" : ""} selected`}</span>
                             <span style={{ fontSize: 8, color: "#94a3b8", pointerEvents: "none" }}>&#9660;</span>
                           </summary>
@@ -1653,7 +1653,7 @@ export default function Editor() {
                             {PRIZE_LOGOS.map((logo) => {
                               const checked = selected.has(logo);
                               return (
-                                <label key={logo} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer", background: checked ? "#334155" : "transparent", fontSize: 14, color: "#e2e8f0" }}>
+                                <label key={logo} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer", background: checked ? "#334155" : "transparent", fontSize: 14, fontFamily: "inherit", color: "#e2e8f0" }}>
                                   <input type="checkbox" checked={checked} onChange={() => toggle(logo)} style={{ accentColor: "#3b82f6" }} />
                                   {logo.replace(".png", "")}
                                 </label>
