@@ -2,7 +2,7 @@ import type { SceneLayout } from "../sceneUtils";
 import { BRACKETS } from "../sceneUtils";
 
 const layout: SceneLayout = {
-  label: "Brackets",
+  label: "Tourney",
   category: "Tournament",
   characters: [],
   backgroundImageSrc: BRACKETS,

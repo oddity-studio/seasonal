@@ -1,7 +1,7 @@
 import type { SceneLayout } from "../sceneUtils";
 
 const layout: SceneLayout = {
-  label: "Tourney1",
+  label: "Lineup",
   category: "Tournament",
   characters: [],
   slideLinesOverlay: true,
