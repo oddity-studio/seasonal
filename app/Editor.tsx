@@ -19,12 +19,13 @@ const RSS_FEEDS: Record<string, string> = {
   "top-winstreak": "https://www.audeobox.com/api/feeds/top-winstreak.xml",
   "weekly-top-genre-kings": "https://www.audeobox.com/api/feeds/weekly-top-genre-kings.xml",
   "top-producers": "https://www.audeobox.com/api/feeds/top-producers.xml",
+  "current-tourney": "https://www.audeobox.com/api/feeds/current-tourney.xml",
 };
 
 type RssBinding = {
   feedKey: string;
   slotIndex: number;
-  format?: "stats" | "numUser" | "top10";
+  format?: "stats" | "numUser" | "top10" | "bracket";
 };
 
 const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
@@ -46,6 +47,9 @@ const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
   ],
   "Top10": [
     { feedKey: "top-producers", slotIndex: 0, format: "top10" },
+  ],
+  "Bracket": [
+    { feedKey: "current-tourney", slotIndex: 0, format: "bracket" },
   ],
 };
 
@@ -86,8 +90,51 @@ async function fetchRssAll(feedKey: string): Promise<RssEntry[]> {
   }
 }
 
-function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<string, RssEntry>, cacheAll: Record<string, RssEntry[]>): Scene {
+type TourneyItem = { user1: string; user2: string; round: number };
+
+async function fetchTourneyFeed(): Promise<TourneyItem[]> {
+  const feedUrl = RSS_FEEDS["current-tourney"];
+  if (!feedUrl) return [];
+  try {
+    const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`);
+    if (!res.ok) return [];
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const items = doc.querySelectorAll("item");
+    const result: TourneyItem[] = [];
+    items.forEach((item) => {
+      const round = parseInt(item.querySelector("round")?.textContent ?? "0", 10);
+      const user1 = item.querySelector("user1")?.textContent ?? "";
+      const user2 = item.querySelector("user2")?.textContent ?? "";
+      result.push({ user1, user2, round });
+    });
+    return result;
+  } catch {
+    return [];
+  }
+}
+
+function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<string, RssEntry>, cacheAll: Record<string, RssEntry[]>, tourneyItems?: TourneyItem[]): Scene {
   const fmt = bindings[0]?.format;
+  if (fmt === "bracket" && tourneyItems?.length) {
+    const parts = (scene.text || "").split("\n");
+    const meta = (parts[3] || "0,0").split(",");
+    const round = parseInt(meta[0] || "0", 10) + 1;
+    const group = parseInt(meta[1] || "0", 10);
+    const roundItems = tourneyItems.filter((it) => it.round === round);
+    const idx1 = group * 2;
+    const idx2 = group * 2 + 1;
+    const item1 = roundItems[idx1];
+    const item2 = roundItems[idx2];
+    if (!item1 && !item2) return scene;
+    const box1 = item1?.user1 ?? parts[0]?.split(" ")[0] ?? "";
+    const box3 = item1?.user2 ?? parts[0]?.split(" ")[1] ?? "";
+    const box2 = item2?.user1 ?? parts[1]?.split(" ")[0] ?? "";
+    const box4 = item2?.user2 ?? parts[1]?.split(" ")[1] ?? "";
+    const toggles = parts[2] || "0,0";
+    const roundGroup = parts[3] || "0,0";
+    return { ...scene, text: `${box1} ${box3}\n${box2} ${box4}\n${toggles}\n${roundGroup}` };
+  }
   if (fmt === "top10") {
     const entries = cacheAll[bindings[0].feedKey];
     if (!entries?.length) return scene;
@@ -1150,34 +1197,40 @@ export default function Editor() {
                       typeof l === "string" ? l : getLayoutLabel(typeof l === "number" ? l : -1) ?? "";
                     const neededSingle = new Set<string>();
                     const neededAll = new Set<string>();
+                    let needsTourney = false;
                     for (const scene of props.scenes) {
                       const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
                       if (bindings) bindings.forEach((b) => {
-                        if (b.format === "top10") neededAll.add(b.feedKey);
+                        if (b.format === "bracket") needsTourney = true;
+                        else if (b.format === "top10") neededAll.add(b.feedKey);
                         else neededSingle.add(b.feedKey);
                       });
                     }
                     const cache: Record<string, RssEntry> = {};
                     const cacheAll: Record<string, RssEntry[]> = {};
+                    let tourneyItems: TourneyItem[] = [];
                     const singleKeys = [...neededSingle];
                     const allKeys = [...neededAll];
+                    if (needsTourney) {
+                      tourneyItems = await fetchTourneyFeed();
+                    }
                     for (let idx = 0; idx < singleKeys.length; idx++) {
-                      if (idx > 0) await new Promise((r) => setTimeout(r, 300));
+                      if (idx > 0 || needsTourney) await new Promise((r) => setTimeout(r, 300));
                       const entry = await fetchRssFeed(singleKeys[idx]);
                       if (entry) cache[singleKeys[idx]] = entry;
                     }
                     for (let idx = 0; idx < allKeys.length; idx++) {
-                      if (idx > 0 || singleKeys.length > 0) await new Promise((r) => setTimeout(r, 300));
+                      if (idx > 0 || singleKeys.length > 0 || needsTourney) await new Promise((r) => setTimeout(r, 300));
                       const entries = await fetchRssAll(allKeys[idx]);
                       if (entries.length) cacheAll[allKeys[idx]] = entries;
                     }
-                    if (Object.keys(cache).length > 0 || Object.keys(cacheAll).length > 0) {
+                    if (Object.keys(cache).length > 0 || Object.keys(cacheAll).length > 0 || tourneyItems.length > 0) {
                       setProps((prev) => ({
                         ...prev,
                         scenes: prev.scenes.map((scene) => {
                           const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
                           if (!bindings) return scene;
-                          return applyRssToScene(scene, bindings, cache, cacheAll);
+                          return applyRssToScene(scene, bindings, cache, cacheAll, tourneyItems);
                         }),
                       }));
                     }
