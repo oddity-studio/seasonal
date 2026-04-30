@@ -1533,7 +1533,7 @@ export default function Editor() {
                               <input
                                 style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
                                 value={box4}
-                                onChange={(e) => save(box1, box2, box3, box4, t1, t2)}
+                                onChange={(e) => save(box1, box2, box3, e.target.value, t1, t2)}
                                 placeholder="L2 line 2"
                               />
                             </span>
