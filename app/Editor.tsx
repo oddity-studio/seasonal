@@ -1439,14 +1439,17 @@ export default function Editor() {
                         const l1Entries = (parts[0] || "").split(" ");
                         const l2Entries = (parts[1] || "").split(" ");
                         const toggles = (parts[2] || "0,0").split(",");
+                        const meta = (parts[3] || "0,0").split(",");
                         const box1 = l1Entries[0] || "";
                         const box3 = l1Entries[1] || "";
                         const box2 = l2Entries[0] || "";
                         const box4 = l2Entries[1] || "";
                         const t1 = toggles[0] === "1";
                         const t2 = toggles[1] === "1";
-                        const save = (b1: string, b2: string, b3: string, b4: string, s1: boolean, s2: boolean) => {
-                          updateScene(i, "text", `${b1} ${b3}\n${b2} ${b4}\n${s1 ? "1" : "0"},${s2 ? "1" : "0"}`);
+                        const round = parseInt(meta[0] || "0", 10);
+                        const group = parseInt(meta[1] || "0", 10);
+                        const save = (b1: string, b2: string, b3: string, b4: string, s1: boolean, s2: boolean, r = round, g = group) => {
+                          updateScene(i, "text", `${b1} ${b3}\n${b2} ${b4}\n${s1 ? "1" : "0"},${s2 ? "1" : "0"}\n${r},${g}`);
                         };
                         const toggleStyle: React.CSSProperties = {
                           position: "relative",
@@ -1470,7 +1473,28 @@ export default function Editor() {
                           transition: "left 0.15s",
                         });
                         return (
-                          <span style={{ display: "flex", flexDirection: "column", flex: 1, gap: 4, minWidth: 0 }}>
+                          <span style={{ display: "flex", gap: 4, flex: 1, minWidth: 0 }}>
+                            <span style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
+                              <select
+                                style={{ ...styles.layoutSelect, padding: "8px 6px", fontSize: 12 }}
+                                value={round}
+                                onChange={(e) => save(box1, box2, box3, box4, t1, t2, Number(e.target.value), group)}
+                              >
+                                {[0,1,2,3,4].map((r) => (
+                                  <option key={r} value={r}>Round {r + 1}</option>
+                                ))}
+                              </select>
+                              <select
+                                style={{ ...styles.layoutSelect, padding: "8px 6px", fontSize: 12 }}
+                                value={group}
+                                onChange={(e) => save(box1, box2, box3, box4, t1, t2, round, Number(e.target.value))}
+                              >
+                                {[0,1,2,3,4,5,6,7].map((g) => (
+                                  <option key={g} value={g}>Group {g + 1}</option>
+                                ))}
+                              </select>
+                            </span>
+                            <span style={{ display: "flex", flexDirection: "column", flex: 1, gap: 4, minWidth: 0 }}>
                             <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
                               <input
                                 style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
@@ -1513,6 +1537,7 @@ export default function Editor() {
                                 placeholder="L2 line 2"
                               />
                             </span>
+                          </span>
                           </span>
                         );
                       })()
