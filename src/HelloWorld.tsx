@@ -783,10 +783,14 @@ const SlideLinesOverlay: React.FC<{
   const maxLines = duel ? 1 : 3;
   const textParts = (text || "").split("\n");
   const [layer1Raw, layer2Raw = ""] = textParts;
-  const lines = tourney
+  const lines = fixed
+    ? layer1Raw.split("|").map((s) => s.trim()).filter((s) => s)
+    : tourney
     ? layer1Raw.split(" ").filter((s) => s.trim())
     : layer1Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
-  const lines2 = tourney
+  const lines2 = fixed
+    ? layer2Raw.split("|").map((s) => s.trim()).filter((s) => s)
+    : tourney
     ? layer2Raw.split(" ").filter((s) => s.trim())
     : layer2Raw.split("|").map((s) => s.trim()).slice(0, maxLines);
   const toggleRaw = fixed ? (textParts[2] || "0,0").split(",") : [];

@@ -127,13 +127,15 @@ function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<str
     const item1 = roundItems[idx1];
     const item2 = roundItems[idx2];
     if (!item1 && !item2) return scene;
-    const box1 = item1?.user1 ?? parts[0]?.split(" ")[0] ?? "";
-    const box3 = item1?.user2 ?? parts[0]?.split(" ")[1] ?? "";
-    const box2 = item2?.user1 ?? parts[1]?.split(" ")[0] ?? "";
-    const box4 = item2?.user2 ?? parts[1]?.split(" ")[1] ?? "";
+    const l1Prev = (parts[0] || "").split("|");
+    const l2Prev = (parts[1] || "").split("|");
+    const box1 = item1?.user1 ?? l1Prev[0] ?? "";
+    const box2 = item1?.user2 ?? l2Prev[0] ?? "";
+    const box3 = item2?.user1 ?? l1Prev[1] ?? "";
+    const box4 = item2?.user2 ?? l2Prev[1] ?? "";
     const toggles = parts[2] || "0,0";
     const roundGroup = parts[3] || "0,0";
-    return { ...scene, text: `${box1} ${box3}\n${box2} ${box4}\n${toggles}\n${roundGroup}` };
+    return { ...scene, text: `${box1}|${box3}\n${box2}|${box4}\n${toggles}\n${roundGroup}` };
   }
   if (fmt === "top10") {
     const entries = cacheAll[bindings[0].feedKey];
@@ -1434,7 +1436,7 @@ export default function Editor() {
                           isSlideLinesDuelLayout(layoutIdx)
                             ? "Player1\nPlayer2"
                             : isSlideLinesFixedLayout(layoutIdx)
-                              ? "PLAYER PLAYER\nPLAYER PLAYER\n0,0"
+                              ? "PLAYER|PLAYER\nPLAYER|PLAYER\n0,0"
                               : isSlideLinesTourneyLayout(layoutIdx)
                                 ? "Player1 Player2 Player3\n126 89 257"
                                 : "Player1|Player2|Player3\n126|89|257",
@@ -1489,8 +1491,8 @@ export default function Editor() {
                     isSlideLinesFixedLayout(resolveLayoutIndex(scene.layout, i)) ? (
                       (() => {
                         const parts = (scene.text || "").split("\n");
-                        const l1Entries = (parts[0] || "").split(" ");
-                        const l2Entries = (parts[1] || "").split(" ");
+                        const l1Entries = (parts[0] || "").split("|");
+                        const l2Entries = (parts[1] || "").split("|");
                         const toggles = (parts[2] || "0,0").split(",");
                         const meta = (parts[3] || "0,0").split(",");
                         const box1 = l1Entries[0] || "";
@@ -1502,7 +1504,7 @@ export default function Editor() {
                         const round = parseInt(meta[0] || "0", 10);
                         const group = parseInt(meta[1] || "0", 10);
                         const save = (b1: string, b2: string, b3: string, b4: string, s1: boolean, s2: boolean, r = round, g = group) => {
-                          updateScene(i, "text", `${b1} ${b3}\n${b2} ${b4}\n${s1 ? "1" : "0"},${s2 ? "1" : "0"}\n${r},${g}`);
+                          updateScene(i, "text", `${b1}|${b3}\n${b2}|${b4}\n${s1 ? "1" : "0"},${s2 ? "1" : "0"}\n${r},${g}`);
                         };
                         const toggleStyle: React.CSSProperties = {
                           position: "relative",
@@ -1887,7 +1889,7 @@ export default function Editor() {
                           const fs = getLayoutDefaultFontSize(opt.index) ?? 150;
                           let defaultText = "";
                           if (isSlideLinesFixedLayout(opt.index)) {
-                            defaultText = "PLAYER PLAYER\nPLAYER PLAYER\n0,0";
+                            defaultText = "PLAYER|PLAYER\nPLAYER|PLAYER\n0,0";
                           } else if (isSlideLinesDuelLayout(opt.index)) {
                             defaultText = "Player1\nPlayer2";
                           } else if (isSlideLinesTourneyLayout(opt.index)) {
