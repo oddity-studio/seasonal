@@ -19,6 +19,7 @@ import S12Scene6 from "./S12Scene6";
 import S12Cover from "./S12Cover";
 import S12Logo from "./S12Logo";
 import S11Logo from "./S11Logo";
+import S10Logo from "./S10Logo";
 import Sunset from "./Sunset";
 import Neon from "./Neon";
 import Ocean from "./Ocean";
@@ -50,6 +51,7 @@ export const SCENE_LAYOUTS: SceneLayout[] = [
   S12Cover,
   S12Logo,
   S11Logo,
+  S10Logo,
   Sunset,
   Neon,
   Ocean,

@@ -40,6 +40,8 @@ export const CHAR3 = `${BASE}/char3.webp`;
 export const LOGO = `${BASE}/logo.webp`;
 export const LOGO11 = `${BASE}/s11logo.webp`;
 export const S11ART = `${BASE}/S11art.webp`;
+export const LOGO10 = `${BASE}/s10logo.webp`;
+export const S10ART = `${BASE}/S10art.webp`;
 export const BRACKETS = `${BASE}/brackets.webp`;
 export const BELT1 = `${BASE}/Belt1.webp`;
 
