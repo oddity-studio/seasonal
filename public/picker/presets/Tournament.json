@@ -12,7 +12,7 @@
   "scenes": [
     {
       "text": "Tournament Starts Now!",
-      "layout": "S11 Logo",
+      "layout": "S10 Logo",
       "fontSize": 80
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "text": "ROUND ONE... FIGHT!",
-      "layout": "S11 Logo",
+      "layout": "S10 Logo",
       "fontSize": 80
     }
   ]

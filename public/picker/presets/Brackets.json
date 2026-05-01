@@ -12,7 +12,7 @@
   "scenes": [
     {
       "text": "Round 3 Unlocked",
-      "layout": "S11 Logo",
+      "layout": "S10 Logo",
       "fontSize": 100
     },
     {
@@ -62,7 +62,7 @@
     },
     {
       "text": "VOTING STARTS MAY 3RD",
-      "layout": "S11 Logo",
+      "layout": "S10 Logo",
       "fontSize": 100
     }
   ]
