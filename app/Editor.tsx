@@ -1531,7 +1531,7 @@ export default function Editor() {
                           <span style={{ display: "flex", gap: 4, flex: 1, minWidth: 0 }}>
                             <span style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
                               <select
-                                style={{ ...styles.layoutSelect, padding: "8px 6px", fontSize: 12 }}
+                                style={{ ...styles.layoutSelect, padding: "8px 6px", fontSize: 12, ...RSS_BORDER }}
                                 value={round}
                                 onChange={(e) => save(box1, box2, box3, box4, t1, t2, Number(e.target.value), group)}
                               >
@@ -1540,7 +1540,7 @@ export default function Editor() {
                                 ))}
                               </select>
                               <select
-                                style={{ ...styles.layoutSelect, padding: "8px 6px", fontSize: 12 }}
+                                style={{ ...styles.layoutSelect, padding: "8px 6px", fontSize: 12, ...RSS_BORDER }}
                                 value={group}
                                 onChange={(e) => save(box1, box2, box3, box4, t1, t2, round, Number(e.target.value))}
                               >
@@ -1552,7 +1552,7 @@ export default function Editor() {
                             <span style={{ display: "flex", flexDirection: "column", flex: 1, gap: 4, minWidth: 0 }}>
                             <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
                               <input
-                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0, ...RSS_BORDER }}
                                 value={box1}
                                 onChange={(e) => save(e.target.value, box2, box3, box4, t1, t2)}
                                 placeholder="L1 line 1"
@@ -1565,7 +1565,7 @@ export default function Editor() {
                                 <div style={knobStyle(t1)} />
                               </button>
                               <input
-                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0, ...RSS_BORDER }}
                                 value={box2}
                                 onChange={(e) => save(box1, e.target.value, box3, box4, t1, t2)}
                                 placeholder="L2 line 1"
@@ -1573,7 +1573,7 @@ export default function Editor() {
                             </span>
                             <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
                               <input
-                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0, ...RSS_BORDER }}
                                 value={box3}
                                 onChange={(e) => save(box1, box2, e.target.value, box4, t1, t2)}
                                 placeholder="L1 line 2"
@@ -1586,7 +1586,7 @@ export default function Editor() {
                                 <div style={knobStyle(t2)} />
                               </button>
                               <input
-                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }}
+                                style={{ ...styles.sceneInput, flex: 1, minWidth: 0, ...RSS_BORDER }}
                                 value={box4}
                                 onChange={(e) => save(box1, box2, box3, e.target.value, t1, t2)}
                                 placeholder="L2 line 2"
