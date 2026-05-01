@@ -1163,7 +1163,7 @@ const SlideLinesOverlay: React.FC<{
               left: 0,
               width: 1080,
               height: forkH,
-              transform: `translateX(50%) translateY(calc(-50% + 60px))`,
+              transform: `translateX(50%) translateY(calc(-50% + 55px))`,
             }}>
               <svg
                 viewBox={`0 0 1080 ${forkH}`}
