@@ -133,9 +133,12 @@ function applyRssToScene(scene: Scene, bindings: RssBinding[], cache: Record<str
     const box2 = item1?.user2 ?? l2Prev[0] ?? "";
     const box3 = item2?.user1 ?? l1Prev[1] ?? "";
     const box4 = item2?.user2 ?? l2Prev[1] ?? "";
-    const toggles = parts[2] || "0,0";
+    const nextRoundItems = tourneyItems.filter((it) => it.round === round + 1);
+    const nextNames = new Set(nextRoundItems.flatMap((it) => [it.user1.toLowerCase(), it.user2.toLowerCase()]));
+    const t1 = item1 ? (nextNames.has(item1.user1.toLowerCase()) ? "0" : "1") : (parts[2] || "0,0").split(",")[0] || "0";
+    const t2 = item2 ? (nextNames.has(item2.user1.toLowerCase()) ? "0" : "1") : (parts[2] || "0,0").split(",")[1] || "0";
     const roundGroup = parts[3] || "0,0";
-    return { ...scene, text: `${box1}|${box3}\n${box2}|${box4}\n${toggles}\n${roundGroup}` };
+    return { ...scene, text: `${box1}|${box3}\n${box2}|${box4}\n${t1},${t2}\n${roundGroup}` };
   }
   if (fmt === "top10") {
     const entries = cacheAll[bindings[0].feedKey];
