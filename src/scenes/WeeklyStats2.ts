@@ -4,6 +4,7 @@ const layout: SceneLayout = {
   label: "Weekly Stats 2",
   category: "Weekly Report",
   characters: [],
+  defaultDuration: 6,
   slideLinesOverlay: true,
   slideLinesLabels: ["Most Votes Cast", "Most Comments", "Biggest XP Jump"],
   slideLinesOffsetX: 64,

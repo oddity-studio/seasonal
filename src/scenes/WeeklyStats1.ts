@@ -4,6 +4,7 @@ const layout: SceneLayout = {
   label: "Weekly Stats 1",
   category: "Weekly Report",
   characters: [],
+  defaultDuration: 6,
   slideLinesOverlay: true,
   slideLinesLabels: ["Most Battles", "Most Wins", "Most Played Beats"],
   polkaDotOverlay: true,
