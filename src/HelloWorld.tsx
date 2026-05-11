@@ -1601,8 +1601,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
             )}
             {showBlack && (
-              <svg viewBox="0 0 482 256" style={{ ...centerStyle, width: "70%", height: "auto" }}>
-                <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
+              <svg viewBox="0 0 482 320" style={{ ...centerStyle, width: "70%", height: "auto", top: "calc(50% + 5vh)" }}>
+                <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,251.763 L0.386,319.419 Z" />
               </svg>
             )}
             {showLogoStay && (
