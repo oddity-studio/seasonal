@@ -61,6 +61,8 @@ export const isSlideLinesTourneyLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesTourney === true;
 export const isSlideLinesFixedLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.slideLinesFixed === true;
+export const isTextBlockLayout = (index: number): boolean =>
+  SCENE_LAYOUTS[index]?.textBlock === true;
 export const isPrizesGridLayout = (index: number): boolean =>
   SCENE_LAYOUTS[index]?.prizesGrid === true;
 export const isTop10Layout = (index: number): boolean =>
@@ -1677,7 +1679,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
         if (resolvedLayout.textBlock) {
           const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
-          const lines = text.split("\n").filter((l) => l.trim());
+          const lines = (text || "").split("\n");
           return (
             <div
               style={{
@@ -1692,7 +1694,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 <p
                   key={li}
                   style={{
-                    fontSize: resolvedFontSize * Math.pow(1.2, li),
+                    fontSize: resolvedFontSize,
                     fontFamily: fontConfig.fontFamily,
                     fontWeight: fontConfig.fontWeight ?? 700,
                     fontStyle: fontConfig.fontStyle ?? "normal",

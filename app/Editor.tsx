@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isTextBlockLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -1432,6 +1432,9 @@ export default function Editor() {
                       if (isKingOverlayLayout(layoutIdx) && !scene.text) {
                         updateScene(i, "text", "3|Player One");
                       }
+                      if (isTextBlockLayout(layoutIdx) && !scene.text) {
+                        updateScene(i, "text", "SEASON 10\nCHAMPION\nPLAYER ONE");
+                      }
                       if (isSlideLinesOverlayLayout(layoutIdx) && !scene.text) {
                         updateScene(
                           i,
@@ -1784,6 +1787,21 @@ export default function Editor() {
                         updateScene(i, "text", rangeText);
                       }}
                     />
+                  ) : isTextBlockLayout(resolveLayoutIndex(scene.layout, i)) ? (
+                    (() => {
+                      const parts = (scene.text || "").split("\n");
+                      const line1 = parts[0] || "";
+                      const line2 = parts[1] || "";
+                      const line3 = parts[2] || "";
+                      const save = (l1: string, l2: string, l3: string) => updateScene(i, "text", `${l1}\n${l2}\n${l3}`);
+                      return (
+                        <span style={{ display: "flex", flexDirection: "column", flex: 1, gap: 4, minWidth: 0 }}>
+                          <input style={styles.sceneInput} value={line1} onChange={(e) => save(e.target.value, line2, line3)} placeholder="Line 1" />
+                          <input style={styles.sceneInput} value={line2} onChange={(e) => save(line1, e.target.value, line3)} placeholder="Line 2" />
+                          <input style={styles.sceneInput} value={line3} onChange={(e) => save(line1, line2, e.target.value)} placeholder="Line 3" />
+                        </span>
+                      );
+                    })()
                   ) : (
                     <input
                       style={styles.sceneInput}
@@ -1905,6 +1923,8 @@ export default function Editor() {
                             defaultText = "3|Player One";
                           } else if (isKingOverlayLayout(opt.index)) {
                             defaultText = "3|Player One";
+                          } else if (isTextBlockLayout(opt.index)) {
+                            defaultText = "SEASON 10\nCHAMPION\nPLAYER ONE";
                           }
                           setProps((prev) => ({
                             ...prev,
