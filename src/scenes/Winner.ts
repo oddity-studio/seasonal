@@ -7,10 +7,11 @@ const layout: SceneLayout = {
   characters: [],
   backgroundImageStatic: { src: ARENA, filter: "saturate(0.2)" },
   spotlight: true,
+  textBlock: true,
   beltStomp: { src: BELT1 },
-  textDefaults: { y: 200, fontSize: 120, rotateX: 10, mode: "flat" },
+  textDefaults: { y: 90, fontSize: 120, rotateX: 10, mode: "flat" },
   defaultDuration: 10,
-  customStyle: (c) => ({ background: "transparent", textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
+  customStyle: (c) => ({ background: "transparent", textColor: c.highlight, textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
 };
 
 export default layout;

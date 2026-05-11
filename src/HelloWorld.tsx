@@ -1675,6 +1675,39 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const a = { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
         const perspectiveVal = isFlat ? 0 : (persp ?? td?.perspective ?? 400);
 
+        if (resolvedLayout.textBlock) {
+          const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
+          return (
+            <div
+              style={{
+                opacity: exit,
+                transform: `rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${resolvedY}px)`,
+                textAlign: "center",
+                width: "90%",
+                zIndex: 12,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: resolvedFontSize,
+                  fontFamily: fontConfig.fontFamily,
+                  fontWeight: fontConfig.fontWeight ?? 700,
+                  fontStyle: fontConfig.fontStyle ?? "normal",
+                  color: textColor,
+                  margin: 0,
+                  lineHeight: fontConfig.lineHeight ?? 1.2,
+                  letterSpacing: 8,
+                  textTransform: "uppercase",
+                  textShadow: textGlow,
+                  opacity: blockOpacity,
+                }}
+              >
+                {text}
+              </p>
+            </div>
+          );
+        }
+
         const words = text.split(" ");
         const totalWords = words.length;
         const revealWindow = dur - 50;
