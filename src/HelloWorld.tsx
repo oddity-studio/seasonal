@@ -1468,17 +1468,20 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Static background image layer (e.g. arena) */}
       {resolvedLayout.backgroundImageStatic && (
-        <AbsoluteFill style={{ overflow: "hidden" }}>
-          <Img
-            src={resolvedLayout.backgroundImageStatic.src}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              filter: resolvedLayout.backgroundImageStatic.filter,
-            }}
-          />
-        </AbsoluteFill>
+        <>
+          <AbsoluteFill style={{ overflow: "hidden" }}>
+            <Img
+              src={resolvedLayout.backgroundImageStatic.src}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                filter: resolvedLayout.backgroundImageStatic.filter,
+              }}
+            />
+          </AbsoluteFill>
+          <AbsoluteFill style={{ background: `${colors.dark}80` }} />
+        </>
       )}
 
       {/* Background image layer (e.g. brackets) */}
