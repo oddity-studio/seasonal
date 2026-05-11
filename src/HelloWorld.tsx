@@ -1504,10 +1504,15 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           WebkitMaskImage: "radial-gradient(circle, white 0%, transparent 50%)",
           pointerEvents: "none",
         };
+        const coneStyleR: React.CSSProperties = { ...coneStyle, left: "auto", right: "-2vw" };
+        const mr1 = -10 + eased * 70;
+        const mr2 = -10 + eased * 50;
         return (
           <>
             <div style={{ ...coneStyle, transform: `translate(-50%, -50%) rotate(${r1}deg)` }} />
             <div style={{ ...coneStyle, transform: `translate(-50%, -50%) rotate(${r2}deg)` }} />
+            <div style={{ ...coneStyleR, transform: `translate(50%, -50%) rotate(${mr1}deg)` }} />
+            <div style={{ ...coneStyleR, transform: `translate(50%, -50%) rotate(${mr2}deg)` }} />
           </>
         );
       })()}
