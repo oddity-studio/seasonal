@@ -44,6 +44,7 @@ export const LOGO10 = `${BASE}/s10logo.webp`;
 export const S10ART = `${BASE}/S10art.webp`;
 export const BRACKETS = `${BASE}/brackets.webp`;
 export const BELT1 = `${BASE}/Belt1.webp`;
+export const ARENA = `${BASE}/arena.webp`;
 
 export type CharPlacement = {
   src: string;
@@ -71,6 +72,7 @@ export type SceneLayout = {
   characters: CharPlacement[];
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number; muted?: boolean };
   backgroundImageSrc?: string;
+  backgroundImageStatic?: { src: string; filter?: string };
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;

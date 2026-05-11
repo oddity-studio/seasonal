@@ -1466,6 +1466,21 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
       {/* Sound waveform for scroll-mode scenes — behind characters */}
       {td?.mode === "scroll" && <SoundWaveform color={colors.light} />}
 
+      {/* Static background image layer (e.g. arena) */}
+      {resolvedLayout.backgroundImageStatic && (
+        <AbsoluteFill style={{ overflow: "hidden" }}>
+          <Img
+            src={resolvedLayout.backgroundImageStatic.src}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: resolvedLayout.backgroundImageStatic.filter,
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
       {/* Background image layer (e.g. brackets) */}
       {resolvedLayout.backgroundImageSrc && (
         <BracketsLayer src={resolvedLayout.backgroundImageSrc} sceneDuration={dur} />
