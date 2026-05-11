@@ -1530,87 +1530,145 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         <BracketsLayer src={resolvedLayout.backgroundImageSrc} sceneDuration={dur} />
       )}
 
-      {/* Belt stomp layer */}
-      {resolvedLayout.beltStomp && (
-        <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={resolvedLayout.spotlight ? fps : 0} />
-      )}
-
-      {/* Rays burst after belt stomp */}
-      {resolvedLayout.spotlight && resolvedLayout.beltStomp && (() => {
-        const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
-        const raysDuration = Math.round(1.2 * fps);
-        const show = frame >= raysStart && frame < raysStart + raysDuration;
-        return show ? (
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9,
-            pointerEvents: "none",
-          }}>
-            <Img
-              src={`${BASE}/rays.webp`}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-          </div>
-        ) : null;
-      })()}
-
-      {/* Winner banner flash sequence + logo after rays */}
-      {resolvedLayout.spotlight && resolvedLayout.beltStomp && (() => {
-        const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
-        if (frame < raysEnd) return null;
-        const f = frame - raysEnd;
-        const step = Math.round(0.1 * fps) || 1;
-        const showOrange = f < step;
-        const showWhite = f >= step && f < step * 2;
-        const showLogoBig = f >= step * 2 && f < step * 3;
-        const showLogoNormal = f >= step * 3 && f < step * 4;
-        const showLogoStay = f >= step * 5;
-        const showBlack = f >= step * 6;
-        const moveStart = step * 5;
-        const logoY = f >= moveStart ? -10 : 0;
-        const centerStyle: React.CSSProperties = {
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        };
+      {/* Winner content group: belt, rays, banner, text — shifted down */}
+      {resolvedLayout.spotlight && (() => {
+        const winnerShift = "20vh";
         return (
-          <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
-            {showOrange && (
-              <svg viewBox="0 0 482 256" style={{ ...centerStyle, width: "70%", height: "auto" }}>
-                <path fillRule="evenodd" fill="rgb(255, 168, 0)" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
-              </svg>
+          <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
+            {resolvedLayout.beltStomp && (
+              <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
             )}
-            {showWhite && (
-              <svg viewBox="0 0 482 117" style={{ ...centerStyle, width: "70%", height: "auto" }}>
-                <path fillRule="evenodd" fill="rgb(255, 255, 255)" d="M0.386,68.358 L481.787,0.702 L481.787,48.763 L0.386,116.419 Z" />
-              </svg>
-            )}
-            {showLogoBig && (
-              <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "39%", height: "auto" }} />
-            )}
-            {showLogoNormal && (
-              <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
-            )}
-            {showBlack && (
-              <svg viewBox="0 0 482 320" style={{ ...centerStyle, width: "70%", height: "auto", top: "calc(50% + 5vh)" }}>
-                <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,251.763 L0.386,319.419 Z" />
-              </svg>
-            )}
-            {showLogoStay && (
-              <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto", top: `calc(50% + ${logoY}vh)` }} />
-            )}
+
+            {resolvedLayout.beltStomp && (() => {
+              const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
+              const raysDuration = Math.round(1.2 * fps);
+              const show = frame >= raysStart && frame < raysStart + raysDuration;
+              return show ? (
+                <div style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 9,
+                  pointerEvents: "none",
+                }}>
+                  <Img
+                    src={`${BASE}/rays.webp`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              ) : null;
+            })()}
+
+            {resolvedLayout.beltStomp && (() => {
+              const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
+              if (frame < raysEnd) return null;
+              const f = frame - raysEnd;
+              const step = Math.round(0.1 * fps) || 1;
+              const showOrange = f < step;
+              const showWhite = f >= step && f < step * 2;
+              const showLogoBig = f >= step * 2 && f < step * 3;
+              const showLogoNormal = f >= step * 3 && f < step * 4;
+              const showLogoStay = f >= step * 5;
+              const showBlack = f >= step * 6;
+              const moveStart = step * 5;
+              const logoY = f >= moveStart ? -10 : 0;
+              const centerStyle: React.CSSProperties = {
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              };
+              return (
+                <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
+                  {showOrange && (
+                    <svg viewBox="0 0 482 256" style={{ ...centerStyle, width: "70%", height: "auto" }}>
+                      <path fillRule="evenodd" fill="rgb(255, 168, 0)" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
+                    </svg>
+                  )}
+                  {showWhite && (
+                    <svg viewBox="0 0 482 117" style={{ ...centerStyle, width: "70%", height: "auto" }}>
+                      <path fillRule="evenodd" fill="rgb(255, 255, 255)" d="M0.386,68.358 L481.787,0.702 L481.787,48.763 L0.386,116.419 Z" />
+                    </svg>
+                  )}
+                  {showLogoBig && (
+                    <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "39%", height: "auto" }} />
+                  )}
+                  {showLogoNormal && (
+                    <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
+                  )}
+                  {showBlack && (
+                    <svg viewBox="0 0 482 320" style={{ ...centerStyle, width: "70%", height: "auto", top: "calc(50% + 5vh)" }}>
+                      <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,251.763 L0.386,319.419 Z" />
+                    </svg>
+                  )}
+                  {showLogoStay && (
+                    <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto", top: `calc(50% + ${logoY}vh)` }} />
+                  )}
+                </div>
+              );
+            })()}
+
+            {resolvedLayout.textBlock && (() => {
+              const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
+              const lines = (text || "").split("\n");
+              const sizeScale = [1, 1.3, 0.5];
+              const a = { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
+              return (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    opacity: exit,
+                    transform: `rotateZ(${a.z}deg) rotateX(${a.x}deg) translateX(${resolvedX}px) translateY(${resolvedY}px)`,
+                    textAlign: "center",
+                    width: "100%",
+                    zIndex: 12,
+                    pointerEvents: "none",
+                  }}
+                >
+                  <div style={{ width: "90%" }}>
+                    {lines.map((line, li) => (
+                      <p
+                        key={li}
+                        style={{
+                          fontSize: resolvedFontSize * (sizeScale[li] ?? 1),
+                          fontFamily: fontConfig.fontFamily,
+                          fontWeight: fontConfig.fontWeight ?? 700,
+                          fontStyle: fontConfig.fontStyle ?? "normal",
+                          color: textColor,
+                          margin: 0,
+                          marginTop: li === 0 ? "10vh" : "-0.2em",
+                          lineHeight: 1.1,
+                          letterSpacing: 8,
+                          textTransform: "uppercase",
+                          textShadow: textGlow,
+                          opacity: blockOpacity,
+                        }}
+                      >
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         );
       })()}
+
+      {/* Belt stomp layer (non-spotlight scenes) */}
+      {resolvedLayout.beltStomp && !resolvedLayout.spotlight && (
+        <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={0} />
+      )}
 
       {/* Character layer */}
       <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} darkColor={colors.dark} />
@@ -1678,6 +1736,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const perspectiveVal = isFlat ? 0 : (persp ?? td?.perspective ?? 400);
 
         if (resolvedLayout.textBlock) {
+          if (resolvedLayout.spotlight) return null;
           const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
           const lines = (text || "").split("\n");
           const sizeScale = [1, 1.3, 0.5];
