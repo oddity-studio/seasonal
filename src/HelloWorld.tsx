@@ -1538,7 +1538,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
             {portrait && (
               <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none" }}>
-                <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "160vh", width: "auto", objectFit: "contain" }} />
+                <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
               </div>
             )}
             {resolvedLayout.beltStomp && (
