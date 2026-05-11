@@ -1560,6 +1560,49 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         ) : null;
       })()}
 
+      {/* Winner banner SVGs + logo after rays */}
+      {resolvedLayout.spotlight && resolvedLayout.beltStomp && (() => {
+        const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
+        if (frame < raysEnd) return null;
+        const bannerFrame = frame - raysEnd;
+        const bannerIn = spring({ frame: bannerFrame, fps, config: { damping: 14, stiffness: 120 } });
+        return (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 10,
+            pointerEvents: "none",
+            opacity: bannerIn,
+            transform: `scale(${interpolate(bannerIn, [0, 1], [0.8, 1])})`,
+          }}>
+            <svg width="482" height="256" viewBox="0 0 482 256" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -75%)", width: "50%" }}>
+              <path fillRule="evenodd" fill="rgb(255, 168, 0)" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
+            </svg>
+            <svg width="482" height="256" viewBox="0 0 482 256" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -25%)", width: "50%", opacity: 0.949 }}>
+              <path fillRule="evenodd" fill="rgb(8, 8, 8)" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
+            </svg>
+            <svg width="482" height="117" viewBox="0 0 482 117" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "50%" }}>
+              <path fillRule="evenodd" fill="rgb(255, 255, 255)" d="M0.386,68.358 L481.787,0.702 L481.787,48.763 L0.386,116.419 Z" />
+            </svg>
+            <Img
+              src={`${BASE}/audeobox_text.png`}
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "30%",
+                height: "auto",
+              }}
+            />
+          </div>
+        );
+      })()}
+
       {/* Character layer */}
       <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} darkColor={colors.dark} />
 
