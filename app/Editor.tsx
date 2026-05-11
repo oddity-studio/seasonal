@@ -1794,7 +1794,7 @@ export default function Editor() {
                       const line2 = parts[1] || "";
                       const line3 = parts[2] || "";
                       const save = (l1: string, l2: string, l3: string) => updateScene(i, "text", `${l1}\n${l2}\n${l3}`);
-                      const portraits = ["Ari.webp", "Chafra.webp", "Espin.webp", "Sik-trakz.webp"];
+                      const portraits = ["Ari.webp", "Cannaprize.webp", "Chafra.webp", "Dink-the-Poof.webp", "Espin.webp", "Sik-trakz.webp"];
                       return (
                         <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
                           <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line1} onChange={(e) => save(e.target.value, line2, line3)} placeholder="Line 1" />
