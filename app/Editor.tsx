@@ -1795,10 +1795,10 @@ export default function Editor() {
                       const line3 = parts[2] || "";
                       const save = (l1: string, l2: string, l3: string) => updateScene(i, "text", `${l1}\n${l2}\n${l3}`);
                       return (
-                        <span style={{ display: "flex", flexDirection: "column", flex: 1, gap: 4, minWidth: 0 }}>
-                          <input style={styles.sceneInput} value={line1} onChange={(e) => save(e.target.value, line2, line3)} placeholder="Line 1" />
-                          <input style={styles.sceneInput} value={line2} onChange={(e) => save(line1, e.target.value, line3)} placeholder="Line 2" />
-                          <input style={styles.sceneInput} value={line3} onChange={(e) => save(line1, line2, e.target.value)} placeholder="Line 3" />
+                        <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
+                          <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line1} onChange={(e) => save(e.target.value, line2, line3)} placeholder="Line 1" />
+                          <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line2} onChange={(e) => save(line1, e.target.value, line3)} placeholder="Line 2" />
+                          <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line3} onChange={(e) => save(line1, line2, e.target.value)} placeholder="Line 3" />
                         </span>
                       );
                     })()
