@@ -1651,11 +1651,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 } else if (li === 1) {
                   return { opacity: ease, transform: `translateX(${(1 - ease) * 60}%)` };
                 } else {
-                  const glow = ease > 0.5 ? 1 : ease * 2;
                   const flicker = ease < 0.3 ? (Math.sin(tf * 2) > 0 ? 0.3 : 0.8) : 1;
                   return {
                     opacity: ease * flicker,
-                    textShadow: `0 0 ${10 + glow * 30}px ${textColor}, 0 0 ${5 + glow * 15}px ${textColor}, ${textGlow || ""}`,
                     transform: "translateX(0)",
                   };
                 }
