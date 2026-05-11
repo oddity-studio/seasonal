@@ -1701,7 +1701,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     fontStyle: fontConfig.fontStyle ?? "normal",
                     color: textColor,
                     margin: 0,
-                    marginTop: li === 0 ? "10vh" : "-0.1em",
+                    marginTop: li === 0 ? "10vh" : "-0.2em",
                     lineHeight: 1.1,
                     letterSpacing: 8,
                     textTransform: "uppercase",

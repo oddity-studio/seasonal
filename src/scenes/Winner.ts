@@ -9,7 +9,7 @@ const layout: SceneLayout = {
   spotlight: true,
   textBlock: true,
   beltStomp: { src: BELT1 },
-  textDefaults: { y: 90, fontSize: 120, rotateX: 10, mode: "flat" },
+  textDefaults: { y: 36, fontSize: 120, rotateX: 10, mode: "flat" },
   defaultDuration: 10,
   customStyle: (c) => ({ background: "transparent", textColor: c.highlight, textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
 };
