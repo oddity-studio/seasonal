@@ -1565,7 +1565,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
         if (frame < raysEnd) return null;
         const f = frame - raysEnd;
-        const step = Math.round(0.05 * fps) || 1;
+        const step = Math.round(0.1 * fps) || 1;
         const showOrange = f < step;
         const showWhite = f >= step && f < step * 2;
         const showLogoBig = f >= step * 2 && f < step * 3;
@@ -1584,12 +1584,12 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         return (
           <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
             {showOrange && (
-              <svg width="482" height="256" viewBox="0 0 482 256" style={{ ...centerStyle, width: "50%" }}>
+              <svg width="482" height="256" viewBox="0 0 482 256" style={{ ...centerStyle, width: "90%" }}>
                 <path fillRule="evenodd" fill="rgb(255, 168, 0)" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
               </svg>
             )}
             {showWhite && (
-              <svg width="482" height="117" viewBox="0 0 482 117" style={{ ...centerStyle, width: "50%" }}>
+              <svg width="482" height="117" viewBox="0 0 482 117" style={{ ...centerStyle, width: "90%" }}>
                 <path fillRule="evenodd" fill="rgb(255, 255, 255)" d="M0.386,68.358 L481.787,0.702 L481.787,48.763 L0.386,116.419 Z" />
               </svg>
             )}
@@ -1600,7 +1600,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
             )}
             {showBlack && (
-              <svg width="482" height="256" viewBox="0 0 482 256" style={{ ...centerStyle, width: "50%" }}>
+              <svg width="482" height="256" viewBox="0 0 482 256" style={{ ...centerStyle, width: "90%" }}>
                 <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
               </svg>
             )}
