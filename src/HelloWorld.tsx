@@ -72,7 +72,7 @@ export const getLayoutDefaultDuration = (index: number): number | undefined =>
 export const getLayoutDefaultFontSize = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.textDefaults?.fontSize;
 
-export const resolveSceneMusic = (scene: Scene): { src: string; fadeIn?: number; fadeOut?: number } | undefined => {
+export const resolveSceneMusic = (scene: Scene): { src: string; fadeIn?: number; fadeOut?: number; startFrom?: number } | undefined => {
   const layoutIndex = resolveLayoutIndex(scene.layout, 0);
   return SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length].sceneMusic;
 };
@@ -2193,9 +2193,11 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
                 const sm = sceneLayout.sceneMusic;
                 const fadeInFrames = Math.round((sm.fadeIn ?? 0.3) * 60);
                 const fadeOutFrames = Math.round((sm.fadeOut ?? 0.5) * 60);
+                const startFromFrames = Math.round((sm.startFrom ?? 0) * 60);
                 return (
                   <Audio
                     src={`${BASE}${sm.src}`}
+                    startFrom={startFromFrames}
                     volume={(f) =>
                       interpolate(f, [0, fadeInFrames, sceneFrames - fadeOutFrames, sceneFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
                     }

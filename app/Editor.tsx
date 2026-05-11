@@ -511,16 +511,17 @@ export default function Editor() {
           const resp = await fetch(`${BASE}${sm.src}`);
           const smAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
           const dstStart = Math.floor((clipSceneOffset / FPS) * audioCtx.sampleRate);
+          const smSrcStart = Math.floor((sm.startFrom ?? 0) * audioCtx.sampleRate);
           const fadeInSamples = Math.round((sm.fadeIn ?? 0.3) * audioCtx.sampleRate);
           const fadeOutSamples = Math.round((sm.fadeOut ?? 0.5) * audioCtx.sampleRate);
           for (let c = 0; c < 2; c++) {
             const dst = clipMixBuf.getChannelData(c);
             const s = smAudio.getChannelData(Math.min(c, smAudio.numberOfChannels - 1));
-            for (let j = 0; j < sceneSamples && j < s.length && (dstStart + j) < dst.length; j++) {
+            for (let j = 0; j < sceneSamples && (smSrcStart + j) < s.length && (dstStart + j) < dst.length; j++) {
               let vol = 1;
               if (j < fadeInSamples) vol = j / fadeInSamples;
               if (j > sceneSamples - fadeOutSamples) vol = Math.min(vol, (sceneSamples - j) / fadeOutSamples);
-              dst[dstStart + j] += s[j] * vol;
+              dst[dstStart + j] += s[smSrcStart + j] * vol;
             }
           }
         } catch (e) {
@@ -813,16 +814,17 @@ export default function Editor() {
             const resp = await fetch(`${BASE}${sm.src}`);
             const smAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
             const dstStart = Math.floor((sceneOffset / FPS) * audioCtx.sampleRate);
+            const smSrcStart = Math.floor((sm.startFrom ?? 0) * audioCtx.sampleRate);
             const fadeInSamples = Math.round((sm.fadeIn ?? 0.3) * audioCtx.sampleRate);
             const fadeOutSamples = Math.round((sm.fadeOut ?? 0.5) * audioCtx.sampleRate);
             for (let c = 0; c < 2; c++) {
               const dst = mixBuf.getChannelData(c);
               const s = smAudio.getChannelData(Math.min(c, smAudio.numberOfChannels - 1));
-              for (let j = 0; j < sceneSamples && j < s.length && (dstStart + j) < dst.length; j++) {
+              for (let j = 0; j < sceneSamples && (smSrcStart + j) < s.length && (dstStart + j) < dst.length; j++) {
                 let vol = 1;
                 if (j < fadeInSamples) vol = j / fadeInSamples;
                 if (j > sceneSamples - fadeOutSamples) vol = Math.min(vol, (sceneSamples - j) / fadeOutSamples);
-                dst[dstStart + j] += s[j] * vol;
+                dst[dstStart + j] += s[smSrcStart + j] * vol;
               }
             }
           } catch (e) {
