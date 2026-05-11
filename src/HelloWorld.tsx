@@ -1486,12 +1486,17 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Spotlight cones */}
       {resolvedLayout.spotlight && (() => {
-        const delay = fps;
+        const baseDelay = fps;
         const duration = fps;
-        const p = frame <= delay ? 0 : frame >= delay + duration ? 1 : (frame - delay) / duration;
-        const eased = 1 - Math.pow(1 - p, 3);
-        const r1 = 10 + eased * -70;
-        const r2 = 10 + eased * -50;
+        const ease = (delayMs: number) => {
+          const d = baseDelay + Math.round(delayMs / 1000 * fps);
+          const p = frame <= d ? 0 : frame >= d + duration ? 1 : (frame - d) / duration;
+          return 1 - Math.pow(1 - p, 3);
+        };
+        const r1 = 10 + ease(0) * (-60 - 10);
+        const r2 = 15 + ease(20) * (-30 - 15);
+        const r3 = -10 + ease(20) * (55 - -10);
+        const r4 = -20 + ease(30) * (38 - -20);
         const coneStyle: React.CSSProperties = {
           position: "absolute",
           top: "-5vh",
@@ -1505,14 +1510,12 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
           pointerEvents: "none",
         };
         const coneStyleR: React.CSSProperties = { ...coneStyle, left: "auto", right: "-2vw" };
-        const mr1 = -10 + eased * 70;
-        const mr2 = -10 + eased * 50;
         return (
           <>
             <div style={{ ...coneStyle, transform: `translate(-50%, -50%) rotate(${r1}deg)` }} />
             <div style={{ ...coneStyle, transform: `translate(-50%, -50%) rotate(${r2}deg)` }} />
-            <div style={{ ...coneStyleR, transform: `translate(50%, -50%) rotate(${mr1}deg)` }} />
-            <div style={{ ...coneStyleR, transform: `translate(50%, -50%) rotate(${mr2}deg)` }} />
+            <div style={{ ...coneStyleR, transform: `translate(50%, -50%) rotate(${r3}deg)` }} />
+            <div style={{ ...coneStyleR, transform: `translate(50%, -50%) rotate(${r4}deg)` }} />
           </>
         );
       })()}
