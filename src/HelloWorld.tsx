@@ -1535,7 +1535,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Rays burst after belt stomp */}
       {resolvedLayout.spotlight && resolvedLayout.beltStomp && (() => {
-        const raysStart = fps + 20 + 15 - Math.round(0.01 * fps);
+        const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
         const raysDuration = Math.round(1.2 * fps);
         const show = frame >= raysStart && frame < raysStart + raysDuration;
         return show ? (
