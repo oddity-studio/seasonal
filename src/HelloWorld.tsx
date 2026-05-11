@@ -1543,6 +1543,19 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
               const raysDuration = Math.round(1.2 * fps);
               const show = frame >= raysStart && frame < raysStart + raysDuration;
+              const hx = colors.highlight.replace("#", "");
+              const rr = parseInt(hx.substring(0, 2), 16) / 255;
+              const gg = parseInt(hx.substring(2, 4), 16) / 255;
+              const bb = parseInt(hx.substring(4, 6), 16) / 255;
+              const max = Math.max(rr, gg, bb), min = Math.min(rr, gg, bb);
+              let hue = 0;
+              if (max !== min) {
+                const d = max - min;
+                hue = max === rr ? ((gg - bb) / d + (gg < bb ? 6 : 0)) * 60
+                     : max === gg ? ((bb - rr) / d + 2) * 60
+                     : ((rr - gg) / d + 4) * 60;
+              }
+              const hueShift = hue - 40;
               return show ? (
                 <div style={{
                   position: "absolute",
@@ -1559,6 +1572,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                       width: "130%",
                       height: "130%",
                       objectFit: "cover",
+                      filter: `hue-rotate(${hueShift}deg)`,
                     }}
                   />
                 </div>
@@ -1615,10 +1629,38 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             })()}
 
             {resolvedLayout.textBlock && (() => {
-              const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
+              const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
+              const step = Math.round(0.1 * fps) || 1;
+              const blackAppears = raysEnd + step * 6;
+              const textStart = blackAppears + Math.round(0.05 * fps);
+              if (frame < textStart) return null;
+              const tf = frame - textStart;
+              const lineDelay = Math.round(0.3 * fps);
+              const slideDur = Math.round(0.4 * fps);
               const lines = (text || "").split("\n");
               const sizeScale = [1, 1.3, 0.5];
               const a = { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
+
+              const lineStyles = lines.map((_, li) => {
+                const ld = li * lineDelay;
+                const p = tf <= ld ? 0 : tf >= ld + slideDur ? 1 : (tf - ld) / slideDur;
+                const ease = 1 - Math.pow(1 - p, 3);
+
+                if (li === 0) {
+                  return { opacity: ease, transform: `translateX(${(1 - ease) * -60}%)` };
+                } else if (li === 1) {
+                  return { opacity: ease, transform: `translateX(${(1 - ease) * 60}%)` };
+                } else {
+                  const glow = ease > 0.5 ? 1 : ease * 2;
+                  const flicker = ease < 0.3 ? (Math.sin(tf * 2) > 0 ? 0.3 : 0.8) : 1;
+                  return {
+                    opacity: ease * flicker,
+                    textShadow: `0 0 ${10 + glow * 30}px ${textColor}, 0 0 ${5 + glow * 15}px ${textColor}, ${textGlow || ""}`,
+                    transform: "translateX(0)",
+                  };
+                }
+              });
+
               return (
                 <div
                   style={{
@@ -1635,7 +1677,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ width: "90%" }}>
+                  <div style={{ width: "90%", overflow: "hidden" }}>
                     {lines.map((line, li) => (
                       <p
                         key={li}
@@ -1650,8 +1692,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                           lineHeight: 1.1,
                           letterSpacing: 8,
                           textTransform: "uppercase",
-                          textShadow: textGlow,
-                          opacity: blockOpacity,
+                          textShadow: lineStyles[li]?.textShadow ?? textGlow,
+                          opacity: lineStyles[li]?.opacity ?? 0,
+                          transform: lineStyles[li]?.transform ?? "",
                         }}
                       >
                         {line}
