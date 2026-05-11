@@ -1490,7 +1490,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const duration = fps;
         const p = frame <= delay ? 0 : frame >= delay + duration ? 1 : (frame - delay) / duration;
         const eased = 1 - Math.pow(1 - p, 3);
-        const rotation = eased * -50;
+        const rotation = -10 + eased * -50;
         return (
           <div style={{
             position: "absolute",
