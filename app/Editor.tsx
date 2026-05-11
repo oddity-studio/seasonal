@@ -466,9 +466,13 @@ export default function Editor() {
       audioBuf = audioCtx.createBuffer(2, audioCtx.sampleRate, audioCtx.sampleRate);
     } else {
       const audioResp = await fetch(`${BASE}/picker/music/${clipProps.music}`);
-      audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
+      if (!audioResp.ok) throw new Error(`Audio fetch failed: ${audioResp.status}`);
+      const arrayBuf = await audioResp.arrayBuffer();
+      if (arrayBuf.byteLength === 0) throw new Error("Audio file is empty");
+      audioBuf = await audioCtx.decodeAudioData(arrayBuf);
     }
     await audioCtx.close();
+    console.log(`Audio clip: ${audioBuf.numberOfChannels}ch, ${audioBuf.sampleRate}Hz, ${audioBuf.length} samples`);
 
     const { Muxer, ArrayBufferTarget } = await import("mp4-muxer");
     const target = new ArrayBufferTarget();
@@ -566,6 +570,7 @@ export default function Editor() {
     const startSample = Math.floor((audioStartFrame / FPS) * audioBuf.sampleRate);
     const available = Math.max(0, audioBuf.length - startSample);
     const maxSamples = Math.min(available, Math.ceil((audioBuf.sampleRate * durationMs) / 1000));
+    console.log(`Encoding clip audio: start=${startSample}, available=${available}, maxSamples=${maxSamples}`);
     for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
       const len = Math.min(CHUNK_SIZE, maxSamples - i);
       const data = new Float32Array(len * audioBuf.numberOfChannels);
@@ -710,9 +715,13 @@ export default function Editor() {
         audioBuf = audioCtx.createBuffer(2, audioCtx.sampleRate, audioCtx.sampleRate);
       } else {
         const audioResp = await fetch(`${BASE}/picker/music/${props.music}`);
-        audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
+        if (!audioResp.ok) throw new Error(`Audio fetch failed: ${audioResp.status} ${audioResp.statusText}`);
+        const arrayBuf = await audioResp.arrayBuffer();
+        if (arrayBuf.byteLength === 0) throw new Error("Audio file is empty");
+        audioBuf = await audioCtx.decodeAudioData(arrayBuf);
       }
       await audioCtx.close();
+      console.log(`Audio: ${audioBuf.numberOfChannels}ch, ${audioBuf.sampleRate}Hz, ${audioBuf.length} samples, ${(audioBuf.duration).toFixed(2)}s`);
 
       // Set up MP4 muxer
       const { Muxer, ArrayBufferTarget } = await import("mp4-muxer");
@@ -837,6 +846,7 @@ export default function Editor() {
         audioBuf.length,
         Math.ceil((audioBuf.sampleRate * durationMs) / 1000),
       );
+      console.log(`Encoding ${maxSamples} audio samples (${(maxSamples / audioBuf.sampleRate).toFixed(2)}s)`);
       for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
         const len = Math.min(CHUNK_SIZE, maxSamples - i);
         const data = new Float32Array(len * audioBuf.numberOfChannels);
