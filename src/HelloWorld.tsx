@@ -420,25 +420,28 @@ const BattleOverlay: React.FC<{ text: string; sceneDuration: number; slide?: num
   );
 };
 
-const BeltStompLayer: React.FC<{ src: string; sceneDuration: number }> = ({ src, sceneDuration }) => {
+const BeltStompLayer: React.FC<{ src: string; sceneDuration: number; delayFrames?: number }> = ({ src, sceneDuration, delayFrames = 0 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const f = Math.max(0, frame - delayFrames);
 
-  // Zoom in over ~20 frames with ease-in, then sudden hard stop — starts immediately
+  // Zoom in over ~20 frames with ease-in, then sudden hard stop
   const zoomFrames = 20;
-  const progress = Math.min(frame / zoomFrames, 1);
+  const progress = Math.min(f / zoomFrames, 1);
   const eased = progress * progress; // ease-in: accelerates into the stop
   const scale = interpolate(eased, [0, 1], [0.1, 2]);
   const opacity = interpolate(progress, [0, 0.05], [0, 1], { extrapolateRight: "clamp" });
 
   // Shake after stomp lands
-  const afterStomp = frame - zoomFrames;
+  const afterStomp = f - zoomFrames;
   const shakeX = afterStomp > 0 && afterStomp < 15
     ? Math.sin(afterStomp * 2.5) * 8 * (1 - afterStomp / 15)
     : 0;
   const shakeY = afterStomp > 0 && afterStomp < 15
     ? Math.cos(afterStomp * 3.2) * 6 * (1 - afterStomp / 15)
     : 0;
+
+  if (f <= 0) return null;
 
   return (
     <div style={{
@@ -1338,7 +1341,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   const resolvedY = yOffset || td?.y || 0;
 
   // Delay text entrance if belt stomp is present (wait for belt to land)
-  const textDelay = resolvedLayout.beltStomp ? 25 : 0;
+  const textDelay = resolvedLayout.beltStomp ? (resolvedLayout.spotlight ? fps + 25 : 25) : 0;
   const textFrame = Math.max(0, frame - textDelay);
   const enter = spring({ frame: textFrame, fps, config: { damping: 200 } });
   const exitStart = dur - 30;
@@ -1486,7 +1489,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Spotlight cones */}
       {resolvedLayout.spotlight && (() => {
-        const baseDelay = fps;
+        const baseDelay = Math.round(fps * 0.5);
         const duration = fps;
         const ease = (delayMs: number) => {
           const d = baseDelay + Math.round(delayMs / 1000 * fps);
@@ -1527,8 +1530,33 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Belt stomp layer */}
       {resolvedLayout.beltStomp && (
-        <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} />
+        <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={resolvedLayout.spotlight ? fps : 0} />
       )}
+
+      {/* Rays burst after belt stomp */}
+      {resolvedLayout.spotlight && resolvedLayout.beltStomp && (() => {
+        const stompEnd = fps + 20 + 15;
+        return frame >= stompEnd ? (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9,
+            pointerEvents: "none",
+          }}>
+            <Img
+              src={`${BASE}/rays.webp`}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        ) : null;
+      })()}
 
       {/* Character layer */}
       <CharacterLayer layoutIndex={layoutIndex} sceneDuration={dur} darkColor={colors.dark} />
