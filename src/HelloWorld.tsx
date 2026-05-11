@@ -1572,8 +1572,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                   <Img
                     src={`${BASE}/rays.webp`}
                     style={{
-                      width: "200%",
-                      height: "200%",
+                      width: "300%",
+                      height: "300%",
                       objectFit: "cover",
                       filter: `hue-rotate(${hueShift}deg)`,
                     }}
