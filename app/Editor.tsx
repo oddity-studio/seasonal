@@ -1916,11 +1916,24 @@ export default function Editor() {
                       type="week"
                       style={styles.sceneInput}
                       value={(() => {
-                        // Convert stored "Mon DD – Mon DD" back to week input value
-                        // or use the raw ISO week string if stored that way
                         const t = scene.text || "";
                         if (/^\d{4}-W\d{2}$/.test(t)) return t;
-                        // Default to current week
+                        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                        const m = t.match(/^(\w+)\s+(\d+)\w*\s*[–—-]/);
+                        if (m) {
+                          const mi = months.indexOf(m[1]);
+                          const day = parseInt(m[2], 10);
+                          if (mi >= 0 && day > 0) {
+                            const now = new Date();
+                            const d = new Date(now.getFullYear(), mi, day);
+                            if (d.getTime() > now.getTime() + 180 * 86400000) d.setFullYear(d.getFullYear() - 1);
+                            const thu = new Date(d);
+                            thu.setDate(d.getDate() + ((4 - d.getDay() + 7) % 7));
+                            const jan1 = new Date(thu.getFullYear(), 0, 1);
+                            const week = Math.ceil(((thu.getTime() - jan1.getTime()) / 86400000 + 1) / 7);
+                            return `${thu.getFullYear()}-W${String(week).padStart(2, "0")}`;
+                          }
+                        }
                         const now = new Date();
                         const jan1 = new Date(now.getFullYear(), 0, 1);
                         const days = Math.floor((now.getTime() - jan1.getTime()) / 86400000);
