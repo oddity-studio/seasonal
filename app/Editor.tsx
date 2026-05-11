@@ -183,7 +183,7 @@ const RSS_BORDER = { border: "1px solid #f59e0b" };
 
 const hasRssBindings = (layout: string | number | undefined): boolean => {
   const label = typeof layout === "string" ? layout : getLayoutLabel(typeof layout === "number" ? layout : -1);
-  return label != null && label in LAYOUT_RSS_BINDINGS;
+  return label != null && (label in LAYOUT_RSS_BINDINGS || label === "Weekly Title");
 };
 
 const SCENE_DURATION = DEFAULT_SCENE_DURATION * FPS;
@@ -1914,7 +1914,7 @@ export default function Editor() {
                   ) : isWeeklyTitleLayout(resolveLayoutIndex(scene.layout, i)) ? (
                     <input
                       type="week"
-                      style={styles.sceneInput}
+                      style={{ ...styles.sceneInput, ...RSS_BORDER }}
                       value={(() => {
                         const t = scene.text || "";
                         if (/^\d{4}-W\d{2}$/.test(t)) return t;
