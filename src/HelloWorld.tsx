@@ -1532,7 +1532,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Winner content group: belt, rays, banner, text — shifted down */}
       {resolvedLayout.spotlight && (() => {
-        const winnerShift = "20vh";
+        const winnerShift = "30vh";
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
             {resolvedLayout.beltStomp && (
@@ -1556,8 +1556,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                   <Img
                     src={`${BASE}/rays.webp`}
                     style={{
-                      width: "100%",
-                      height: "100%",
+                      width: "130%",
+                      height: "130%",
                       objectFit: "cover",
                     }}
                   />
