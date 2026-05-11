@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isTextBlockLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel, resolveBackgroundVideo } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isTextBlockLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel, resolveBackgroundVideo, resolveSceneMusic } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -505,6 +505,28 @@ export default function Editor() {
           console.warn("Could not decode scene video audio:", e);
         }
       }
+      const sm = resolveSceneMusic(scene);
+      if (sm && scene.sceneMusicMuted !== true) {
+        try {
+          const resp = await fetch(`${BASE}${sm.src}`);
+          const smAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
+          const dstStart = Math.floor((clipSceneOffset / FPS) * audioCtx.sampleRate);
+          const fadeInSamples = Math.round((sm.fadeIn ?? 0.3) * audioCtx.sampleRate);
+          const fadeOutSamples = Math.round((sm.fadeOut ?? 0.5) * audioCtx.sampleRate);
+          for (let c = 0; c < 2; c++) {
+            const dst = clipMixBuf.getChannelData(c);
+            const s = smAudio.getChannelData(Math.min(c, smAudio.numberOfChannels - 1));
+            for (let j = 0; j < sceneSamples && j < s.length && (dstStart + j) < dst.length; j++) {
+              let vol = 1;
+              if (j < fadeInSamples) vol = j / fadeInSamples;
+              if (j > sceneSamples - fadeOutSamples) vol = Math.min(vol, (sceneSamples - j) / fadeOutSamples);
+              dst[dstStart + j] += s[j] * vol;
+            }
+          }
+        } catch (e) {
+          console.warn("Could not decode scene music audio:", e);
+        }
+      }
       clipSceneOffset += sceneFrames;
     }
     audioBuf = clipMixBuf;
@@ -785,6 +807,28 @@ export default function Editor() {
             console.warn("Could not decode scene video audio:", e);
           }
         }
+        const sm = resolveSceneMusic(scene);
+        if (sm && scene.sceneMusicMuted !== true) {
+          try {
+            const resp = await fetch(`${BASE}${sm.src}`);
+            const smAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
+            const dstStart = Math.floor((sceneOffset / FPS) * audioCtx.sampleRate);
+            const fadeInSamples = Math.round((sm.fadeIn ?? 0.3) * audioCtx.sampleRate);
+            const fadeOutSamples = Math.round((sm.fadeOut ?? 0.5) * audioCtx.sampleRate);
+            for (let c = 0; c < 2; c++) {
+              const dst = mixBuf.getChannelData(c);
+              const s = smAudio.getChannelData(Math.min(c, smAudio.numberOfChannels - 1));
+              for (let j = 0; j < sceneSamples && j < s.length && (dstStart + j) < dst.length; j++) {
+                let vol = 1;
+                if (j < fadeInSamples) vol = j / fadeInSamples;
+                if (j > sceneSamples - fadeOutSamples) vol = Math.min(vol, (sceneSamples - j) / fadeOutSamples);
+                dst[dstStart + j] += s[j] * vol;
+              }
+            }
+          } catch (e) {
+            console.warn("Could not decode scene music audio:", e);
+          }
+        }
         sceneOffset += sceneFrames;
       }
       audioBuf = mixBuf;
@@ -969,7 +1013,7 @@ export default function Editor() {
   const updateScene = (
     index: number,
     field: keyof Scene,
-    value: string | number | Scene["backgroundVideo"],
+    value: string | number | boolean | Scene["backgroundVideo"],
   ) => {
     setProps((prev) => ({
       ...prev,
@@ -1362,6 +1406,7 @@ export default function Editor() {
                   <option value="Tournament.mp3">Tournament</option>
                   <option value="Main Lobby.mp3">Main Lobby</option>
                   <option value="Sydosys.mp3">Sydosys</option>
+                  <option value="Weekly.mp3">Weekly</option>
                 </select>
               </label>
               <label style={styles.styleLabel}>
@@ -1932,6 +1977,18 @@ export default function Editor() {
                           const current = scene.backgroundVideo ?? { src: "" };
                           updateScene(i, "backgroundVideo", { ...current, muted: !isMuted });
                         }}
+                      >
+                        {isMuted ? "🔇" : "🔊"}
+                      </button>
+                    );
+                  })() : resolveSceneMusic(scene) ? (() => {
+                    const isMuted = scene.sceneMusicMuted === true;
+                    return (
+                      <button
+                        type="button"
+                        style={{ ...styles.muteIcon, opacity: isMuted ? 0.4 : 0.8 }}
+                        title={isMuted ? "Unmute scene music" : "Mute scene music"}
+                        onClick={() => updateScene(i, "sceneMusicMuted" as keyof Scene, !isMuted)}
                       >
                         {isMuted ? "🔇" : "🔊"}
                       </button>

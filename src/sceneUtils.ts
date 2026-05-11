@@ -97,6 +97,7 @@ export type SceneLayout = {
   top10?: boolean;
   videoFit?: "cover" | "contain";
   defaultDuration?: number;
+  sceneMusic?: { src: string; fadeIn?: number; fadeOut?: number };
   customControls?: CustomControl[];
 };
 

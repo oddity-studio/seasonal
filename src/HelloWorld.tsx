@@ -72,6 +72,11 @@ export const getLayoutDefaultDuration = (index: number): number | undefined =>
 export const getLayoutDefaultFontSize = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.textDefaults?.fontSize;
 
+export const resolveSceneMusic = (scene: Scene): { src: string; fadeIn?: number; fadeOut?: number } | undefined => {
+  const layoutIndex = resolveLayoutIndex(scene.layout, 0);
+  return SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length].sceneMusic;
+};
+
 export const resolveBackgroundVideo = (scene: Scene): Scene["backgroundVideo"] | undefined => {
   const layoutIndex = resolveLayoutIndex(scene.layout, 0);
   const layout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
@@ -2184,6 +2189,19 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
               from={sceneStart}
               durationInFrames={sceneFrames}
             >
+              {sceneLayout.sceneMusic && scene.sceneMusicMuted !== true && (() => {
+                const sm = sceneLayout.sceneMusic;
+                const fadeInFrames = Math.round((sm.fadeIn ?? 0.3) * 60);
+                const fadeOutFrames = Math.round((sm.fadeOut ?? 0.5) * 60);
+                return (
+                  <Audio
+                    src={`${BASE}${sm.src}`}
+                    volume={(f) =>
+                      interpolate(f, [0, fadeInFrames, sceneFrames - fadeOutFrames, sceneFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+                    }
+                  />
+                );
+              })()}
               {sceneLayout.prizesGrid ? (
                 <PrizesCard colorScheme={colorScheme} sceneDuration={sceneFrames} text={scene.text} />
               ) : sceneLayout.titleCard ? (

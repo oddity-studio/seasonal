@@ -26,6 +26,7 @@ export const sceneSchema = z.object({
   duration: z.number().optional(),
   backgroundVideo: backgroundVideoSchema.optional(),
   portrait: z.string().optional(),
+  sceneMusicMuted: z.boolean().optional(),
 });
 
 export const videoPropsSchema = z.object({

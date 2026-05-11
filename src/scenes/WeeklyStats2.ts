@@ -9,6 +9,7 @@ const layout: SceneLayout = {
   slideLinesOffsetX: 64,
   polkaDotOverlay: true,
   textDefaults: { y: 0, fontSize: 100, rotateZ: -20, rotateX: -22, perspective: 700 },
+  sceneMusic: { src: "/picker/music/Weekly.mp3", fadeIn: 0.3, fadeOut: 0.5 },
   customStyle: (c) => ({ background: `linear-gradient(135deg, ${c.light}, ${c.dark})`, textColor: "#ffffff", textGlow: "0 4px 30px rgba(0,0,0,0.6)" }),
 };
 
