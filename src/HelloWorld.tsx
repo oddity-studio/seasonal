@@ -1500,7 +1500,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             height: "300vmax",
             transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
             transformOrigin: "center",
-            background: "conic-gradient(from 172.5deg, transparent 0deg, rgba(255,255,255,0.15) 2deg, rgba(255,255,255,0.35) 7.5deg, rgba(255,255,255,0.15) 13deg, transparent 15deg)",
+            background: "conic-gradient(from 170deg, transparent 0deg, rgba(255,255,255,0.4) 3deg, rgba(255,255,255,0.7) 10deg, rgba(255,255,255,0.4) 17deg, transparent 20deg)",
             maskImage: "radial-gradient(circle, white 0%, transparent 50%)",
             WebkitMaskImage: "radial-gradient(circle, white 0%, transparent 50%)",
             pointerEvents: "none",
