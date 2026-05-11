@@ -1565,13 +1565,15 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
         if (frame < raysEnd) return null;
         const f = frame - raysEnd;
-        const showOrange = f === 0;
-        const showWhite = f === 1;
-        const showLogoBig = f === 2;
-        const showLogoNormal = f === 3;
-        const showLogoStay = f >= 5;
-        const showBlack = f >= 6;
-        const moveUp = f >= 5 ? spring({ frame: f - 5, fps, config: { damping: 14, stiffness: 80 } }) : 0;
+        const step = Math.round(0.05 * fps) || 1;
+        const showOrange = f < step;
+        const showWhite = f >= step && f < step * 2;
+        const showLogoBig = f >= step * 2 && f < step * 3;
+        const showLogoNormal = f >= step * 3 && f < step * 4;
+        const showLogoStay = f >= step * 5;
+        const showBlack = f >= step * 6;
+        const moveStart = step * 5;
+        const moveUp = f >= moveStart ? spring({ frame: f - moveStart, fps, config: { damping: 14, stiffness: 80 } }) : 0;
         const logoY = interpolate(moveUp, [0, 1], [0, -10]);
         const centerStyle: React.CSSProperties = {
           position: "absolute",
@@ -1592,18 +1594,18 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               </svg>
             )}
             {showLogoBig && (
-              <Img src={`${BASE}/audeobox_text.png`} style={{ ...centerStyle, width: "39%", height: "auto" }} />
+              <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "39%", height: "auto" }} />
             )}
             {showLogoNormal && (
-              <Img src={`${BASE}/audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
+              <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
             )}
             {showBlack && (
-              <svg width="482" height="256" viewBox="0 0 482 256" style={{ ...centerStyle, width: "50%", top: `${50 + logoY}vh` }}>
+              <svg width="482" height="256" viewBox="0 0 482 256" style={{ ...centerStyle, width: "50%" }}>
                 <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
               </svg>
             )}
             {showLogoStay && (
-              <Img src={`${BASE}/audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto", top: `${50 + logoY}vh` }} />
+              <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto", top: `calc(50% + ${logoY}vh)` }} />
             )}
           </div>
         );
