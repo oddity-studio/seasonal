@@ -1536,7 +1536,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
             {resolvedLayout.beltStomp && (
-              <div style={{ position: "relative", top: 150, width: "100%", height: "100%" }}>
+              <div style={{ position: "relative", top: 100, width: "100%", height: "100%" }}>
                 <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
               </div>
             )}
@@ -1604,7 +1604,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
                   {showOrange && (
                     <svg viewBox="0 0 482 256" style={{ ...centerStyle, width: "70%", height: "auto" }}>
-                      <path fillRule="evenodd" fill="rgb(255, 168, 0)" d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
+                      <path fillRule="evenodd" fill={colors.highlight} d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
                     </svg>
                   )}
                   {showWhite && (
