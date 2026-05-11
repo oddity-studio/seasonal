@@ -1536,11 +1536,17 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const winnerShift = "80vh";
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
-            {portrait && (
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none" }}>
-                <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
-              </div>
-            )}
+            {portrait && (() => {
+              const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
+              if (frame < raysEnd) return null;
+              const fadeDur = Math.round(0.5 * fps);
+              const p = Math.min((frame - raysEnd) / fadeDur, 1);
+              return (
+                <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none", opacity: p }}>
+                  <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
+                </div>
+              );
+            })()}
             {resolvedLayout.beltStomp && (
               <div style={{ position: "relative", top: 100, width: "100%", height: "100%", zIndex: 2 }}>
                 <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
