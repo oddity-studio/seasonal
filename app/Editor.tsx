@@ -53,6 +53,23 @@ const LAYOUT_RSS_BINDINGS: Record<string, RssBinding[]> = {
   ],
 };
 
+async function fetchRssLastBuildDate(): Promise<Date | null> {
+  const feedUrl = RSS_FEEDS["weekly-top-battles"];
+  if (!feedUrl) return null;
+  try {
+    const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`);
+    if (!res.ok) return null;
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const raw = doc.querySelector("lastBuildDate")?.textContent;
+    if (!raw) return null;
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchRssFeed(feedKey: string): Promise<RssEntry | null> {
   const feedUrl = RSS_FEEDS[feedKey];
   if (!feedUrl) return null;
@@ -1329,7 +1346,9 @@ export default function Editor() {
                     const neededSingle = new Set<string>();
                     const neededAll = new Set<string>();
                     let needsTourney = false;
+                    let hasWeeklyTitle = false;
                     for (const scene of props.scenes) {
+                      if (isWeeklyTitleLayout(resolveLayoutIndex(scene.layout, -1))) hasWeeklyTitle = true;
                       const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
                       if (bindings) bindings.forEach((b) => {
                         if (b.format === "bracket") needsTourney = true;
@@ -1340,13 +1359,17 @@ export default function Editor() {
                     const cache: Record<string, RssEntry> = {};
                     const cacheAll: Record<string, RssEntry[]> = {};
                     let tourneyItems: TourneyItem[] = [];
+                    let buildDate: Date | null = null;
                     const singleKeys = [...neededSingle];
                     const allKeys = [...neededAll];
+                    if (hasWeeklyTitle) {
+                      buildDate = await fetchRssLastBuildDate();
+                    }
                     if (needsTourney) {
                       tourneyItems = await fetchTourneyFeed();
                     }
                     for (let idx = 0; idx < singleKeys.length; idx++) {
-                      if (idx > 0 || needsTourney) await new Promise((r) => setTimeout(r, 300));
+                      if (idx > 0 || needsTourney || hasWeeklyTitle) await new Promise((r) => setTimeout(r, 300));
                       const entry = await fetchRssFeed(singleKeys[idx]);
                       if (entry) cache[singleKeys[idx]] = entry;
                     }
@@ -1355,13 +1378,25 @@ export default function Editor() {
                       const entries = await fetchRssAll(allKeys[idx]);
                       if (entries.length) cacheAll[allKeys[idx]] = entries;
                     }
-                    if (Object.keys(cache).length > 0 || Object.keys(cacheAll).length > 0 || tourneyItems.length > 0) {
+                    const hasRssData = Object.keys(cache).length > 0 || Object.keys(cacheAll).length > 0 || tourneyItems.length > 0;
+                    if (hasRssData || buildDate) {
+                      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                      const ord = (n: number) => n + (n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th");
                       setProps((prev) => ({
                         ...prev,
                         scenes: prev.scenes.map((scene) => {
-                          const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(scene.layout)];
-                          if (!bindings) return scene;
-                          return applyRssToScene(scene, bindings, cache, cacheAll, tourneyItems);
+                          let updated = scene;
+                          if (buildDate && isWeeklyTitleLayout(resolveLayoutIndex(scene.layout, -1))) {
+                            const snap = new Date(buildDate);
+                            const sun = new Date(snap);
+                            sun.setDate(snap.getDate() - snap.getDay());
+                            const nextSun = new Date(sun);
+                            nextSun.setDate(sun.getDate() + 7);
+                            updated = { ...updated, text: `${months[sun.getMonth()]} ${ord(sun.getDate())} – ${months[nextSun.getMonth()]} ${ord(nextSun.getDate())}` };
+                          }
+                          const bindings = LAYOUT_RSS_BINDINGS[resolveLabel(updated.layout)];
+                          if (!bindings) return updated;
+                          return applyRssToScene(updated, bindings, cache, cacheAll, tourneyItems);
                         }),
                       }));
                     }
