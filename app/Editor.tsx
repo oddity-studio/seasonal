@@ -458,32 +458,56 @@ export default function Editor() {
     const totalFramesLocal = getTotalFrames(clipProps);
     const durationMs = (totalFramesLocal / FPS) * 1000;
 
-    // Start tab audio recording if available
-    const tabAudioTrack = displayStream.getAudioTracks()[0];
-    let tabAudioChunks: Blob[] = [];
-    let tabAudioRecorder: MediaRecorder | null = null;
-    if (tabAudioTrack) {
-      const audioOnlyStream = new MediaStream([tabAudioTrack.clone()]);
-      tabAudioRecorder = new MediaRecorder(audioOnlyStream);
-      tabAudioRecorder.ondataavailable = (e) => { if (e.data.size > 0) tabAudioChunks.push(e.data); };
-      tabAudioRecorder.start(100);
-    }
-
-    // Pre-load and decode music as fallback
+    // Pre-load and decode audio
     const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
     const audioCtx = new AudioContext();
-    const audioSampleRate = audioCtx.sampleRate;
-    const audioChannels = 2;
-    let musicBuf: AudioBuffer;
+    let audioBuf: AudioBuffer;
     if (!clipProps.music || clipProps.music === "none") {
-      musicBuf = audioCtx.createBuffer(audioChannels, audioSampleRate, audioSampleRate);
+      audioBuf = audioCtx.createBuffer(2, audioCtx.sampleRate, audioCtx.sampleRate);
     } else {
       const audioResp = await fetch(`${BASE}/picker/music/${clipProps.music}`);
-      if (!audioResp.ok) throw new Error(`Audio fetch failed: ${audioResp.status}`);
-      const arrayBuf = await audioResp.arrayBuffer();
-      if (arrayBuf.byteLength === 0) throw new Error("Audio file is empty");
-      musicBuf = await audioCtx.decodeAudioData(arrayBuf);
+      audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
     }
+
+    // Mix in unmuted scene video audio
+    const clipTotalSamples = Math.ceil((audioCtx.sampleRate * durationMs) / 1000);
+    const clipMixBuf = audioCtx.createBuffer(2, clipTotalSamples, audioCtx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const ch = clipMixBuf.getChannelData(c);
+      if (audioBuf.numberOfChannels > 0) {
+        const musicSrc = audioBuf.getChannelData(Math.min(c, audioBuf.numberOfChannels - 1));
+        const musicStart = Math.floor((audioStartFrame / FPS) * audioCtx.sampleRate);
+        const musicSlice = musicSrc.subarray(musicStart, musicStart + clipTotalSamples);
+        ch.set(musicSlice.subarray(0, Math.min(musicSlice.length, clipTotalSamples)));
+      }
+    }
+    let clipSceneOffset = 0;
+    for (const scene of clipProps.scenes) {
+      const sceneFrames = getSceneFrames(scene);
+      const sceneSamples = Math.ceil((sceneFrames / FPS) * audioCtx.sampleRate);
+      if (scene.backgroundVideo?.muted === false && scene.backgroundVideo?.src) {
+        const src = scene.backgroundVideo.src;
+        const videoUrl = src.startsWith("blob:") || src.startsWith("data:") ? src : `${BASE}${src}`;
+        try {
+          const resp = await fetch(videoUrl);
+          const videoAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
+          const startFrom = scene.backgroundVideo.startFrom ?? 0;
+          const srcStart = Math.floor((startFrom / FPS) * audioCtx.sampleRate);
+          const dstStart = Math.floor((clipSceneOffset / FPS) * audioCtx.sampleRate);
+          for (let c = 0; c < 2; c++) {
+            const dst = clipMixBuf.getChannelData(c);
+            const s = videoAudio.getChannelData(Math.min(c, videoAudio.numberOfChannels - 1));
+            for (let j = 0; j < sceneSamples && (srcStart + j) < s.length && (dstStart + j) < dst.length; j++) {
+              dst[dstStart + j] += s[srcStart + j];
+            }
+          }
+        } catch (e) {
+          console.warn("Could not decode scene video audio:", e);
+        }
+      }
+      clipSceneOffset += sceneFrames;
+    }
+    audioBuf = clipMixBuf;
     await audioCtx.close();
 
     const { Muxer, ArrayBufferTarget } = await import("mp4-muxer");
@@ -494,8 +518,8 @@ export default function Editor() {
       video: { codec: "avc", width: 720, height: 1280 },
       audio: {
         codec: "aac",
-        sampleRate: audioSampleRate,
-        numberOfChannels: audioChannels,
+        sampleRate: audioBuf.sampleRate,
+        numberOfChannels: audioBuf.numberOfChannels,
       },
       fastStart: "in-memory",
     });
@@ -519,8 +543,8 @@ export default function Editor() {
     });
     audioEncoder.configure({
       codec: "mp4a.40.2",
-      sampleRate: audioSampleRate,
-      numberOfChannels: audioChannels,
+      sampleRate: audioBuf.sampleRate,
+      numberOfChannels: audioBuf.numberOfChannels,
       bitrate: 128_000,
     });
 
@@ -578,40 +602,20 @@ export default function Editor() {
     try { reader.releaseLock(); } catch {}
     try { videoTrack.stop(); } catch {}
 
-    // Stop tab audio recording and decode captured audio
-    let audioBuf: AudioBuffer;
-    if (tabAudioRecorder && tabAudioRecorder.state !== "inactive") {
-      tabAudioRecorder.stop();
-      await new Promise<void>((r) => { tabAudioRecorder!.onstop = () => r(); });
-    }
-    if (tabAudioChunks.length > 0) {
-      const tabBlob = new Blob(tabAudioChunks, { type: tabAudioRecorder!.mimeType });
-      const decodeCtx = new AudioContext({ sampleRate: audioSampleRate });
-      audioBuf = await decodeCtx.decodeAudioData(await tabBlob.arrayBuffer());
-      await decodeCtx.close();
-    } else {
-      audioBuf = musicBuf;
-    }
-
     const CHUNK_SIZE = 1024;
-    const startSample = tabAudioChunks.length > 0 ? 0 : Math.floor((audioStartFrame / FPS) * audioSampleRate);
-    const available = Math.max(0, audioBuf.length - startSample);
-    const maxSamples = Math.min(available, Math.ceil((audioSampleRate * durationMs) / 1000));
+    const maxSamples = Math.min(audioBuf.length, Math.ceil((audioBuf.sampleRate * durationMs) / 1000));
     for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
       const len = Math.min(CHUNK_SIZE, maxSamples - i);
-      const data = new Float32Array(len * audioChannels);
-      for (let c = 0; c < Math.min(audioBuf.numberOfChannels, audioChannels); c++) {
-        data.set(audioBuf.getChannelData(c).subarray(startSample + i, startSample + i + len), c * len);
-      }
-      if (audioBuf.numberOfChannels === 1) {
-        data.set(data.subarray(0, len), len);
+      const data = new Float32Array(len * audioBuf.numberOfChannels);
+      for (let c = 0; c < audioBuf.numberOfChannels; c++) {
+        data.set(audioBuf.getChannelData(c).subarray(i, i + len), c * len);
       }
       const ad = new AudioData({
         format: "f32-planar",
-        sampleRate: audioSampleRate,
+        sampleRate: audioBuf.sampleRate,
         numberOfFrames: len,
-        numberOfChannels: audioChannels,
-        timestamp: Math.round((i / audioSampleRate) * 1_000_000),
+        numberOfChannels: audioBuf.numberOfChannels,
+        timestamp: Math.round((i / audioBuf.sampleRate) * 1_000_000),
         data,
       });
       audioEncoder.encode(ad);
@@ -637,7 +641,6 @@ export default function Editor() {
     try {
       displayStream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: { ideal: FPS } },
-        audio: true,
         // @ts-expect-error preferCurrentTab
         preferCurrentTab: true,
       });
@@ -710,7 +713,6 @@ export default function Editor() {
     try {
       displayStream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: { ideal: FPS } },
-        audio: true,
         // @ts-expect-error preferCurrentTab is a newer Chrome API
         preferCurrentTab: true,
       });
@@ -737,33 +739,55 @@ export default function Editor() {
       ) as HTMLElement;
       if (!playerWrap) throw new Error("Player element not found");
 
-      // Check if tab audio is being captured
-      const tabAudioTrack = displayStream.getAudioTracks()[0];
-      let tabAudioChunks: Blob[] = [];
-      let tabAudioRecorder: MediaRecorder | null = null;
-      if (tabAudioTrack) {
-        const audioOnlyStream = new MediaStream([tabAudioTrack]);
-        tabAudioRecorder = new MediaRecorder(audioOnlyStream);
-        tabAudioRecorder.ondataavailable = (e) => { if (e.data.size > 0) tabAudioChunks.push(e.data); };
-        tabAudioRecorder.start(100);
-        console.log("Tab audio capture active");
-      }
-
-      // Pre-load and decode music as fallback
+      // Pre-load and decode audio
       const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
       const audioCtx = new AudioContext();
-      const audioSampleRate = audioCtx.sampleRate;
-      const audioChannels = 2;
-      let musicBuf: AudioBuffer;
+      let audioBuf: AudioBuffer;
       if (!props.music || props.music === "none") {
-        musicBuf = audioCtx.createBuffer(audioChannels, audioSampleRate, audioSampleRate);
+        // Silent 1s stereo buffer; will be encoded as silence
+        audioBuf = audioCtx.createBuffer(2, audioCtx.sampleRate, audioCtx.sampleRate);
       } else {
         const audioResp = await fetch(`${BASE}/picker/music/${props.music}`);
-        if (!audioResp.ok) throw new Error(`Audio fetch failed: ${audioResp.status} ${audioResp.statusText}`);
-        const arrayBuf = await audioResp.arrayBuffer();
-        if (arrayBuf.byteLength === 0) throw new Error("Audio file is empty");
-        musicBuf = await audioCtx.decodeAudioData(arrayBuf);
+        audioBuf = await audioCtx.decodeAudioData(await audioResp.arrayBuffer());
       }
+
+      // Mix in unmuted scene video audio
+      const totalSamples = Math.ceil((audioCtx.sampleRate * durationMs) / 1000);
+      const mixBuf = audioCtx.createBuffer(2, totalSamples, audioCtx.sampleRate);
+      for (let c = 0; c < 2; c++) {
+        const ch = mixBuf.getChannelData(c);
+        if (audioBuf.numberOfChannels > 0) {
+          const src = audioBuf.getChannelData(Math.min(c, audioBuf.numberOfChannels - 1));
+          ch.set(src.subarray(0, Math.min(src.length, totalSamples)));
+        }
+      }
+      let sceneOffset = 0;
+      for (const scene of props.scenes) {
+        const sceneFrames = getSceneFrames(scene);
+        const sceneSamples = Math.ceil((sceneFrames / FPS) * audioCtx.sampleRate);
+        if (scene.backgroundVideo?.muted === false && scene.backgroundVideo?.src) {
+          const src = scene.backgroundVideo.src;
+          const videoUrl = src.startsWith("blob:") || src.startsWith("data:") ? src : `${BASE}${src}`;
+          try {
+            const resp = await fetch(videoUrl);
+            const videoAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
+            const startFrom = scene.backgroundVideo.startFrom ?? 0;
+            const srcStart = Math.floor((startFrom / FPS) * audioCtx.sampleRate);
+            const dstStart = Math.floor((sceneOffset / FPS) * audioCtx.sampleRate);
+            for (let c = 0; c < 2; c++) {
+              const dst = mixBuf.getChannelData(c);
+              const s = videoAudio.getChannelData(Math.min(c, videoAudio.numberOfChannels - 1));
+              for (let j = 0; j < sceneSamples && (srcStart + j) < s.length && (dstStart + j) < dst.length; j++) {
+                dst[dstStart + j] += s[srcStart + j];
+              }
+            }
+          } catch (e) {
+            console.warn("Could not decode scene video audio:", e);
+          }
+        }
+        sceneOffset += sceneFrames;
+      }
+      audioBuf = mixBuf;
       await audioCtx.close();
 
       // Set up MP4 muxer
@@ -775,8 +799,8 @@ export default function Editor() {
         video: { codec: "avc", width: 720, height: 1280 },
         audio: {
           codec: "aac",
-          sampleRate: audioSampleRate,
-          numberOfChannels: audioChannels,
+          sampleRate: audioBuf.sampleRate,
+          numberOfChannels: audioBuf.numberOfChannels,
         },
         fastStart: "in-memory",
       });
@@ -802,8 +826,8 @@ export default function Editor() {
       });
       audioEncoder.configure({
         codec: "mp4a.40.2",
-        sampleRate: audioSampleRate,
-        numberOfChannels: audioChannels,
+        sampleRate: audioBuf.sampleRate,
+        numberOfChannels: audioBuf.numberOfChannels,
         bitrate: 128_000,
       });
 
@@ -881,23 +905,6 @@ export default function Editor() {
       playerRef.current?.pause();
       videoTrack.stop();
 
-      // Stop tab audio recording and decode captured audio
-      let audioBuf: AudioBuffer;
-      if (tabAudioRecorder && tabAudioRecorder.state !== "inactive") {
-        tabAudioRecorder.stop();
-        await new Promise<void>((r) => { tabAudioRecorder!.onstop = () => r(); });
-      }
-      if (tabAudioChunks.length > 0) {
-        const tabBlob = new Blob(tabAudioChunks, { type: tabAudioRecorder!.mimeType });
-        const decodeCtx = new AudioContext({ sampleRate: audioSampleRate });
-        audioBuf = await decodeCtx.decodeAudioData(await tabBlob.arrayBuffer());
-        await decodeCtx.close();
-        console.log(`Using tab audio: ${audioBuf.numberOfChannels}ch, ${audioBuf.sampleRate}Hz, ${audioBuf.length} samples`);
-      } else {
-        audioBuf = musicBuf;
-        console.log(`Using music fallback: ${audioBuf.numberOfChannels}ch, ${audioBuf.sampleRate}Hz, ${audioBuf.length} samples`);
-      }
-
       displayStream.getTracks().forEach((t) => t.stop());
       displayStream = null;
 
@@ -905,12 +912,12 @@ export default function Editor() {
       const CHUNK_SIZE = 1024;
       const maxSamples = Math.min(
         audioBuf.length,
-        Math.ceil((audioSampleRate * durationMs) / 1000),
+        Math.ceil((audioBuf.sampleRate * durationMs) / 1000),
       );
       for (let i = 0; i < maxSamples; i += CHUNK_SIZE) {
         const len = Math.min(CHUNK_SIZE, maxSamples - i);
-        const data = new Float32Array(len * audioChannels);
-        for (let c = 0; c < Math.min(audioBuf.numberOfChannels, audioChannels); c++) {
+        const data = new Float32Array(len * audioBuf.numberOfChannels);
+        for (let c = 0; c < audioBuf.numberOfChannels; c++) {
           data.set(
             audioBuf.getChannelData(c).subarray(i, i + len),
             c * len,
@@ -921,10 +928,10 @@ export default function Editor() {
         }
         const ad = new AudioData({
           format: "f32-planar",
-          sampleRate: audioSampleRate,
+          sampleRate: audioBuf.sampleRate,
           numberOfFrames: len,
-          numberOfChannels: audioChannels,
-          timestamp: Math.round((i / audioSampleRate) * 1_000_000),
+          numberOfChannels: audioBuf.numberOfChannels,
+          timestamp: Math.round((i / audioBuf.sampleRate) * 1_000_000),
           data,
         });
         audioEncoder.encode(ad);
