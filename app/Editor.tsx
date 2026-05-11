@@ -1794,11 +1794,22 @@ export default function Editor() {
                       const line2 = parts[1] || "";
                       const line3 = parts[2] || "";
                       const save = (l1: string, l2: string, l3: string) => updateScene(i, "text", `${l1}\n${l2}\n${l3}`);
+                      const portraits = ["Ari.webp", "Chafra.webp", "Espin.webp", "Sik-trakz.webp"];
                       return (
                         <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
                           <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line1} onChange={(e) => save(e.target.value, line2, line3)} placeholder="Line 1" />
                           <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line2} onChange={(e) => save(line1, e.target.value, line3)} placeholder="Line 2" />
                           <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line3} onChange={(e) => save(line1, line2, e.target.value)} placeholder="Line 3" />
+                          <select
+                            style={{ ...styles.layoutSelect, minWidth: 90, fontSize: 12 }}
+                            value={scene.portrait || ""}
+                            onChange={(e) => updateScene(i, "portrait", e.target.value)}
+                          >
+                            <option value="">No portrait</option>
+                            {portraits.map((p) => (
+                              <option key={p} value={p}>{p.replace(".webp", "")}</option>
+                            ))}
+                          </select>
                         </span>
                       );
                     })()

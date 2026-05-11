@@ -1308,7 +1308,7 @@ const Top10Overlay: React.FC<{
   );
 };
 
-const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number; overlayVideo?: string }> = ({
+const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; colors: ColorScheme; fontConfig: FontConfig; fontSize?: number; y?: number; x?: number; rotateZ?: number; rotateX?: number; perspective?: number; backgroundVideo?: Scene["backgroundVideo"]; sceneDuration?: number; overlayVideo?: string; portrait?: string }> = ({
   text,
   index,
   layoutIndex,
@@ -1323,6 +1323,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
   backgroundVideo: backgroundVideoProp,
   sceneDuration: dur = SCENE_DURATION,
   overlayVideo = "none",
+  portrait,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -1535,8 +1536,13 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const winnerShift = "80vh";
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
+            {portrait && (
+              <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none" }}>
+                <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "90%", width: "auto", objectFit: "contain" }} />
+              </div>
+            )}
             {resolvedLayout.beltStomp && (
-              <div style={{ position: "relative", top: 100, width: "100%", height: "100%" }}>
+              <div style={{ position: "relative", top: 100, width: "100%", height: "100%", zIndex: 2 }}>
                 <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
               </div>
             )}
@@ -2165,7 +2171,7 @@ export const HelloWorld: React.FC<VideoProps> = ({ colorScheme, scenes, music = 
               ) : sceneLayout.titleCard ? (
                 <TitleCard colorScheme={colorScheme} fontConfig={fontConfig} layoutIndex={sceneLayoutIndex} text={scene.text} fontSize={scene.fontSize} />
               ) : (
-                <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} overlayVideo={overlayVideo} />
+                <SceneCard text={scene.text} index={i} layoutIndex={sceneLayoutIndex} colors={colorScheme} fontConfig={fontConfig} fontSize={scene.fontSize} y={scene.y} x={scene.x} rotateZ={scene.rotateZ} rotateX={scene.rotateX} perspective={scene.perspective} backgroundVideo={scene.backgroundVideo} sceneDuration={sceneFrames} overlayVideo={overlayVideo} portrait={scene.portrait} />
               )}
             </Sequence>
             {/* Transition overlay */}
