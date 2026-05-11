@@ -1532,7 +1532,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
       {/* Winner content group: belt, rays, banner, text — shifted down */}
       {resolvedLayout.spotlight && (() => {
-        const winnerShift = "130vh";
+        const winnerShift = "80vh";
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
             {resolvedLayout.beltStomp && (
