@@ -1677,6 +1677,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
 
         if (resolvedLayout.textBlock) {
           const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
+          const lines = text.split("\n").filter((l) => l.trim());
           return (
             <div
               style={{
@@ -1687,23 +1688,26 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 zIndex: 12,
               }}
             >
-              <p
-                style={{
-                  fontSize: resolvedFontSize,
-                  fontFamily: fontConfig.fontFamily,
-                  fontWeight: fontConfig.fontWeight ?? 700,
-                  fontStyle: fontConfig.fontStyle ?? "normal",
-                  color: textColor,
-                  margin: 0,
-                  lineHeight: fontConfig.lineHeight ?? 1.2,
-                  letterSpacing: 8,
-                  textTransform: "uppercase",
-                  textShadow: textGlow,
-                  opacity: blockOpacity,
-                }}
-              >
-                {text}
-              </p>
+              {lines.map((line, li) => (
+                <p
+                  key={li}
+                  style={{
+                    fontSize: resolvedFontSize * Math.pow(1.2, li),
+                    fontFamily: fontConfig.fontFamily,
+                    fontWeight: fontConfig.fontWeight ?? 700,
+                    fontStyle: fontConfig.fontStyle ?? "normal",
+                    color: textColor,
+                    margin: 0,
+                    lineHeight: fontConfig.lineHeight ?? 0.6,
+                    letterSpacing: 8,
+                    textTransform: "uppercase",
+                    textShadow: textGlow,
+                    opacity: blockOpacity,
+                  }}
+                >
+                  {line}
+                </p>
+              ))}
             </div>
           );
         }
