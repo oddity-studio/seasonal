@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Player, type PlayerRef, Thumbnail } from "@remotion/player";
-import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isTextBlockLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel } from "@/src/HelloWorld";
+import { HelloWorld, LAYOUT_OPTIONS, FONT_OPTIONS, getLayoutControls, isBattleLayout, isWeeklyTitleLayout, isKillstreakOverlayLayout, isKingOverlayLayout, isSlideLinesOverlayLayout, isSlideLinesDuelLayout, isSlideLinesTourneyLayout, isSlideLinesFixedLayout, isTextBlockLayout, isPrizesGridLayout, isTop10Layout, PRIZE_LOGOS, getLayoutDefaultDuration, getLayoutDefaultFontSize, resolveLayoutIndex, getLayoutLabel, resolveBackgroundVideo } from "@/src/HelloWorld";
 import { defaultVideoProps, videoPropsSchema, FPS, DEFAULT_SCENE_DURATION, getSceneFrames, getTotalFrames } from "@/src/types";
 import type { VideoProps, Scene, ColorScheme } from "@/src/types";
 import { AUTOMATE_PARSERS } from "./automateParsers";
@@ -485,13 +485,13 @@ export default function Editor() {
     for (const scene of clipProps.scenes) {
       const sceneFrames = getSceneFrames(scene);
       const sceneSamples = Math.ceil((sceneFrames / FPS) * audioCtx.sampleRate);
-      if (scene.backgroundVideo?.muted === false && scene.backgroundVideo?.src) {
-        const src = scene.backgroundVideo.src;
-        const videoUrl = src.startsWith("blob:") || src.startsWith("data:") ? src : `${BASE}${src}`;
+      const bgVideo = resolveBackgroundVideo(scene);
+      if (bgVideo?.muted === false && bgVideo?.src) {
+        const videoUrl = bgVideo.src.startsWith("blob:") || bgVideo.src.startsWith("data:") ? bgVideo.src : `${BASE}${bgVideo.src}`;
         try {
           const resp = await fetch(videoUrl);
           const videoAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
-          const startFrom = scene.backgroundVideo.startFrom ?? 0;
+          const startFrom = bgVideo.startFrom ?? 0;
           const srcStart = Math.floor((startFrom / FPS) * audioCtx.sampleRate);
           const dstStart = Math.floor((clipSceneOffset / FPS) * audioCtx.sampleRate);
           for (let c = 0; c < 2; c++) {
@@ -765,13 +765,13 @@ export default function Editor() {
       for (const scene of props.scenes) {
         const sceneFrames = getSceneFrames(scene);
         const sceneSamples = Math.ceil((sceneFrames / FPS) * audioCtx.sampleRate);
-        if (scene.backgroundVideo?.muted === false && scene.backgroundVideo?.src) {
-          const src = scene.backgroundVideo.src;
-          const videoUrl = src.startsWith("blob:") || src.startsWith("data:") ? src : `${BASE}${src}`;
+        const bgVideo = resolveBackgroundVideo(scene);
+        if (bgVideo?.muted === false && bgVideo?.src) {
+          const videoUrl = bgVideo.src.startsWith("blob:") || bgVideo.src.startsWith("data:") ? bgVideo.src : `${BASE}${bgVideo.src}`;
           try {
             const resp = await fetch(videoUrl);
             const videoAudio = await audioCtx.decodeAudioData(await resp.arrayBuffer());
-            const startFrom = scene.backgroundVideo.startFrom ?? 0;
+            const startFrom = bgVideo.startFrom ?? 0;
             const srcStart = Math.floor((startFrom / FPS) * audioCtx.sampleRate);
             const dstStart = Math.floor((sceneOffset / FPS) * audioCtx.sampleRate);
             for (let c = 0; c < 2; c++) {

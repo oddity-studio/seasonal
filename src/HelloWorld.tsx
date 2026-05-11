@@ -72,6 +72,18 @@ export const getLayoutDefaultDuration = (index: number): number | undefined =>
 export const getLayoutDefaultFontSize = (index: number): number | undefined =>
   SCENE_LAYOUTS[index]?.textDefaults?.fontSize;
 
+export const resolveBackgroundVideo = (scene: Scene): Scene["backgroundVideo"] | undefined => {
+  const layoutIndex = resolveLayoutIndex(scene.layout, 0);
+  const layout = SCENE_LAYOUTS[layoutIndex % SCENE_LAYOUTS.length];
+  const merged = layout.backgroundVideo || scene.backgroundVideo
+    ? { ...(layout.backgroundVideo ?? {}), ...(scene.backgroundVideo ?? {}) } as Scene["backgroundVideo"]
+    : undefined;
+  if (merged && !merged.src && layout.backgroundVideo?.src) {
+    merged.src = layout.backgroundVideo.src;
+  }
+  return merged;
+};
+
 const FighterChar: React.FC<{
   placement: CharPlacement;
   frame: number;
