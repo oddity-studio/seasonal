@@ -73,6 +73,7 @@ export type SceneLayout = {
   backgroundVideo?: { src: string; scale?: number; blendMode?: string; startFrom?: number; muted?: boolean };
   backgroundImageSrc?: string;
   backgroundImageStatic?: { src: string; filter?: string };
+  spotlight?: boolean;
   textDefaults?: { x?: number; y?: number; fontSize?: number; rotateZ?: number; rotateX?: number; perspective?: number; mode?: TextMode };
   customStyle?: (colors: ColorScheme) => { background: string; textColor: string; textGlow?: string };
   titleCard?: boolean;

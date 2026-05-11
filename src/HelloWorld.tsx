@@ -1484,6 +1484,30 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         </>
       )}
 
+      {/* Spotlight cone */}
+      {resolvedLayout.spotlight && (() => {
+        const delay = fps;
+        const duration = fps;
+        const p = frame <= delay ? 0 : frame >= delay + duration ? 1 : (frame - delay) / duration;
+        const eased = 1 - Math.pow(1 - p, 3);
+        const rotation = eased * -50;
+        return (
+          <div style={{
+            position: "absolute",
+            top: "-5vh",
+            left: "-2vw",
+            width: "300vmax",
+            height: "300vmax",
+            transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+            transformOrigin: "center",
+            background: "conic-gradient(from 172.5deg, transparent 0deg, rgba(255,255,255,0.15) 2deg, rgba(255,255,255,0.35) 7.5deg, rgba(255,255,255,0.15) 13deg, transparent 15deg)",
+            maskImage: "radial-gradient(circle, white 0%, transparent 50%)",
+            WebkitMaskImage: "radial-gradient(circle, white 0%, transparent 50%)",
+            pointerEvents: "none",
+          }} />
+        );
+      })()}
+
       {/* Background image layer (e.g. brackets) */}
       {resolvedLayout.backgroundImageSrc && (
         <BracketsLayer src={resolvedLayout.backgroundImageSrc} sceneDuration={dur} />
