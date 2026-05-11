@@ -1649,14 +1649,15 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                 const ease = 1 - Math.pow(1 - p, 3);
 
                 if (li === 0) {
-                  return { opacity: ease, transform: `translateX(${(1 - ease) * -60}%)` };
+                  return { opacity: ease, transform: `translateX(${(1 - ease) * -60}%)`, textShadow: textGlow };
                 } else if (li === 1) {
-                  return { opacity: ease, transform: `translateX(${(1 - ease) * 60}%)` };
+                  return { opacity: ease, transform: `translateX(${(1 - ease) * 60}%)`, textShadow: textGlow };
                 } else {
                   const flicker = ease < 0.3 ? (Math.sin(tf * 2) > 0 ? 0.3 : 0.8) : 1;
                   return {
                     opacity: ease * flicker,
                     transform: "translateX(0)",
+                    textShadow: textGlow,
                   };
                 }
               });
