@@ -1680,7 +1680,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         if (resolvedLayout.textBlock) {
           const blockOpacity = interpolate(enter, [0, 1], [0, 1], { extrapolateRight: "clamp" });
           const lines = (text || "").split("\n");
-          const sizeScale = [1, 1.1, 0.5];
+          const sizeScale = [1, 1.3, 0.5];
           return (
             <div
               style={{
@@ -1700,8 +1700,8 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     fontWeight: fontConfig.fontWeight ?? 700,
                     fontStyle: fontConfig.fontStyle ?? "normal",
                     color: textColor,
-                    margin: "0.15em 0",
-                    marginTop: li === 0 ? "10vh" : "0.15em",
+                    margin: 0,
+                    marginTop: li === 0 ? "10vh" : "-0.1em",
                     lineHeight: 1.1,
                     letterSpacing: 8,
                     textTransform: "uppercase",
