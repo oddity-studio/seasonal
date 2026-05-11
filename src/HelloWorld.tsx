@@ -1536,7 +1536,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
             {resolvedLayout.beltStomp && (
-              <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
+              <div style={{ position: "relative", top: 150, width: "100%", height: "100%" }}>
+                <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
+              </div>
             )}
 
             {resolvedLayout.beltStomp && (() => {
