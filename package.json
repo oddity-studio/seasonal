@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/gen-portrait-index.mjs && next dev",
+    "build": "node scripts/gen-portrait-index.mjs && next build",
     "start": "next start",
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts HelloWorld out/video.mp4",
