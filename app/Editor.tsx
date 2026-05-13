@@ -1595,7 +1595,8 @@ export default function Editor() {
                         updateScene(i, "text", "3|Player One");
                       }
                       if (isTextBlockLayout(layoutIdx) && !scene.text) {
-                        updateScene(i, "text", "SEASON 10\nCHAMPION\nPLAYER ONE");
+                        const lbl = getLayoutLabel(layoutIdx);
+                        updateScene(i, "text", lbl === "Profile" ? "USER\nPROFILE\nPLAYER ONE" : "SEASON 10\nCHAMPION\nPLAYER ONE");
                       }
                       if (isSlideLinesOverlayLayout(layoutIdx) && !scene.text) {
                         updateScene(
@@ -2122,7 +2123,7 @@ export default function Editor() {
                           } else if (isKingOverlayLayout(opt.index)) {
                             defaultText = "3|Player One";
                           } else if (isTextBlockLayout(opt.index)) {
-                            defaultText = "SEASON 10\nCHAMPION\nPLAYER ONE";
+                            defaultText = opt.label === "Profile" ? "USER\nPROFILE\nPLAYER ONE" : "SEASON 10\nCHAMPION\nPLAYER ONE";
                           }
                           setProps((prev) => ({
                             ...prev,

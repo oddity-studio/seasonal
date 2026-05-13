@@ -14,6 +14,7 @@ import Tourney1 from "./Tourney1";
 import TourneyBranch from "./TourneyBranch";
 import BeltStomp from "./BeltStomp";
 import Winner from "./Winner";
+import Profile from "./Profile";
 import S12Scene4 from "./S12Scene4";
 import S12Scene5 from "./S12Scene5";
 import S12Scene6 from "./S12Scene6";
@@ -47,6 +48,7 @@ export const SCENE_LAYOUTS: SceneLayout[] = [
   TourneyBranch,
   BeltStomp,
   Winner,
+  Profile,
   S12Scene4,
   S12Scene5,
   S12Scene6,
