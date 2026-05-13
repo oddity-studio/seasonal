@@ -1554,10 +1554,10 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
             {portrait && (() => {
-              const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
-              if (frame < raysEnd) return null;
+              const portraitStart = fps;
+              if (frame < portraitStart) return null;
               const fadeDur = Math.round(0.5 * fps);
-              const p = Math.min((frame - raysEnd) / fadeDur, 1);
+              const p = Math.min((frame - portraitStart) / fadeDur, 1);
               return (
                 <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none", opacity: p }}>
                   <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
@@ -1571,7 +1571,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             )}
 
             {resolvedLayout.spotlight && (() => {
-              const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
+              const raysStart = fps + Math.round(0.5 * fps);
               const raysDuration = Math.round(1.2 * fps);
               const show = frame >= raysStart && frame < raysStart + raysDuration;
               const hx = colors.highlight.replace("#", "");
@@ -1612,7 +1612,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             })()}
 
             {resolvedLayout.spotlight && (() => {
-              const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
+              const raysStart = fps + Math.round(0.5 * fps);
               if (frame < raysStart) return null;
               const f = frame - raysStart;
               const step = Math.round(0.1 * fps) || 1;
@@ -1661,7 +1661,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             })()}
 
             {resolvedLayout.textBlock && (() => {
-              const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
+              const raysStart = fps + Math.round(0.5 * fps);
               const step = Math.round(0.1 * fps) || 1;
               const textStart = raysStart + step;
               if (frame < textStart) return null;
