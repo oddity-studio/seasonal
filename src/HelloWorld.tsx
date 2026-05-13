@@ -1570,7 +1570,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               </div>
             )}
 
-            {resolvedLayout.beltStomp && (() => {
+            {resolvedLayout.spotlight && (() => {
               const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
               const raysDuration = Math.round(1.2 * fps);
               const show = frame >= raysStart && frame < raysStart + raysDuration;
@@ -1611,7 +1611,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
               ) : null;
             })()}
 
-            {resolvedLayout.beltStomp && (() => {
+            {resolvedLayout.spotlight && (() => {
               const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
               if (frame < raysEnd) return null;
               const f = frame - raysEnd;
