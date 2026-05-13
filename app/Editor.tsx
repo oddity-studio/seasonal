@@ -243,6 +243,7 @@ export default function Editor() {
   const playerRef = useRef<PlayerRef>(null);
   const loadInputRef = useRef<HTMLInputElement>(null);
   const [presetNames, setPresetNames] = useState<string[]>([]);
+  const [portraitNames, setPortraitNames] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [fetching, setFetching] = useState(false);
   const [automateText, setAutomateText] = useState("");
@@ -398,6 +399,10 @@ export default function Editor() {
     fetch(`${BASE}/picker/presets/index.json`)
       .then((r) => r.json())
       .then((names: string[]) => setPresetNames(names))
+      .catch(() => {});
+    fetch(`${BASE}/picker/Portraits/index.json`)
+      .then((r) => r.json())
+      .then((names: string[]) => setPortraitNames(names))
       .catch(() => {});
   }, []);
 
@@ -1970,7 +1975,6 @@ export default function Editor() {
                       const line2 = parts[1] || "";
                       const line3 = parts[2] || "";
                       const save = (l1: string, l2: string, l3: string) => updateScene(i, "text", `${l1}\n${l2}\n${l3}`);
-                      const portraits = ["Ari.webp", "Cannaprize.webp", "Chafra.webp", "Dink-the-Poof.webp", "Espin.webp", "Sik-trakz.webp"];
                       return (
                         <span style={{ display: "flex", flex: 1, gap: 4, minWidth: 0 }}>
                           <input style={{ ...styles.sceneInput, flex: 1, minWidth: 0 }} value={line1} onChange={(e) => save(e.target.value, line2, line3)} placeholder="Line 1" />
@@ -1982,8 +1986,8 @@ export default function Editor() {
                             onChange={(e) => updateScene(i, "portrait", e.target.value)}
                           >
                             <option value="">No portrait</option>
-                            {portraits.map((p) => (
-                              <option key={p} value={p}>{p.replace(".webp", "")}</option>
+                            {portraitNames.map((p) => (
+                              <option key={p} value={p}>{p.replace(/\.\w+$/, "")}</option>
                             ))}
                           </select>
                         </span>
