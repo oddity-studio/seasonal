@@ -1553,27 +1553,28 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
         const winnerShift = "80vh";
         return (
           <div style={{ position: "absolute", inset: 0, top: winnerShift, pointerEvents: "none" }}>
-            {portrait && (() => {
-              const portraitStart = fps;
-              if (frame < portraitStart) return null;
-              const fadeDur = Math.round(0.5 * fps);
-              const p = Math.min((frame - portraitStart) / fadeDur, 1);
-              return (
-                <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none", opacity: p }}>
-                  <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
-                </div>
-              );
-            })()}
             {resolvedLayout.beltStomp && (
               <div style={{ position: "relative", top: 100, width: "100%", height: "100%", zIndex: 2 }}>
                 <BeltStompLayer src={resolvedLayout.beltStomp.src} sceneDuration={dur} delayFrames={fps} />
               </div>
             )}
 
-            {resolvedLayout.spotlight && (() => {
-              const raysStart = fps + Math.round(0.5 * fps);
+            {/* Sequenced layers: boxes → text → portrait → rays */}
+            {(() => {
+              const spotlightsEnd = Math.round(1.5 * fps);
+              const step = Math.round(0.1 * fps) || 1;
+              const boxesStart = spotlightsEnd;
+              const boxesDone = boxesStart + step * 7;
+              const textStart = boxesDone + Math.round(0.05 * fps);
+              const lineDelay = Math.round(0.3 * fps);
+              const slideDur = Math.round(0.4 * fps);
+              const textDone = textStart + lineDelay * 2 + slideDur;
+              const portraitStart = textDone;
+              const portraitFadeDur = Math.round(0.5 * fps);
+              const portraitDone = portraitStart + portraitFadeDur;
+              const raysStart = portraitDone;
               const raysDuration = Math.round(1.2 * fps);
-              const show = frame >= raysStart && frame < raysStart + raysDuration;
+
               const hx = colors.highlight.replace("#", "");
               const rr = parseInt(hx.substring(0, 2), 16) / 255;
               const gg = parseInt(hx.substring(2, 4), 16) / 255;
@@ -1587,109 +1588,121 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                      : ((rr - gg) / d + 4) * 60;
               }
               const hueShift = hue - 40;
-              return show ? (
-                <div style={{
-                  position: "absolute",
-                  inset: 0,
-                  top: 80,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 9,
-                  pointerEvents: "none",
-                }}>
-                  <Img
-                    src={`${BASE}/rays.webp`}
-                    style={{
-                      width: "300%",
-                      height: "300%",
-                      objectFit: "cover",
-                      filter: `hue-rotate(${hueShift}deg)`,
-                    }}
-                  />
-                </div>
-              ) : null;
-            })()}
 
-            {resolvedLayout.spotlight && (() => {
-              const raysStart = fps + Math.round(0.5 * fps);
-              if (frame < raysStart) return null;
-              const f = frame - raysStart;
-              const step = Math.round(0.1 * fps) || 1;
-              const showOrange = f < step;
-              const showWhite = f >= step && f < step * 2;
-              const showLogoBig = f >= step * 2 && f < step * 3;
-              const showLogoNormal = f >= step * 3 && f < step * 4;
-              const showLogoStay = f >= step * 5;
-              const showBlack = f >= step * 6;
-              const moveStart = step * 5;
-              const logoY = f >= moveStart ? -10 : 0;
-              const centerStyle: React.CSSProperties = {
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              };
               return (
-                <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
-                  {showOrange && (
-                    <svg viewBox="0 0 482 256" style={{ ...centerStyle, width: "70%", height: "auto" }}>
-                      <path fillRule="evenodd" fill={colors.highlight} d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
-                    </svg>
-                  )}
-                  {showWhite && (
-                    <svg viewBox="0 0 482 117" style={{ ...centerStyle, width: "70%", height: "auto" }}>
-                      <path fillRule="evenodd" fill="rgb(255, 255, 255)" d="M0.386,68.358 L481.787,0.702 L481.787,48.763 L0.386,116.419 Z" />
-                    </svg>
-                  )}
-                  {showLogoBig && (
-                    <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "39%", height: "auto" }} />
-                  )}
-                  {showLogoNormal && (
-                    <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
-                  )}
-                  {showBlack && (
-                    <svg viewBox="0 0 482 320" style={{ ...centerStyle, width: "70%", height: "auto", top: "calc(50% + 5vh)" }}>
-                      <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,251.763 L0.386,319.419 Z" />
-                    </svg>
-                  )}
-                  {showLogoStay && (
-                    <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto", top: `calc(50% + ${logoY}vh)` }} />
-                  )}
-                </div>
-              );
-            })()}
+                <>
+                  {/* Rays — behind portrait (zIndex 0) */}
+                  {resolvedLayout.spotlight && (() => {
+                    const show = frame >= raysStart && frame < raysStart + raysDuration;
+                    return show ? (
+                      <div style={{
+                        position: "absolute",
+                        inset: 0,
+                        top: 80,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 0,
+                        pointerEvents: "none",
+                      }}>
+                        <Img
+                          src={`${BASE}/rays.webp`}
+                          style={{
+                            width: "300%",
+                            height: "300%",
+                            objectFit: "cover",
+                            filter: `hue-rotate(${hueShift}deg)`,
+                          }}
+                        />
+                      </div>
+                    ) : null;
+                  })()}
 
-            {resolvedLayout.textBlock && (() => {
-              const raysStart = fps + Math.round(0.5 * fps);
-              const step = Math.round(0.1 * fps) || 1;
-              const textStart = raysStart + step;
-              if (frame < textStart) return null;
-              const tf = frame - textStart;
-              const lineDelay = Math.round(0.3 * fps);
-              const slideDur = Math.round(0.4 * fps);
-              const lines = (text || "").split("\n");
-              const sizeScale = [1, 1.3, 0.5];
-              const a = { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
+                  {/* Portrait — after text (zIndex 1) */}
+                  {portrait && (() => {
+                    if (frame < portraitStart) return null;
+                    const p = Math.min((frame - portraitStart) / portraitFadeDur, 1);
+                    return (
+                      <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none", opacity: p }}>
+                        <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
+                      </div>
+                    );
+                  })()}
 
-              const lineStyles = lines.map((_, li) => {
-                const ld = li * lineDelay;
-                const p = tf <= ld ? 0 : tf >= ld + slideDur ? 1 : (tf - ld) / slideDur;
-                const ease = 1 - Math.pow(1 - p, 3);
+                  {/* Boxes — right after spotlights (zIndex 10) */}
+                  {resolvedLayout.spotlight && (() => {
+                    if (frame < boxesStart) return null;
+                    const f = frame - boxesStart;
+                    const showOrange = f < step;
+                    const showWhite = f >= step && f < step * 2;
+                    const showLogoBig = f >= step * 2 && f < step * 3;
+                    const showLogoNormal = f >= step * 3 && f < step * 4;
+                    const showLogoStay = f >= step * 5;
+                    const showBlack = f >= step * 6;
+                    const moveStart = step * 5;
+                    const logoY = f >= moveStart ? -10 : 0;
+                    const centerStyle: React.CSSProperties = {
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    };
+                    return (
+                      <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
+                        {showOrange && (
+                          <svg viewBox="0 0 482 256" style={{ ...centerStyle, width: "70%", height: "auto" }}>
+                            <path fillRule="evenodd" fill={colors.highlight} d="M0.386,68.358 L481.787,0.702 L481.787,187.763 L0.386,255.419 Z" />
+                          </svg>
+                        )}
+                        {showWhite && (
+                          <svg viewBox="0 0 482 117" style={{ ...centerStyle, width: "70%", height: "auto" }}>
+                            <path fillRule="evenodd" fill="rgb(255, 255, 255)" d="M0.386,68.358 L481.787,0.702 L481.787,48.763 L0.386,116.419 Z" />
+                          </svg>
+                        )}
+                        {showLogoBig && (
+                          <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "39%", height: "auto" }} />
+                        )}
+                        {showLogoNormal && (
+                          <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto" }} />
+                        )}
+                        {showBlack && (
+                          <svg viewBox="0 0 482 320" style={{ ...centerStyle, width: "70%", height: "auto", top: "calc(50% + 5vh)" }}>
+                            <path fillRule="evenodd" fill="rgb(8, 8, 8)" opacity="0.949" d="M0.386,68.358 L481.787,0.702 L481.787,251.763 L0.386,319.419 Z" />
+                          </svg>
+                        )}
+                        {showLogoStay && (
+                          <Img src={`${BASE}/Audeobox_text.png`} style={{ ...centerStyle, width: "30%", height: "auto", top: `calc(50% + ${logoY}vh)` }} />
+                        )}
+                      </div>
+                    );
+                  })()}
 
-                if (li === 0) {
-                  return { opacity: ease, transform: `translateX(${(1 - ease) * -60}%)`, textShadow: textGlow };
-                } else if (li === 1) {
-                  return { opacity: ease, transform: `translateX(${(1 - ease) * 60}%)`, textShadow: textGlow };
-                } else {
-                  const flicker = ease < 0.3 ? (Math.sin(tf * 2) > 0 ? 0.3 : 0.8) : 1;
-                  return {
-                    opacity: ease * flicker,
-                    transform: "translateX(0)",
-                    textShadow: textGlow,
-                  };
-                }
-              });
+                  {/* Text — after boxes (zIndex 12) */}
+                  {resolvedLayout.textBlock && (() => {
+                    if (frame < textStart) return null;
+                    const tf = frame - textStart;
+                    const lines = (text || "").split("\n");
+                    const sizeScale = [1, 1.3, 0.5];
+                    const a = { z: rZ ?? td?.rotateZ ?? 0, x: rX ?? td?.rotateX ?? 0 };
+
+                    const lineStyles = lines.map((_, li) => {
+                      const ld = li * lineDelay;
+                      const p = tf <= ld ? 0 : tf >= ld + slideDur ? 1 : (tf - ld) / slideDur;
+                      const ease = 1 - Math.pow(1 - p, 3);
+
+                      if (li === 0) {
+                        return { opacity: ease, transform: `translateX(${(1 - ease) * -60}%)`, textShadow: textGlow };
+                      } else if (li === 1) {
+                        return { opacity: ease, transform: `translateX(${(1 - ease) * 60}%)`, textShadow: textGlow };
+                      } else {
+                        const flicker = ease < 0.3 ? (Math.sin(tf * 2) > 0 ? 0.3 : 0.8) : 1;
+                        return {
+                          opacity: ease * flicker,
+                          transform: "translateX(0)",
+                          textShadow: textGlow,
+                        };
+                      }
+                    });
 
               return (
                 <div
@@ -1732,6 +1745,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     ))}
                   </div>
                 </div>
+              );
+            })()}
+                </>
               );
             })()}
           </div>
