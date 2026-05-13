@@ -1612,9 +1612,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             })()}
 
             {resolvedLayout.spotlight && (() => {
-              const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
-              if (frame < raysEnd) return null;
-              const f = frame - raysEnd;
+              const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
+              if (frame < raysStart) return null;
+              const f = frame - raysStart;
               const step = Math.round(0.1 * fps) || 1;
               const showOrange = f < step;
               const showWhite = f >= step && f < step * 2;
@@ -1661,10 +1661,9 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
             })()}
 
             {resolvedLayout.textBlock && (() => {
-              const raysEnd = fps + 20 + 15 - Math.round(0.05 * fps) + Math.round(1.2 * fps);
+              const raysStart = fps + 20 + 15 - Math.round(0.05 * fps);
               const step = Math.round(0.1 * fps) || 1;
-              const blackAppears = raysEnd + step * 6;
-              const textStart = blackAppears + Math.round(0.05 * fps);
+              const textStart = raysStart + step;
               if (frame < textStart) return null;
               const tf = frame - textStart;
               const lineDelay = Math.round(0.3 * fps);
