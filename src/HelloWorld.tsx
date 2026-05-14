@@ -1624,7 +1624,7 @@ const SceneCard: React.FC<{ text: string; index: number; layoutIndex: number; co
                     const p = Math.min((frame - portraitStart) / portraitFadeDur, 1);
                     return (
                       <div style={{ position: "absolute", left: 0, right: 0, bottom: "calc(50% - 100px)", display: "flex", justifyContent: "center", alignItems: "flex-end", zIndex: 1, pointerEvents: "none", opacity: p }}>
-                        <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ width: "100%", height: "auto", objectFit: "cover" }} />
+                        <Img src={`${BASE}/picker/Portraits/${portrait}`} style={{ height: "136vh", width: "auto", objectFit: "contain" }} />
                       </div>
                     );
                   })()}
