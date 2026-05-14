@@ -237,6 +237,7 @@ const IconUnmuted = () => (
 export default function Editor() {
   const [props, setProps] = useState<VideoProps>(defaultVideoProps);
   const [rendering, setRendering] = useState(false);
+  const [exportRes, setExportRes] = useState<"720p" | "1080p">("720p");
   const [renderProgress, setRenderProgress] = useState(0);
   const [recordingMode, setRecordingMode] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
@@ -474,6 +475,8 @@ export default function Editor() {
     onProgress: (pct: number) => void,
     audioStartFrame: number = 0,
   ): Promise<Blob> => {
+    const outW = exportRes === "1080p" ? 1080 : 720;
+    const outH = exportRes === "1080p" ? 1920 : 1280;
     const playerWrap = document.querySelector(".player-wrap") as HTMLElement;
     if (!playerWrap) throw new Error("Player element not found");
 
@@ -560,7 +563,7 @@ export default function Editor() {
     const muxer = new Muxer({
       target,
       firstTimestampBehavior: "offset",
-      video: { codec: "avc", width: 720, height: 1280 },
+      video: { codec: "avc", width: outW, height: outH },
       audio: {
         codec: "aac",
         sampleRate: audioBuf.sampleRate,
@@ -575,8 +578,8 @@ export default function Editor() {
     });
     videoEncoder.configure({
       codec: "avc1.640034",
-      width: 720,
-      height: 1280,
+      width: outW,
+      height: outH,
       bitrate: 10_000_000,
       framerate: FPS,
       hardwareAcceleration: hwPref,
@@ -612,7 +615,7 @@ export default function Editor() {
     const sw = Math.round(rect.width * dpr);
     const sh = Math.round(rect.height * dpr);
 
-    const offscreen = new OffscreenCanvas(720, 1280);
+    const offscreen = new OffscreenCanvas(outW, outH);
     const offCtx = offscreen.getContext("2d")!;
 
     playerRef.current?.seekTo(0);
@@ -632,8 +635,8 @@ export default function Editor() {
         frame.close();
         break;
       }
-      if (cropSuccess) offCtx.drawImage(frame, 0, 0, 720, 1280);
-      else offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, 720, 1280);
+      if (cropSuccess) offCtx.drawImage(frame, 0, 0, outW, outH);
+      else offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, outW, outH);
       const outputFrame = new VideoFrame(offscreen, { timestamp: frame.timestamp });
       videoEncoder.encode(outputFrame, { keyFrame: frameCount % 120 === 0 });
       outputFrame.close();
@@ -675,7 +678,7 @@ export default function Editor() {
 
     onProgress(100);
     return new Blob([target.buffer], { type: "video/mp4" });
-  }, []);
+  }, [exportRes]);
 
   const handleDownloadPerScene = useCallback(async () => {
     if (!navigator.mediaDevices?.getDisplayMedia || typeof VideoEncoder === "undefined") {
@@ -768,6 +771,8 @@ export default function Editor() {
       throw err;
     }
 
+    const outW = exportRes === "1080p" ? 1080 : 720;
+    const outH = exportRes === "1080p" ? 1920 : 1280;
     const totalFrames = getTotalFrames(props);
     const durationMs = (totalFrames / FPS) * 1000;
 
@@ -864,7 +869,7 @@ export default function Editor() {
       const muxer = new Muxer({
         target,
         firstTimestampBehavior: "offset",
-        video: { codec: "avc", width: 720, height: 1280 },
+        video: { codec: "avc", width: outW, height: outH },
         audio: {
           codec: "aac",
           sampleRate: audioBuf.sampleRate,
@@ -880,8 +885,8 @@ export default function Editor() {
       });
       videoEncoder.configure({
         codec: "avc1.640034",
-        width: 720,
-        height: 1280,
+        width: outW,
+        height: outH,
         bitrate: 10_000_000,
         framerate: FPS,
         hardwareAcceleration: hwPref,
@@ -923,7 +928,7 @@ export default function Editor() {
       const sh = Math.round(rect.height * dpr);
 
       // Offscreen canvas for frame resizing
-      const offscreen = new OffscreenCanvas(720, 1280);
+      const offscreen = new OffscreenCanvas(outW, outH);
       const offCtx = offscreen.getContext("2d")!;
 
       // Start playback
@@ -949,9 +954,9 @@ export default function Editor() {
 
         // Draw frame to offscreen canvas (crop if needed, always resize to 1080x1920)
         if (cropSuccess) {
-          offCtx.drawImage(frame, 0, 0, 720, 1280);
+          offCtx.drawImage(frame, 0, 0, outW, outH);
         } else {
-          offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, 720, 1280);
+          offCtx.drawImage(frame, sx, sy, sw, sh, 0, 0, outW, outH);
         }
 
         const outputFrame = new VideoFrame(offscreen, {
@@ -1032,7 +1037,7 @@ export default function Editor() {
       setRecordingMode(false);
       setRenderProgress(0);
     }
-  }, [props]);
+  }, [props, exportRes]);
 
   const updateScene = (
     index: number,
@@ -1269,6 +1274,16 @@ export default function Editor() {
               >
                 {isMuted ? <IconMuted /> : <IconUnmuted />}
               </button>
+            </div>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", margin: "8px 0 4px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "#e2e8f0", cursor: "pointer" }}>
+                <input type="radio" name="exportRes" checked={exportRes === "720p"} onChange={() => setExportRes("720p")} style={{ accentColor: "#3b82f6" }} />
+                720p
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "#e2e8f0", cursor: "pointer" }}>
+                <input type="radio" name="exportRes" checked={exportRes === "1080p"} onChange={() => setExportRes("1080p")} style={{ accentColor: "#3b82f6" }} />
+                1080p
+              </label>
             </div>
             <button
               style={{
